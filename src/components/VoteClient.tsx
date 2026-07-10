@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { BarChart3, ChevronRight, Share2, HelpCircle, Trophy, RefreshCw } from 'lucide-react';
+import { BarChart3, ChevronRight, Share2, Trophy, RefreshCw, Menu, X, Mail } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
@@ -46,6 +46,7 @@ export default function VoteClient({
   const [showShareSheet, setShowShareSheet] = useState(false);
   const [redirecting, setRedirecting] = useState(false);
   const [noMoreQuestions, setNoMoreQuestions] = useState(false);
+  const [showDrawer, setShowDrawer] = useState(false);
 
   // 1. Initial configuration check (Demographics & Voted History)
   useEffect(() => {
@@ -185,6 +186,24 @@ export default function VoteClient({
   if (noMoreQuestions) {
     return (
       <div className="relative flex h-[100dvh] w-full max-w-md mx-auto flex-col justify-between overflow-hidden bg-zinc-950 text-white font-sans">
+        {/* New Top Header Bar */}
+        <header className="w-full h-14 shrink-0 flex items-center justify-between px-4 border-b border-zinc-900 bg-zinc-950/80 backdrop-blur-md sticky top-0 z-40">
+          <Link href="/" className="relative h-7 w-20 flex items-center">
+            <img
+              src="/logo.png?v=2"
+              alt="UPick Logo"
+              className="max-h-full object-contain"
+            />
+          </Link>
+          <button
+            onClick={() => setShowDrawer(true)}
+            className="p-2 rounded-xl text-neutral-400 hover:text-white hover:bg-zinc-900 transition-all"
+            title="메뉴"
+          >
+            <Menu className="h-6 w-6" />
+          </button>
+        </header>
+
         {/* Content area */}
         <div className="flex-1 flex flex-col justify-center items-center px-6 text-center py-6">
           <motion.div
@@ -212,11 +231,9 @@ export default function VoteClient({
           </motion.div>
         </div>
 
-        {/* Terms and Privacy policy */}
-        <div className="text-[10px] text-center text-zinc-650 flex justify-center gap-3 py-2.5 border-t border-zinc-900/40 shrink-0">
-          <Link href="/privacy" className="hover:text-zinc-400 hover:underline">개인정보처리방침</Link>
-          <span>|</span>
-          <Link href="/terms" className="hover:text-zinc-400 hover:underline">이용약관</Link>
+        {/* Copyright Footer */}
+        <div className="text-[10px] text-center text-zinc-650 py-3 shrink-0">
+          © 2026 UPick. All rights reserved.
         </div>
 
         {/* Bottom Ad */}
@@ -229,6 +246,72 @@ export default function VoteClient({
                data-ad-format="auto"
                data-full-width-responsive="true"></ins>
         </div>
+
+        {/* Sidebar Drawer Menu for noMoreQuestions state */}
+        <AnimatePresence>
+          {showDrawer && (
+            <div className="fixed inset-0 z-50 flex">
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setShowDrawer(false)}
+                className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+              />
+              <motion.div
+                initial={{ x: '-100%' }}
+                animate={{ x: 0 }}
+                exit={{ x: '-100%' }}
+                transition={{ type: 'spring', damping: 25, stiffness: 220 }}
+                className="relative z-10 w-4/5 max-w-xs h-full bg-zinc-950 border-r border-zinc-900 p-6 flex flex-col justify-between text-white"
+              >
+                <div className="space-y-8">
+                  <div className="flex items-center justify-between border-b border-zinc-900 pb-4">
+                    <Link href="/" onClick={() => setShowDrawer(false)} className="relative h-7 w-20 flex items-center">
+                      <img
+                        src="/logo.png?v=2"
+                        alt="UPick Logo"
+                        className="max-h-full object-contain"
+                      />
+                    </Link>
+                    <button
+                      onClick={() => setShowDrawer(false)}
+                      className="p-1.5 rounded-full bg-zinc-900 text-neutral-400 hover:text-white hover:bg-zinc-800 transition"
+                    >
+                      <X className="h-5 w-5" />
+                    </button>
+                  </div>
+                  <nav className="flex flex-col gap-3">
+                    <Link
+                      href="/terms"
+                      onClick={() => setShowDrawer(false)}
+                      className="flex items-center gap-3 rounded-2xl bg-zinc-900/50 hover:bg-zinc-900 border border-zinc-900 p-4 text-sm font-extrabold text-neutral-200 transition-all"
+                    >
+                      <span>이용약관</span>
+                    </Link>
+                    <Link
+                      href="/privacy"
+                      onClick={() => setShowDrawer(false)}
+                      className="flex items-center gap-3 rounded-2xl bg-zinc-900/50 hover:bg-zinc-900 border border-zinc-900 p-4 text-sm font-extrabold text-neutral-200 transition-all"
+                    >
+                      <span>개인정보처리방침</span>
+                    </Link>
+                    <a
+                      href="mailto:nocomenty7@gmail.com"
+                      onClick={() => setShowDrawer(false)}
+                      className="flex items-center gap-3 rounded-2xl bg-zinc-900/50 hover:bg-zinc-900 border border-zinc-900 p-4 text-sm font-extrabold text-neutral-200 transition-all"
+                    >
+                      <span>문의하기</span>
+                    </a>
+                  </nav>
+                </div>
+                <div className="text-[10px] text-neutral-600 leading-normal text-center border-t border-zinc-900/40 pt-4">
+                  <p>© 2026 UPick. All rights reserved.</p>
+                </div>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
       </div>
     );
   }
@@ -255,15 +338,24 @@ export default function VoteClient({
   }
 
   return (
-    <div className="relative flex h-[100dvh] w-full max-w-md mx-auto flex-col justify-between overflow-hidden bg-zinc-950 text-white font-sans select-none">
+    <div className="relative flex h-[100dvh] w-full max-w-md mx-auto flex-col justify-between overflow-hidden bg-zinc-950 text-white font-sans select-none animate-fade-in">
       
-      {/* 2. Top Navigation Bar */}
-      <header className="flex items-center justify-center py-4 shrink-0 bg-zinc-950/20">
-        {question.category && (
-          <span className="inline-block rounded-full bg-zinc-900 px-3 py-1 text-xs font-bold text-zinc-400 tracking-widest uppercase border border-zinc-850">
-            {question.category}
-          </span>
-        )}
+      {/* 1. Global Header Bar */}
+      <header className="w-full h-14 shrink-0 flex items-center justify-between px-4 border-b border-zinc-900 bg-zinc-950/80 backdrop-blur-md sticky top-0 z-40">
+        <Link href="/" className="relative h-7 w-20 flex items-center">
+          <img
+            src="/logo.png?v=2"
+            alt="UPick Logo"
+            className="max-h-full object-contain"
+          />
+        </Link>
+        <button
+          onClick={() => setShowDrawer(true)}
+          className="p-2 rounded-xl text-neutral-400 hover:text-white hover:bg-zinc-900 transition-all"
+          title="메뉴"
+        >
+          <Menu className="h-6 w-6" />
+        </button>
       </header>
 
       {/* 3. Main Dynamic Content Area (Expanded to occupy maximal vertical height) */}
@@ -272,6 +364,25 @@ export default function VoteClient({
         {/* Game Capture Area (Captured for Image Export) */}
         <div id="game-capture-area" className="flex flex-col bg-zinc-950 p-4 rounded-3xl border border-zinc-900 gap-4 flex-1 min-h-0">
           
+          {/* Header Row: Category Badge (Left) and Share Button (Right) */}
+          <div className="flex items-center justify-between shrink-0">
+            {question.category ? (
+              <span className="inline-block rounded-full bg-zinc-900 px-3 py-1.5 text-xs font-bold text-zinc-400 tracking-wide uppercase border border-zinc-850">
+                {question.category}
+              </span>
+            ) : (
+              <div /> // Spacer
+            )}
+
+            <button
+              onClick={() => setShowShareSheet(true)}
+              className="rounded-xl border border-zinc-800 bg-zinc-900/30 p-2.5 hover:bg-zinc-900 hover:text-white transition text-zinc-400 shadow-sm"
+              title="공유하기"
+            >
+              <Share2 className="h-4.5 w-4.5" />
+            </button>
+          </div>
+
           {/* Question Title Header - Large & Bold inside capture block */}
           <div className="text-center py-1 shrink-0">
             <h1 className="text-2xl md:text-3xl font-extrabold leading-snug text-neutral-100 tracking-tight whitespace-pre-line px-2">
@@ -419,56 +530,39 @@ export default function VoteClient({
           </div>
         </div>
 
-        {/* Action Controls & Navigation (Post-Vote) */}
-        <div className="h-16 shrink-0 flex items-center justify-between gap-3 mt-3">
-          {hasVoted ? (
-            <>
-              <motion.button
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                onClick={() => setShowStats(true)}
-                className="flex items-center justify-center gap-1.5 rounded-xl border border-zinc-800 bg-zinc-900/50 hover:bg-zinc-900 px-5 h-12 text-base font-bold text-neutral-200 transition-all flex-1 shadow-md"
-              >
-                <BarChart3 className="h-4.5 w-4.5 text-neutral-400" /> 통계 보기
-              </motion.button>
-              
-              <motion.button
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                onClick={handleNextQuestion}
-                disabled={redirecting}
-                className="flex items-center justify-center gap-1.5 rounded-xl bg-white hover:bg-neutral-200 text-zinc-950 font-extrabold px-6 h-12 text-base transition-all flex-[1.4] shadow-lg disabled:opacity-50"
-              >
-                {redirecting ? (
-                  <span className="h-5 w-5 animate-spin rounded-full border-2 border-zinc-950 border-t-transparent" />
-                ) : (
-                  <>다음 질문 <ChevronRight className="h-5 w-5" /></>
-                )}
-              </motion.button>
-            </>
-          ) : (
-            <div className="w-full flex justify-center text-xs text-zinc-500 gap-1.5 items-center font-medium">
-              <HelpCircle className="h-3.5 w-3.5 text-zinc-600" />
-              <span>선택지를 누르면 결과와 통계가 공개됩니다.</span>
-            </div>
-          )}
-          
-          <button
-            onClick={() => setShowShareSheet(true)}
-            className="rounded-xl border border-zinc-800 bg-zinc-900/30 p-3 h-12 w-12 flex items-center justify-center hover:bg-zinc-900 hover:text-white transition text-zinc-400 shadow-md shrink-0"
-            title="공유하기"
-          >
-            <Share2 className="h-5 w-5" />
-          </button>
-        </div>
+        {/* Action Controls & Navigation (Post-Vote only) */}
+        {hasVoted && (
+          <div className="h-16 shrink-0 flex items-center justify-between gap-3 mt-3">
+            <motion.button
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              onClick={() => setShowStats(true)}
+              className="flex items-center justify-center gap-1.5 rounded-xl border border-zinc-800 bg-zinc-900/50 hover:bg-zinc-900 px-5 h-12 text-base font-bold text-neutral-200 transition-all flex-1 shadow-md"
+            >
+              <BarChart3 className="h-4.5 w-4.5 text-neutral-400" /> 통계 보기
+            </motion.button>
+            
+            <motion.button
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              onClick={handleNextQuestion}
+              disabled={redirecting}
+              className="flex items-center justify-center gap-1.5 rounded-xl bg-white hover:bg-neutral-200 text-zinc-950 font-extrabold px-6 h-12 text-base transition-all flex-[1.4] shadow-lg disabled:opacity-50"
+            >
+              {redirecting ? (
+                <span className="h-5 w-5 animate-spin rounded-full border-2 border-zinc-950 border-t-transparent" />
+              ) : (
+                <>다음 질문 <ChevronRight className="h-5 w-5" /></>
+              )}
+            </motion.button>
+          </div>
+        )}
 
       </main>
 
-      {/* Tiny Legal Footer */}
-      <div className="text-[10px] text-center text-zinc-650 flex justify-center gap-3 py-2.5 border-t border-zinc-900/40 shrink-0">
-        <Link href="/privacy" className="hover:text-zinc-400 hover:underline">개인정보처리방침</Link>
-        <span>|</span>
-        <Link href="/terms" className="hover:text-zinc-400 hover:underline">이용약관</Link>
+      {/* Copyright Footer */}
+      <div className="text-[10px] text-center text-zinc-650 py-3 shrink-0">
+        © 2026 UPick. All rights reserved.
       </div>
 
       {/* 4. AdSense Bottom Slot */}
@@ -481,6 +575,80 @@ export default function VoteClient({
              data-ad-format="auto"
              data-full-width-responsive="true"></ins>
       </div>
+
+      {/* Left Sidebar Drawer Menu */}
+      <AnimatePresence>
+        {showDrawer && (
+          <div className="fixed inset-0 z-50 flex">
+            {/* Dark Blur Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowDrawer(false)}
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            />
+
+            {/* Drawer Content */}
+            <motion.div
+              initial={{ x: '-100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '-100%' }}
+              transition={{ type: 'spring', damping: 25, stiffness: 220 }}
+              className="relative z-10 w-4/5 max-w-xs h-full bg-zinc-950 border-r border-zinc-900 p-6 flex flex-col justify-between text-white"
+            >
+              <div className="space-y-8">
+                {/* Header Inside Drawer */}
+                <div className="flex items-center justify-between border-b border-zinc-900 pb-4">
+                  <Link href="/" onClick={() => setShowDrawer(false)} className="relative h-7 w-20 flex items-center">
+                    <img
+                      src="/logo.png?v=2"
+                      alt="UPick Logo"
+                      className="max-h-full object-contain"
+                    />
+                  </Link>
+                  <button
+                    onClick={() => setShowDrawer(false)}
+                    className="p-1.5 rounded-full bg-zinc-900 text-neutral-400 hover:text-white hover:bg-zinc-800 transition"
+                  >
+                    <X className="h-5 w-5" />
+                  </button>
+                </div>
+
+                {/* Navigation Links list */}
+                <nav className="flex flex-col gap-3">
+                  <Link
+                    href="/terms"
+                    onClick={() => setShowDrawer(false)}
+                    className="flex items-center gap-3 rounded-2xl bg-zinc-900/50 hover:bg-zinc-900 border border-zinc-900 p-4 text-sm font-extrabold text-neutral-200 transition-all"
+                  >
+                    <span>이용약관</span>
+                  </Link>
+                  <Link
+                    href="/privacy"
+                    onClick={() => setShowDrawer(false)}
+                    className="flex items-center gap-3 rounded-2xl bg-zinc-900/50 hover:bg-zinc-900 border border-zinc-900 p-4 text-sm font-extrabold text-neutral-200 transition-all"
+                  >
+                    <span>개인정보처리방침</span>
+                  </Link>
+                  <a
+                    href="mailto:nocomenty7@gmail.com"
+                    onClick={() => setShowDrawer(false)}
+                    className="flex items-center gap-3 rounded-2xl bg-zinc-900/50 hover:bg-zinc-900 border border-zinc-900 p-4 text-sm font-extrabold text-neutral-200 transition-all"
+                  >
+                    <span>문의하기</span>
+                  </a>
+                </nav>
+              </div>
+
+              {/* Footer inside Drawer */}
+              <div className="text-[10px] text-neutral-600 leading-normal text-center border-t border-zinc-900/40 pt-4">
+                <p>© 2026 UPick. All rights reserved.</p>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       <AnimatePresence>
         {showOnboarding && (
