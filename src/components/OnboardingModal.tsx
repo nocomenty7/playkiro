@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import Image from 'next/image';
 
 interface OnboardingModalProps {
@@ -12,107 +12,116 @@ const GENDERS = ['남성', '여성'];
 const AGE_GROUPS = ['10대', '20대', '30대', '40대', '50대', '60대', '70대 이상'];
 
 export default function OnboardingModal({ onComplete }: OnboardingModalProps) {
-  const [step, setStep] = useState<1 | 2>(1);
   const [selectedGender, setSelectedGender] = useState<string>('');
   const [selectedAge, setSelectedAge] = useState<string>('');
 
-  const handleGenderSelect = (gender: string) => {
-    setSelectedGender(gender);
-    setStep(2);
+  const handleSubmit = () => {
+    if (selectedGender && selectedAge) {
+      onComplete({ gender: selectedGender, age_group: selectedAge });
+    }
   };
 
-  const handleAgeSelect = (age: string) => {
-    setSelectedAge(age);
-    // Complete onboarding
-    onComplete({ gender: selectedGender, age_group: age });
-  };
+  const isFormValid = selectedGender !== '' && selectedAge !== '';
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-md p-4">
       <motion.div
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 20 }}
         transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-        className="w-full max-w-sm overflow-hidden rounded-3xl bg-neutral-900/90 border border-neutral-800 p-6 text-center text-white shadow-2xl backdrop-blur-xl"
+        className="w-full max-w-sm overflow-hidden rounded-3xl bg-neutral-900/95 border border-neutral-850 p-6 text-center text-white shadow-2xl backdrop-blur-xl"
       >
         {/* Brand Header */}
-        <div className="mb-6 flex flex-col items-center">
-          <div className="relative h-16 w-16 mb-2 overflow-hidden rounded-2xl bg-white/10 p-2">
+        <div className="mb-5 flex flex-col items-center">
+          <div className="relative h-14 w-36 mb-2 overflow-hidden">
             <Image
               src="/logo.jpg"
               alt="BALS Logo"
               fill
-              className="object-contain p-1"
+              className="object-contain"
               priority
             />
           </div>
-          <h2 className="text-xl font-bold tracking-tight text-white">BALS Balance Game</h2>
-          <p className="text-xs text-neutral-400 mt-1">더 재미있는 밸런스 게임을 위한 간단한 프로필 설정</p>
+          <p className="text-xs text-neutral-400">간단한 프로필을 선택하고 밸런스 게임을 즐겨보세요</p>
         </div>
 
-        {/* Step Indicator */}
-        <div className="mb-6 flex justify-center gap-1.5">
-          <div className={`h-1.5 w-8 rounded-full transition-colors ${step === 1 ? 'bg-white' : 'bg-neutral-700'}`} />
-          <div className={`h-1.5 w-8 rounded-full transition-colors ${step === 2 ? 'bg-white' : 'bg-neutral-700'}`} />
-        </div>
-
-        <AnimatePresence mode="wait">
-          {step === 1 ? (
-            <motion.div
-              key="step-gender"
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 10 }}
-              transition={{ duration: 0.2 }}
-              className="flex flex-col gap-3"
-            >
-              <h3 className="text-lg font-semibold mb-2">성별을 선택해주세요</h3>
-              <div className="grid grid-cols-2 gap-3">
-                {GENDERS.map((gender) => (
+        {/* Unified Step 1 Flow */}
+        <div className="flex flex-col gap-5 text-left">
+          
+          {/* Gender Select Section */}
+          <div>
+            <h3 className="text-sm font-bold text-neutral-300 mb-2">성별</h3>
+            <div className="grid grid-cols-2 gap-2.5">
+              {GENDERS.map((gender) => {
+                const isSelected = selectedGender === gender;
+                return (
                   <motion.button
                     key={gender}
-                    whileTap={{ scale: 0.97 }}
-                    onClick={() => handleGenderSelect(gender)}
-                    className="flex h-24 flex-col items-center justify-center rounded-2xl bg-neutral-800/60 border border-neutral-700/60 hover:bg-neutral-800 hover:border-neutral-500 transition text-base font-medium text-neutral-200 hover:text-white"
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => setSelectedGender(gender)}
+                    type="button"
+                    className={`flex h-11 items-center justify-center gap-1.5 rounded-xl border text-sm font-bold transition-all ${
+                      isSelected
+                        ? 'bg-white border-white text-zinc-950 shadow-md'
+                        : 'bg-neutral-800/40 border-neutral-750 text-neutral-300 hover:bg-neutral-800'
+                    }`}
                   >
-                    <span className="text-2xl mb-1">{gender === '남성' ? '🙋‍♂️' : '🙋‍♀️'}</span>
+                    <span>{gender === '남성' ? '🙋‍♂️' : '🙋‍♀️'}</span>
                     {gender}
                   </motion.button>
-                ))}
-              </div>
-            </motion.div>
-          ) : (
-            <motion.div
-              key="step-age"
-              initial={{ opacity: 0, x: 10 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -10 }}
-              transition={{ duration: 0.2 }}
-              className="flex flex-col gap-3"
-            >
-              <h3 className="text-lg font-semibold mb-2">연령대를 선택해주세요</h3>
-              <div className="grid grid-cols-3 gap-2">
-                {AGE_GROUPS.map((age) => (
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Age Group Select Section */}
+          <div>
+            <h3 className="text-sm font-bold text-neutral-300 mb-2">연령대</h3>
+            <div className="grid grid-cols-3 gap-2">
+              {AGE_GROUPS.map((age) => {
+                const isSelected = selectedAge === age;
+                return (
                   <motion.button
                     key={age}
-                    whileTap={{ scale: 0.97 }}
-                    onClick={() => handleAgeSelect(age)}
-                    className="flex h-12 items-center justify-center rounded-xl bg-neutral-800/60 border border-neutral-700/60 hover:bg-neutral-800 hover:border-neutral-500 transition text-sm font-medium text-neutral-200 hover:text-white"
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => setSelectedAge(age)}
+                    type="button"
+                    className={`flex h-10 items-center justify-center rounded-xl border text-xs font-semibold transition-all ${
+                      isSelected
+                        ? 'bg-white border-white text-zinc-950 shadow-md'
+                        : 'bg-neutral-800/40 border-neutral-750 text-neutral-300 hover:bg-neutral-800'
+                    }`}
                   >
                     {age}
                   </motion.button>
-                ))}
-              </div>
-              <button
-                onClick={() => setStep(1)}
-                className="text-xs text-neutral-500 hover:text-neutral-300 mt-4 transition underline underline-offset-4"
-              >
-                이전 단계로
-              </button>
-            </motion.div>
-          )}
-        </AnimatePresence>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Submit Action */}
+          <div className="mt-2 flex flex-col gap-3">
+            <motion.button
+              whileTap={isFormValid ? { scale: 0.98 } : {}}
+              onClick={handleSubmit}
+              disabled={!isFormValid}
+              type="button"
+              className={`w-full py-3.5 rounded-xl text-sm font-extrabold transition-all duration-300 shadow-lg ${
+                isFormValid
+                  ? 'bg-white hover:bg-neutral-200 text-zinc-950 font-black'
+                  : 'bg-zinc-800 border border-zinc-750 text-zinc-500 cursor-not-allowed'
+              }`}
+            >
+              시작하기
+            </motion.button>
+
+            <span className="text-[10px] text-zinc-500 text-center tracking-tight leading-relaxed">
+              해당 입력정보는 상세 통계 제공을 위해서만 사용됩니다.
+            </span>
+          </div>
+
+        </div>
       </motion.div>
     </div>
   );

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "BALS - 초고속 밸런스 게임",
+  title: "BALS - 모두의 밸런스게임",
   description: "무지연으로 즐기는 애플 감성 미니멀 밸런스 게임, BALS!",
 };
 
