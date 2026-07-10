@@ -2,8 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { BarChart3, ChevronRight, Share2, Trophy, RefreshCw, Menu, X, Mail } from 'lucide-react';
-import Image from 'next/image';
+import { BarChart3, ChevronRight, Share2, Trophy, Menu, X } from 'lucide-react';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import OnboardingModal from './OnboardingModal';
@@ -158,12 +157,6 @@ export default function VoteClient({
     }
   };
 
-  // Clear history to let them play again manually
-  const handleResetHistory = () => {
-    localStorage.removeItem('upick_voted_questions');
-    window.location.href = '/';
-  };
-
   // Calculate percentages (1 decimal place)
   const total = votesA + votesB;
   const percentA = total > 0 ? Number(((votesA / total) * 100).toFixed(1)) : 50.0;
@@ -175,7 +168,7 @@ export default function VoteClient({
 
   if (serverError) {
     return (
-      <div className="flex h-[100dvh] w-full flex-col items-center justify-center bg-zinc-950 text-white font-sans p-6 text-center">
+      <div className="flex h-[100dvh] w-full flex-col items-center justify-center bg-[#080911] text-white font-sans p-6 text-center">
         <div className="rounded-2xl border border-red-500/20 bg-red-500/10 p-6 max-w-sm">
           <span className="text-3xl mb-3 block">⚠️</span>
           <h2 className="text-base font-bold text-red-400 mb-2">데이터 로드 실패</h2>
@@ -196,14 +189,15 @@ export default function VoteClient({
   // Witty completion screen when all questions have been voted on
   if (noMoreQuestions) {
     return (
-      <div className="relative flex h-[100dvh] w-full max-w-md mx-auto flex-col justify-between overflow-hidden bg-zinc-950 text-white font-sans">
-        {/* New Top Header Bar */}
-        <header className="w-full h-14 shrink-0 flex items-center justify-between px-4 border-b border-zinc-900 bg-zinc-950/80 backdrop-blur-md sticky top-0 z-40">
-          <Link href="/" className="relative h-7 w-20 flex items-center">
+      <div className="relative flex h-[100dvh] w-full max-w-md mx-auto flex-col justify-between overflow-hidden bg-[#080911] bg-[radial-gradient(circle_at_top,_rgba(99,102,241,0.07),_transparent_60%)] text-white font-sans">
+        
+        {/* New Top Header Bar (Enlarged Logo) */}
+        <header className="w-full h-14 shrink-0 flex items-center justify-between px-4 border-b border-zinc-900 bg-[#080911]/85 backdrop-blur-md sticky top-0 z-40">
+          <Link href="/" className="relative h-11 w-32 flex items-center">
             <img
               src="/logo.png?v=2"
               alt="UPick Logo"
-              className="max-h-full object-contain"
+              className="h-10 w-auto object-contain"
             />
           </Link>
           <button
@@ -232,13 +226,13 @@ export default function VoteClient({
               여러분의 참여로 통계가 더욱 완벽해졌어요.{"\n\n"}
               더욱 기상천외하고 머리 아픈 질문들을 열심히 수집하고 있으니 잠시만 기다려주세요! 🙋‍♂️
             </p>
-            <motion.button
+            <motion.a
               whileTap={{ scale: 0.98 }}
-              onClick={handleResetHistory}
+              href="mailto:nocomenty7@gmail.com?subject=[UPick] 새로운 선택지 제안합니다!"
               className="flex items-center justify-center gap-2 rounded-xl bg-white hover:bg-neutral-200 text-zinc-950 font-black px-6 h-12 text-sm shadow-lg w-full"
             >
-              <RefreshCw className="h-4 w-4" /> 처음부터 다시 하기
-            </motion.button>
+              💡 새로운 선택지 제안하기
+            </motion.a>
           </motion.div>
         </div>
 
@@ -258,10 +252,10 @@ export default function VoteClient({
                data-full-width-responsive="true"></ins>
         </div>
 
-        {/* Sidebar Drawer Menu for noMoreQuestions state */}
+        {/* Sidebar Drawer Menu (Slides from Right, Show MENU header) */}
         <AnimatePresence>
           {showDrawer && (
-            <div className="fixed inset-0 z-50 flex">
+            <div className="fixed inset-0 z-50 flex justify-end">
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -270,21 +264,15 @@ export default function VoteClient({
                 className="absolute inset-0 bg-black/60 backdrop-blur-sm"
               />
               <motion.div
-                initial={{ x: '-100%' }}
+                initial={{ x: '100%' }}
                 animate={{ x: 0 }}
-                exit={{ x: '-100%' }}
+                exit={{ x: '100%' }}
                 transition={{ type: 'spring', damping: 25, stiffness: 220 }}
-                className="relative z-10 w-4/5 max-w-xs h-full bg-zinc-950 border-r border-zinc-900 p-6 flex flex-col justify-between text-white"
+                className="relative z-10 w-4/5 max-w-xs h-full bg-[#080911]/98 border-l border-zinc-900 p-6 flex flex-col justify-between text-white shadow-2xl backdrop-blur-xl"
               >
                 <div className="space-y-8">
                   <div className="flex items-center justify-between border-b border-zinc-900 pb-4">
-                    <Link href="/" onClick={() => setShowDrawer(false)} className="relative h-7 w-20 flex items-center">
-                      <img
-                        src="/logo.png?v=2"
-                        alt="UPick Logo"
-                        className="max-h-full object-contain"
-                      />
-                    </Link>
+                    <span className="font-black tracking-widest text-lg text-neutral-200">MENU</span>
                     <button
                       onClick={() => setShowDrawer(false)}
                       className="p-1.5 rounded-full bg-zinc-900 text-neutral-400 hover:text-white hover:bg-zinc-800 transition"
@@ -296,21 +284,28 @@ export default function VoteClient({
                     <Link
                       href="/terms"
                       onClick={() => setShowDrawer(false)}
-                      className="flex items-center gap-3 rounded-2xl bg-zinc-900/50 hover:bg-zinc-900 border border-zinc-900 p-4 text-sm font-extrabold text-neutral-200 transition-all"
+                      className="flex items-center gap-3 rounded-2xl bg-zinc-900/50 hover:bg-zinc-900 border border-zinc-900 p-4 text-sm font-extrabold text-neutral-200 transition-all hover:border-zinc-800"
                     >
                       <span>이용약관</span>
                     </Link>
                     <Link
                       href="/privacy"
                       onClick={() => setShowDrawer(false)}
-                      className="flex items-center gap-3 rounded-2xl bg-zinc-900/50 hover:bg-zinc-900 border border-zinc-900 p-4 text-sm font-extrabold text-neutral-200 transition-all"
+                      className="flex items-center gap-3 rounded-2xl bg-zinc-900/50 hover:bg-zinc-900 border border-zinc-900 p-4 text-sm font-extrabold text-neutral-200 transition-all hover:border-zinc-800"
                     >
                       <span>개인정보처리방침</span>
                     </Link>
                     <a
+                      href="mailto:nocomenty7@gmail.com?subject=[UPick] 새로운 선택지 제안합니다!"
+                      onClick={() => setShowDrawer(false)}
+                      className="flex items-center gap-3 rounded-2xl bg-zinc-900/50 hover:bg-zinc-900 border border-zinc-900 p-4 text-sm font-extrabold text-emerald-400 transition-all hover:border-zinc-850"
+                    >
+                      <span>💡 선택지 제안하기</span>
+                    </a>
+                    <a
                       href="mailto:nocomenty7@gmail.com"
                       onClick={() => setShowDrawer(false)}
-                      className="flex items-center gap-3 rounded-2xl bg-zinc-900/50 hover:bg-zinc-900 border border-zinc-900 p-4 text-sm font-extrabold text-neutral-200 transition-all"
+                      className="flex items-center gap-3 rounded-2xl bg-zinc-900/50 hover:bg-zinc-900 border border-zinc-900 p-4 text-sm font-extrabold text-neutral-200 transition-all hover:border-zinc-800"
                     >
                       <span>문의하기</span>
                     </a>
@@ -330,7 +325,7 @@ export default function VoteClient({
   // Full Screen Prominent Logo in the main initial loading screen
   if (!question) {
     return (
-      <div className="flex h-[100dvh] w-full flex-col items-center justify-center bg-zinc-950 text-white font-sans p-6 text-center">
+      <div className="flex h-[100dvh] w-full flex-col items-center justify-center bg-[#080911] text-white font-sans p-6 text-center">
         <div className="flex flex-col items-center gap-8">
           <div className="relative h-56 w-96 overflow-hidden mb-2 rounded-3xl bg-neutral-900/50 border border-neutral-800/80 p-4 shadow-2xl flex items-center justify-center backdrop-blur-sm">
             <img
@@ -349,15 +344,15 @@ export default function VoteClient({
   }
 
   return (
-    <div className="relative flex h-[100dvh] w-full max-w-md mx-auto flex-col justify-between overflow-hidden bg-zinc-950 text-white font-sans select-none animate-fade-in">
+    <div className="relative flex h-[100dvh] w-full max-w-md mx-auto flex-col justify-between overflow-hidden bg-[#080911] bg-[radial-gradient(circle_at_top,_rgba(99,102,241,0.07),_transparent_60%)] text-white font-sans select-none animate-fade-in">
       
-      {/* 1. Global Header Bar */}
-      <header className="w-full h-14 shrink-0 flex items-center justify-between px-4 border-b border-zinc-900 bg-zinc-950/80 backdrop-blur-md sticky top-0 z-40">
-        <Link href="/" className="relative h-7 w-20 flex items-center">
+      {/* 1. Global Header Bar (Enlarged Logo) */}
+      <header className="w-full h-14 shrink-0 flex items-center justify-between px-4 border-b border-zinc-900 bg-[#080911]/85 backdrop-blur-md sticky top-0 z-40">
+        <Link href="/" className="relative h-11 w-32 flex items-center">
           <img
             src="/logo.png?v=2"
             alt="UPick Logo"
-            className="max-h-full object-contain"
+            className="h-10 w-auto object-contain"
           />
         </Link>
         <button
@@ -373,7 +368,7 @@ export default function VoteClient({
       <main className="flex-1 flex flex-col min-h-0 px-4 py-4 justify-between">
         
         {/* Game Capture Area (Captured for Image Export) */}
-        <div id="game-capture-area" className="flex flex-col bg-zinc-950 p-4 rounded-3xl border border-zinc-900 gap-4 flex-1 min-h-0">
+        <div id="game-capture-area" className="flex flex-col bg-[#0b0c16]/50 p-4 rounded-3xl border border-zinc-900/80 gap-4 flex-1 min-h-0">
           
           {/* Header Row: Category Badge (Left) and Share Button (Right) */}
           <div className="flex items-center justify-between shrink-0">
@@ -587,10 +582,10 @@ export default function VoteClient({
              data-full-width-responsive="true"></ins>
       </div>
 
-      {/* Left Sidebar Drawer Menu */}
+      {/* Left Sidebar Drawer Menu (Slides from Right, Show MENU header) */}
       <AnimatePresence>
         {showDrawer && (
-          <div className="fixed inset-0 z-50 flex">
+          <div className="fixed inset-0 z-50 flex justify-end">
             {/* Dark Blur Backdrop */}
             <motion.div
               initial={{ opacity: 0 }}
@@ -602,22 +597,16 @@ export default function VoteClient({
 
             {/* Drawer Content */}
             <motion.div
-              initial={{ x: '-100%' }}
+              initial={{ x: '100%' }}
               animate={{ x: 0 }}
-              exit={{ x: '-100%' }}
+              exit={{ x: '100%' }}
               transition={{ type: 'spring', damping: 25, stiffness: 220 }}
-              className="relative z-10 w-4/5 max-w-xs h-full bg-zinc-950 border-r border-zinc-900 p-6 flex flex-col justify-between text-white"
+              className="relative z-10 w-4/5 max-w-xs h-full bg-[#080911]/98 border-l border-zinc-900 p-6 flex flex-col justify-between text-white shadow-2xl backdrop-blur-xl"
             >
               <div className="space-y-8">
                 {/* Header Inside Drawer */}
                 <div className="flex items-center justify-between border-b border-zinc-900 pb-4">
-                  <Link href="/" onClick={() => setShowDrawer(false)} className="relative h-7 w-20 flex items-center">
-                    <img
-                      src="/logo.png?v=2"
-                      alt="UPick Logo"
-                      className="max-h-full object-contain"
-                    />
-                  </Link>
+                  <span className="font-black tracking-widest text-lg text-neutral-200">MENU</span>
                   <button
                     onClick={() => setShowDrawer(false)}
                     className="p-1.5 rounded-full bg-zinc-900 text-neutral-400 hover:text-white hover:bg-zinc-800 transition"
@@ -631,21 +620,28 @@ export default function VoteClient({
                   <Link
                     href="/terms"
                     onClick={() => setShowDrawer(false)}
-                    className="flex items-center gap-3 rounded-2xl bg-zinc-900/50 hover:bg-zinc-900 border border-zinc-900 p-4 text-sm font-extrabold text-neutral-200 transition-all"
+                    className="flex items-center gap-3 rounded-2xl bg-zinc-900/50 hover:bg-zinc-900 border border-zinc-900 p-4 text-sm font-extrabold text-neutral-200 transition-all hover:border-zinc-800"
                   >
                     <span>이용약관</span>
                   </Link>
                   <Link
                     href="/privacy"
                     onClick={() => setShowDrawer(false)}
-                    className="flex items-center gap-3 rounded-2xl bg-zinc-900/50 hover:bg-zinc-900 border border-zinc-900 p-4 text-sm font-extrabold text-neutral-200 transition-all"
+                    className="flex items-center gap-3 rounded-2xl bg-zinc-900/50 hover:bg-zinc-900 border border-zinc-900 p-4 text-sm font-extrabold text-neutral-200 transition-all hover:border-zinc-800"
                   >
                     <span>개인정보처리방침</span>
                   </Link>
                   <a
+                    href="mailto:nocomenty7@gmail.com?subject=[UPick] 새로운 선택지 제안합니다!"
+                    onClick={() => setShowDrawer(false)}
+                    className="flex items-center gap-3 rounded-2xl bg-zinc-900/50 hover:bg-zinc-900 border border-zinc-900 p-4 text-sm font-extrabold text-emerald-400 transition-all hover:border-zinc-850"
+                  >
+                    <span>💡 선택지 제안하기</span>
+                  </a>
+                  <a
                     href="mailto:nocomenty7@gmail.com"
                     onClick={() => setShowDrawer(false)}
-                    className="flex items-center gap-3 rounded-2xl bg-zinc-900/50 hover:bg-zinc-900 border border-zinc-900 p-4 text-sm font-extrabold text-neutral-200 transition-all"
+                    className="flex items-center gap-3 rounded-2xl bg-zinc-900/50 hover:bg-zinc-900 border border-zinc-900 p-4 text-sm font-extrabold text-neutral-200 transition-all hover:border-zinc-800"
                   >
                     <span>문의하기</span>
                   </a>

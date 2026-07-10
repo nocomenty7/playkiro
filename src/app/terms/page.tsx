@@ -20,7 +20,7 @@ export default function TermsPage() {
           <section className="space-y-2">
             <h2 className="text-base font-bold text-neutral-200">1. 약관의 목적</h2>
             <p>
-              본 약관은 UPick('모두의 밸런스게임') 서비스가 제공하는 밸런스 게임 투표 및 통계 서비스(이하 '서비스')의 이용 조건 및 절차에 관한 기본적인 사항을 규정함을 목적으로 합니다.
+              본 약관은 UPick('유픽') 서비스가 제공하는 밸런스 게임 투표 및 통계 서비스(이하 '서비스')의 이용 조건 및 절차에 관한 기본적인 사항을 규정함을 목적으로 합니다.
             </p>
           </section>
 
