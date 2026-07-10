@@ -46,6 +46,19 @@ export default function VoteClient({
   const [redirecting, setRedirecting] = useState(false);
   const [noMoreQuestions, setNoMoreQuestions] = useState(false);
   const [showDrawer, setShowDrawer] = useState(false);
+  const [lastMenuClickTime, setLastMenuClickTime] = useState<number>(0);
+
+  const handleMenuResetClick = () => {
+    const now = Date.now();
+    if (now - lastMenuClickTime < 300) { // Double tap within 300ms
+      localStorage.removeItem('upick_voted_questions');
+      localStorage.removeItem('upick_user_info');
+      alert('개발자 모드: 투표 기록 및 프로필이 초기화되었습니다!');
+      window.location.href = '/';
+    } else {
+      setLastMenuClickTime(now);
+    }
+  };
 
   // 1. Initial configuration check (Demographics & Voted History)
   useEffect(() => {
@@ -282,7 +295,7 @@ export default function VoteClient({
               >
                 <div className="space-y-8">
                   <div className="flex items-center justify-between border-b border-zinc-900 pb-4">
-                    <span className="font-black tracking-widest text-lg text-neutral-200">MENU</span>
+                    <span onClick={handleMenuResetClick} className="font-black tracking-widest text-lg text-neutral-200 cursor-pointer select-none">MENU</span>
                     <button
                       onClick={() => setShowDrawer(false)}
                       className="p-1.5 rounded-full bg-zinc-900 text-neutral-400 hover:text-white hover:bg-zinc-800 transition"
@@ -609,7 +622,7 @@ export default function VoteClient({
               <div className="space-y-8">
                 {/* Header Inside Drawer */}
                 <div className="flex items-center justify-between border-b border-zinc-900 pb-4">
-                  <span className="font-black tracking-widest text-lg text-neutral-200">MENU</span>
+                  <span onClick={handleMenuResetClick} className="font-black tracking-widest text-lg text-neutral-200 cursor-pointer select-none">MENU</span>
                   <button
                     onClick={() => setShowDrawer(false)}
                     className="p-1.5 rounded-full bg-zinc-900 text-neutral-400 hover:text-white hover:bg-zinc-800 transition"
