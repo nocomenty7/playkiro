@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: "UPick (유픽) - 세상의 모든 극한 밸런스게임과 취향 분석 테스트",
-    description: "로그인이나 회원가입 없이 0초 만에 즐기는 초간단 밸런스게임! 연애, 음식, 일상, 스타일, 상상력 등 8가지 카테고리의 200개가 넘는 극한 딜레마를 선택하고 성별·연령대별 실시간 통계 분석 결과로 당신의 진짜 취향을 테스트해 보세요.",
+    description: "회원가입 없이 0초 만에 시작하는 익명 밸런스게임! 200개 이상의 딜레마를 풀고 실시간 취향 분석 통계를 확인해보세요.",
     url: "https://upick.kr",
     siteName: "UPick",
     images: [
@@ -27,7 +27,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "UPick (유픽) - 세상의 모든 극한 밸런스게임과 취향 분석 테스트",
-    description: "로그인이나 회원가입 없이 0초 만에 즐기는 초간단 밸런스게임! 연애, 음식, 일상, 스타일, 상상력 등 8가지 카테고리의 200개가 넘는 극한 딜레마를 선택하고 성별·연령대별 실시간 통계 분석 결과로 당신의 진짜 취향을 테스트해 보세요.",
+    description: "회원가입 없이 0초 만에 시작하는 익명 밸런스게임! 200개 이상의 딜레마를 풀고 실시간 취향 분석 통계를 확인해보세요.",
     images: ["https://upick.kr/og-image.png"],
   },
 };

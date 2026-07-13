@@ -132,30 +132,43 @@ function LandingClient() {
             transition={{ delay: 0.1 }}
             className="text-2xl md:text-3xl font-black leading-snug tracking-tight text-neutral-100 px-2"
           >
-            당신의 취향은 다수입니까, 소수입니까?{"\n"}
-            끝없는 양자택일과 밸런스게임.{"\n"}
+            당신의 취향은 다수? 소수?{"\n"}
+            끝없는 양자택일과 밸런스게임{"\n"}
             UPick에 오신걸 환영합니다!
           </motion.h1>
 
-          {/* Modern SaaS Value Propositions */}
+          {/* Modern SaaS Value Propositions (Stacked Vertically) */}
           <motion.div 
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.15 }}
-            className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-xs font-bold text-neutral-450"
+            className="flex flex-col items-center justify-center gap-2 text-sm font-extrabold text-neutral-300"
           >
             <span className="flex items-center gap-1">⚡️ 가입없이 0초 실행</span>
-            <span className="text-zinc-800">•</span>
             <span className="flex items-center gap-1">🔒 100% 익명 통계</span>
-            <span className="text-zinc-800">•</span>
-            <span className="flex items-center gap-1">🔥 200+ 극한 딜레마</span>
+            <span className="flex items-center gap-1">🔥 200+ 양자택일 선택지</span>
+          </motion.div>
+
+          {/* Primary CTA (Moved Up) */}
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.2 }}
+            className="pt-2 max-w-sm mx-auto"
+          >
+            <Link
+              href="/play"
+              className="flex items-center justify-center gap-2 rounded-2xl bg-white hover:bg-neutral-200 text-zinc-950 font-black text-lg px-8 h-14 shadow-[0_0_30px_rgba(99,102,241,0.25)] transition-all hover:scale-[1.02] active:scale-[0.98]"
+            >
+              🎮 시작하기
+            </Link>
           </motion.div>
 
           <motion.p 
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="text-xs md:text-sm text-neutral-400 max-w-lg mx-auto leading-relaxed"
+            transition={{ delay: 0.25 }}
+            className="text-xs md:text-sm text-neutral-400 max-w-lg mx-auto leading-relaxed pt-2"
           >
             200개가 넘는 기상천외한 질문들로 당신의 무의식을 들여다보세요.{"\n"}
             성별, 연령대별 실시간 통계 분석을 통해 타인과의 가치관 싱크율을 체크합니다.
@@ -165,7 +178,7 @@ function LandingClient() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.25 }}
+            transition={{ delay: 0.3 }}
             className="relative w-full max-w-lg mx-auto rounded-3xl overflow-hidden border border-zinc-800/80 bg-zinc-950/40 p-1.5 shadow-[0_0_40px_rgba(99,102,241,0.15)] group"
           >
             <img
@@ -173,20 +186,6 @@ function LandingClient() {
               alt="UPick Gameplay Preview"
               className="w-full h-auto object-cover rounded-2xl transition-all duration-500 group-hover:scale-[1.01]"
             />
-          </motion.div>
-          
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.35 }}
-            className="pt-4 max-w-sm mx-auto"
-          >
-            <Link
-              href="/play"
-              className="flex items-center justify-center gap-2 rounded-2xl bg-white hover:bg-neutral-200 text-zinc-950 font-black text-lg px-8 h-14 shadow-[0_0_30px_rgba(99,102,241,0.25)] transition-all hover:scale-[1.02] active:scale-[0.98]"
-            >
-              🎮 시작하기
-            </Link>
           </motion.div>
         </section>
 
@@ -242,12 +241,21 @@ function LandingClient() {
               내가 투표한 즉시 다른 플레이어들의 선호도가 실시간으로 통계 차트에 집계됩니다. 나와 동일한 성별, 연령대가 나열된 고도화된 타겟 분석을 만나보세요.
             </p>
             {/* Embedded Stats Graphic Showcase */}
-            <div className="pt-2 rounded-2xl overflow-hidden border border-zinc-850 bg-zinc-950/60 shadow-inner">
-              <img
-                src="/stats-preview.png"
-                alt="Realtime Stats Preview"
-                className="w-full h-auto object-cover opacity-95"
-              />
+            <div className="pt-2 flex flex-col gap-3 rounded-2xl overflow-hidden shadow-inner">
+              <div className="border border-zinc-850 bg-zinc-950/60 rounded-2xl overflow-hidden">
+                <img
+                  src="/stats-preview.png"
+                  alt="Realtime Stats Preview 1"
+                  className="w-full h-auto object-cover opacity-95"
+                />
+              </div>
+              <div className="border border-zinc-850 bg-zinc-950/60 rounded-2xl overflow-hidden">
+                <img
+                  src="/stats-preview2.png"
+                  alt="Realtime Stats Preview 2"
+                  className="w-full h-auto object-cover opacity-95"
+                />
+              </div>
             </div>
           </div>
 
@@ -287,14 +295,6 @@ function LandingClient() {
             </p>
           </div>
 
-          <div className="w-full pt-4">
-            <Link
-              href="/play"
-              className="flex items-center justify-center gap-2 rounded-2xl bg-neutral-900 hover:bg-neutral-800 text-white font-extrabold text-base px-8 h-12 border border-zinc-800 transition-all text-center"
-            >
-              🚀 시작하기
-            </Link>
-          </div>
         </section>
 
       </main>
