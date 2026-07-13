@@ -132,8 +132,10 @@ function LandingClient() {
             transition={{ delay: 0.1 }}
             className="text-2xl md:text-3xl font-black leading-snug tracking-tight text-neutral-100 px-2"
           >
-            당신의 취향은 다수? 소수?{"\n"}
-            끝없는 양자택일과 밸런스게임{"\n"}
+            당신의 취향은 다수? 소수?
+            <br />
+            끝없는 양자택일과 밸런스게임
+            <br />
             UPick에 오신걸 환영합니다!
           </motion.h1>
 
@@ -149,7 +151,37 @@ function LandingClient() {
             <span className="flex items-center gap-1">🔥 200+ 양자택일 선택지</span>
           </motion.div>
 
-          {/* Primary CTA (Moved Up) */}
+          {/* Dynamic Infinite Marquee Section (Moved Up to create Marquee -> CTA order) */}
+          <div className="w-full overflow-hidden space-y-4 py-4 relative">
+            <div className="absolute left-0 top-0 bottom-0 w-16 bg-gradient-to-r from-[#080911] to-transparent z-10 pointer-events-none" />
+            <div className="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-[#080911] to-transparent z-10 pointer-events-none" />
+
+            {/* Row 1 - Slide Left */}
+            <div className="flex gap-4 animate-marquee whitespace-nowrap">
+              {[...sampleDilemmasRow1, ...sampleDilemmasRow1].map((dil, idx) => (
+                <div key={idx} className="inline-flex items-center gap-2 rounded-2xl border border-zinc-900 bg-zinc-950/60 px-4 py-3 text-xs md:text-sm font-extrabold text-neutral-200 shadow-md">
+                  <span className="text-zinc-500 font-normal">{dil.cat}</span>
+                  <span className="text-amber-400">{dil.a}</span>
+                  <span className="text-zinc-650 px-1">VS</span>
+                  <span className="text-emerald-400">{dil.b}</span>
+                </div>
+              ))}
+            </div>
+
+            {/* Row 2 - Slide Right */}
+            <div className="flex gap-4 animate-marquee-reverse whitespace-nowrap">
+              {[...sampleDilemmasRow2, ...sampleDilemmasRow2].map((dil, idx) => (
+                <div key={idx} className="inline-flex items-center gap-2 rounded-2xl border border-zinc-900 bg-zinc-950/60 px-4 py-3 text-xs md:text-sm font-extrabold text-neutral-200 shadow-md">
+                  <span className="text-zinc-500 font-normal">{dil.cat}</span>
+                  <span className="text-amber-400">{dil.a}</span>
+                  <span className="text-zinc-650 px-1">VS</span>
+                  <span className="text-emerald-400">{dil.b}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Primary CTA */}
           <motion.div 
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -189,36 +221,6 @@ function LandingClient() {
           </motion.div>
         </section>
 
-        {/* Dynamic Infinite Marquee Section */}
-        <section className="w-full overflow-hidden space-y-4 py-4 relative">
-          <div className="absolute left-0 top-0 bottom-0 w-16 bg-gradient-to-r from-[#080911] to-transparent z-10 pointer-events-none" />
-          <div className="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-[#080911] to-transparent z-10 pointer-events-none" />
-
-          {/* Row 1 - Slide Left */}
-          <div className="flex gap-4 animate-marquee whitespace-nowrap">
-            {[...sampleDilemmasRow1, ...sampleDilemmasRow1].map((dil, idx) => (
-              <div key={idx} className="inline-flex items-center gap-2 rounded-2xl border border-zinc-900 bg-zinc-950/60 px-4 py-3 text-xs md:text-sm font-extrabold text-neutral-200 shadow-md">
-                <span className="text-zinc-500 font-normal">{dil.cat}</span>
-                <span className="text-amber-400">{dil.a}</span>
-                <span className="text-zinc-650 px-1">VS</span>
-                <span className="text-emerald-400">{dil.b}</span>
-              </div>
-            ))}
-          </div>
-
-          {/* Row 2 - Slide Right */}
-          <div className="flex gap-4 animate-marquee-reverse whitespace-nowrap">
-            {[...sampleDilemmasRow2, ...sampleDilemmasRow2].map((dil, idx) => (
-              <div key={idx} className="inline-flex items-center gap-2 rounded-2xl border border-zinc-900 bg-zinc-950/60 px-4 py-3 text-xs md:text-sm font-extrabold text-neutral-200 shadow-md">
-                <span className="text-zinc-500 font-normal">{dil.cat}</span>
-                <span className="text-amber-400">{dil.a}</span>
-                <span className="text-zinc-650 px-1">VS</span>
-                <span className="text-emerald-400">{dil.b}</span>
-              </div>
-            ))}
-          </div>
-        </section>
-
         {/* Vercel Style Spacious Feature Cards */}
         <section className="grid grid-cols-1 gap-6 max-w-xl mx-auto">
           
@@ -227,9 +229,17 @@ function LandingClient() {
               <BrainCircuit className="h-6 w-6" />
             </div>
             <h3 className="text-xl font-extrabold text-neutral-100">8가지 고유 카테고리 필터링</h3>
-            <p className="text-sm text-neutral-450 leading-relaxed">
+            <p className="text-sm text-neutral-450 leading-relaxed mb-2">
               음식, 일상, 스타일, 여가, 관계, 돈, 상상, 그리고 초매운맛 극한 밸런스게임까지. 서랍 메뉴에서 원하는 카테고리만 쏙 골라 즐길 수 있습니다.
             </p>
+            {/* Embedded Category Preview Showcase */}
+            <div className="pt-2 rounded-2xl overflow-hidden border border-zinc-850 bg-zinc-950/60 shadow-inner">
+              <img
+                src="/category-preview.png"
+                alt="Notion Category Filter Preview"
+                className="w-full h-auto object-cover opacity-95"
+              />
+            </div>
           </div>
 
           <div className="group rounded-3xl border border-zinc-900 bg-zinc-900/10 p-8 space-y-4 hover:border-zinc-800 transition-all duration-300">
