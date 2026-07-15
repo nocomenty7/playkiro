@@ -250,7 +250,7 @@ function LandingClient() {
         {/* Informative Blog Content Block */}
         <section className="border-t border-zinc-900/60 pt-16 max-w-xl mx-auto space-y-8 text-neutral-350 leading-relaxed text-sm md:text-base">
           <p className="indent-4 leading-loose">
-            현대인들은 매일 수많은 선택의 기로에 놓입니다. 오늘 점심은 무엇을 먹을지, 주말에는 어떤 여가를 즐길지, 혹은 인간관계에서 어떤 태도를 취해야 할지 끊임없이 고민합니다. <strong className="text-brand-yellow font-kiro font-bold">'기로'</strong>는 이러한 일상적인 고민부터, 상상조차 하기 싫은 극한의 딜레마까지 200개가 넘는 다양한 밸런스 게임을 통해 여러분의 숨겨진 심리와 취향을 탐구하는 종합 엔터테인먼트 플랫폼입니다.
+            현대인들은 매일 수많은 선택의 기로에 놓입니다. 오늘 점심은 무엇을 먹을지, 주말에는 어떤 여가를 즐길지, 혹은 인간관계에서 어떤 태도를 취해야 할지 끊임없이 고민합니다. <strong className="text-neutral-100 font-extrabold">'기로'</strong>는 이러한 일상적인 고민부터, 상상조차 하기 싫은 극한의 딜레마까지 200개가 넘는 다양한 밸런스 게임을 통해 여러분의 숨겨진 심리와 취향을 탐구하는 종합 엔터테인먼트 플랫폼입니다.
           </p>
 
           <div className="rounded-2xl border border-zinc-900 bg-zinc-900/20 p-6 space-y-3">
