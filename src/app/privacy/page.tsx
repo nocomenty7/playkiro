@@ -20,7 +20,7 @@ export default function PrivacyPage() {
           <section className="space-y-2">
             <h2 className="text-base font-bold text-neutral-200">1. 개인정보의 수집 항목 및 목적</h2>
             <p>
-              기로('모두의 밸런스게임') 서비스는 별도의 회원가입 과정 없이 서비스를 제공합니다. 다만, 투표의 성별/연령대별 상세 통계를 집계하고 제공하기 위해 사용자의 브라우저 내 로컬 스토리지(localStorage)를 통해 아래의 정보를 저장 및 사용합니다.
+              기로 서비스는 별도의 회원가입 과정 없이 서비스를 제공합니다. 다만, 투표의 성별/연령대별 상세 통계를 집계하고 제공하기 위해 사용자의 브라우저 내 로컬 스토리지(localStorage)를 통해 아래의 정보를 저장 및 사용합니다.
             </p>
             <ul className="list-disc list-inside pl-2 space-y-1">
               <li>수집 항목: 성별, 연령대</li>
