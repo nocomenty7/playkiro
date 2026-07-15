@@ -169,7 +169,7 @@ function LandingClient() {
           >
             <button
               onClick={handleStartGame}
-              className="w-full flex items-center justify-center gap-2 rounded-2xl bg-white hover:bg-neutral-200 text-zinc-950 font-black text-lg px-8 h-14 shadow-[0_0_30px_rgba(99,102,241,0.25)] transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+              className="w-full flex items-center justify-center gap-2 rounded-2xl bg-brand-yellow hover:bg-[#e0b240] text-zinc-950 font-black text-lg px-8 h-14 shadow-[0_0_30px_rgba(245,195,82,0.3)] transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
             >
               🎮 시작하기
             </button>
