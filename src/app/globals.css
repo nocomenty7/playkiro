@@ -1,9 +1,9 @@
 @import "tailwindcss";
 
 @font-face {
-  font-family: 'Hangulnuri';
-  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_three@1.0/HangeulNuri-Bold.woff') format('woff');
-  font-weight: 700;
+  font-family: 'NoonnuBasicGothic';
+  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noon-2410@1.0/NoonnuBasicGothicRegular.woff2') format('woff2');
+  font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
@@ -17,7 +17,7 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-  --font-kiro: "Hangulnuri", sans-serif;
+  --font-kiro: "NoonnuBasicGothic", sans-serif;
   --color-brand-yellow: #f5c352;
 }
 
