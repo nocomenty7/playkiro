@@ -492,7 +492,7 @@ export default function VoteClient({
 
           {/* Question Title Header - Large & Bold inside capture block */}
           <div className="text-center py-0.5 shrink-0">
-            <h1 className="text-2xl md:text-3xl font-kiro leading-snug text-[#ffe5a9] tracking-tight whitespace-pre-line px-1">
+            <h1 className="text-4xl md:text-5xl font-kiro leading-snug text-[#ffe5a9] tracking-tight whitespace-pre-line px-1">
               {question.title}
             </h1>
           </div>
@@ -542,7 +542,7 @@ export default function VoteClient({
                   {question.emoji_a && (
                     <span className="text-3xl leading-none shrink-0">{question.emoji_a}</span>
                   )}
-                  <p className="text-xl md:text-2xl font-kiro leading-tight text-neutral-100 max-h-16 overflow-y-auto">
+                  <p className="text-3xl md:text-4xl font-kiro leading-tight text-neutral-100 max-h-20 overflow-y-auto">
                     {question.option_a}
                   </p>
                 </div>
@@ -606,7 +606,7 @@ export default function VoteClient({
                   {question.emoji_b && (
                     <span className="text-3xl leading-none shrink-0">{question.emoji_b}</span>
                   )}
-                  <p className="text-xl md:text-2xl font-kiro leading-tight text-neutral-100 max-h-16 overflow-y-auto">
+                  <p className="text-3xl md:text-4xl font-kiro leading-tight text-neutral-100 max-h-20 overflow-y-auto">
                     {question.option_b}
                   </p>
                 </div>
