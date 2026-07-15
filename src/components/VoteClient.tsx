@@ -492,7 +492,7 @@ export default function VoteClient({
 
           {/* Question Title Header - Large & Bold inside capture block */}
           <div className="text-center py-0.5 shrink-0">
-            <h1 className="text-xl md:text-2xl font-kiro leading-snug text-brand-yellow tracking-tight whitespace-pre-line px-1">
+            <h1 className="text-2xl md:text-3xl font-kiro leading-snug text-[#ffe5a9] tracking-tight whitespace-pre-line px-1">
               {question.title}
             </h1>
           </div>
