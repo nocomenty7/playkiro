@@ -65,11 +65,7 @@ export default function RootLayout({
           crossOrigin="anonymous"
           href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
         />
-        {/* Load heavy blocky fonts matching Kiro brand identity */}
-        <link
-          href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Do+Hyeon&display=swap"
-          rel="stylesheet"
-        />
+
         {/* Google AdSense Verification Script */}
         <script
           async
