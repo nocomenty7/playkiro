@@ -107,7 +107,7 @@ function LandingClient() {
           >
             내 <span className="text-brand-yellow">취향</span>은 어느 쪽?
             <br />
-            끝없는 밸런스게임, <span className="text-brand-yellow font-['Aritaburi']">'기로'</span>
+            끝없는 밸런스게임, <span className="text-brand-yellow font-['MaruBuriBold']">'기로'</span>
           </motion.h1>
 
           {/* Modern SaaS Value Propositions (Stacked Vertically) */}

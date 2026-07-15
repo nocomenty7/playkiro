@@ -1,13 +1,6 @@
 @import url('https://hangeul.pstatic.net/hangeul_static/css/nanum-square-neo.css');
+@import url('https://hangeul.pstatic.net/hangeul_static/css/maru-buri.css');
 @import "tailwindcss";
-
-@font-face {
-  font-family: 'Aritaburi';
-  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/Arita-buri-SemiBold.woff') format('woff');
-  font-weight: 600;
-  font-style: normal;
-  font-display: swap;
-}
 
 :root {
   --background: #080911;
