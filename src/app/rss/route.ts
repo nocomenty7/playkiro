@@ -49,8 +49,8 @@ export async function GET() {
     questions.forEach((q) => {
       const pubDate = q.created_at ? new Date(q.created_at).toUTCString() : new Date().toUTCString();
       const itemTitle = `[${q.category || '밸런스게임'}] ${q.title}`;
-      const itemLink = `https://upick.kr/play?q=${q.question_no}`;
-      const itemDesc = `"${q.option_a}" VS "${q.option_b}" - 당신의 진짜 취향은 다수일까 소수일까? 로그인 없이 즉시 확인하는 UPick 밸런스 게임!`;
+      const itemLink = `https://playkiro.kr/play?q=${q.question_no}`;
+      const itemDesc = `"${q.option_a}" VS "${q.option_b}" - 당신의 진짜 취향은 다수일까 소수일까? 로그인 없이 즉시 확인하는 기로 밸런스 게임!`;
 
       itemsXml += `    <item>
       <title>${escapeXml(itemTitle)}</title>
@@ -65,8 +65,8 @@ export async function GET() {
     staticQuestions.forEach((q) => {
       const pubDate = new Date(q.date).toUTCString();
       const itemTitle = `[${q.category}] ${q.title}`;
-      const itemLink = `https://upick.kr/play?q=${q.question_no}`;
-      const itemDesc = `"${q.option_a}" VS "${q.option_b}" - 당신의 진짜 취향은 다수일까 소수일까? 로그인 없이 즉시 확인하는 UPick 밸런스 게임!`;
+      const itemLink = `https://playkiro.kr/play?q=${q.question_no}`;
+      const itemDesc = `"${q.option_a}" VS "${q.option_b}" - 당신의 진짜 취향은 다수일까 소수일까? 로그인 없이 즉시 확인하는 기로 밸런스 게임!`;
 
       itemsXml += `    <item>
       <title>${escapeXml(itemTitle)}</title>
@@ -81,11 +81,11 @@ export async function GET() {
   const rssFeedXml = `<?xml version="1.0" encoding="UTF-8" ?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>UPick - 당신의 취향은? 극한의 밸런스게임!</title>
-    <link>https://upick.kr</link>
+    <title>기로 - 당신의 취향은? 극한의 밸런스게임!</title>
+    <link>https://playkiro.kr</link>
     <description>가입 없이 0초 만에 즐기는 취향 선택, 극한 딜레마와 실시간 통계</description>
     <language>ko</language>
-    <atom:link href="https://upick.kr/rss" rel="self" type="application/rss+xml" />
+    <atom:link href="https://playkiro.kr/rss" rel="self" type="application/rss+xml" />
 ${itemsXml}  </channel>
 </rss>`;
 

@@ -4,22 +4,22 @@ import GoogleAnalyticsTracker from "@/components/GoogleAnalyticsTracker";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "UPick (유픽) - 세상의 모든 극한 밸런스게임과 취향 분석 테스트",
+  title: "기로 - 세상의 모든 극한 밸런스게임과 취향 분석 테스트",
   description: "로그인 없이 0초 만에 남녀노소 누구나 즐길 수 있는 밸런스게임! 당신의 선택을 보여주고, 실시간 통계를 확인해 보세요.",
   icons: {
     icon: "/favicon.ico",
   },
   openGraph: {
-    title: "UPick (유픽) - 세상의 모든 극한 밸런스게임과 취향 분석 테스트",
+    title: "기로 - 세상의 모든 극한 밸런스게임과 취향 분석 테스트",
     description: "로그인 없이 0초 만에 남녀노소 누구나 즐길 수 있는 밸런스게임! 당신의 선택을 보여주고, 실시간 통계를 확인해 보세요.",
-    url: "https://upick.kr",
-    siteName: "UPick",
+    url: "https://playkiro.kr",
+    siteName: "기로",
     images: [
       {
-        url: "https://upick.kr/og-image.png",
+        url: "https://playkiro.kr/og-image.png",
         width: 1200,
         height: 630,
-        alt: "UPick 밸런스 게임 대표 이미지",
+        alt: "기로 밸런스 게임 대표 이미지",
       },
     ],
     locale: "ko_KR",
@@ -27,9 +27,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "UPick (유픽) - 세상의 모든 극한 밸런스게임과 취향 분석 테스트",
+    title: "기로 - 세상의 모든 극한 밸런스게임과 취향 분석 테스트",
     description: "로그인 없이 0초 만에 남녀노소 누구나 즐길 수 있는 밸런스게임! 당신의 선택을 보여주고, 실시간 통계를 확인해 보세요.",
-    images: ["https://upick.kr/og-image.png"],
+    images: ["https://playkiro.kr/og-image.png"],
   },
 };
 
@@ -54,9 +54,9 @@ export default function RootLayout({
         <link rel="icon" type="image/x-icon" href="/favicon.ico" />
         <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
         <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
-        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
-        <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png" />
-        <link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/favicon-180x180.png" />
+        <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192x192.png" />
+        <link rel="icon" type="image/png" sizes="512x512" href="/favicon-512x512.png" />
         <meta name="theme-color" content="#ffffff" />
 
         <link

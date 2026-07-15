@@ -20,7 +20,7 @@ export default function TermsPage() {
           <section className="space-y-2">
             <h2 className="text-base font-bold text-neutral-200">1. 약관의 목적</h2>
             <p>
-              본 약관은 UPick('유픽') 서비스가 제공하는 밸런스 게임 투표 및 통계 서비스(이하 '서비스')의 이용 조건 및 절차에 관한 기본적인 사항을 규정함을 목적으로 합니다.
+              본 약관은 기로 서비스가 제공하는 밸런스 게임 투표 및 통계 서비스(이하 '서비스')의 이용 조건 및 절차에 관한 기본적인 사항을 규정함을 목적으로 합니다.
             </p>
           </section>
 
@@ -36,7 +36,7 @@ export default function TermsPage() {
           <section className="space-y-2">
             <h2 className="text-base font-bold text-neutral-200">3. 책임의 제한</h2>
             <ul className="list-decimal list-inside pl-2 space-y-1">
-              <li>UPick 서비스는 사용자가 게재한 콘텐츠 또는 투표 내용의 타당성이나 신뢰성에 대해 책임을 지지 않습니다.</li>
+              <li>기로 서비스는 사용자가 게재한 콘텐츠 또는 투표 내용의 타당성이나 신뢰성에 대해 책임을 지지 않습니다.</li>
               <li>서버 점검, 통신 장애 등 불가항력적인 사유로 인해 서비스가 일시 중단될 수 있으며, 이로 인한 직접적/간접적 손해에 대해 책임을 지지 않습니다.</li>
             </ul>
           </section>
@@ -59,7 +59,7 @@ export default function TermsPage() {
           <span className="text-zinc-800">|</span>
           <a href="mailto:nocomenty7@gmail.com" className="hover:text-neutral-300 transition-all">문의하기</a>
         </div>
-        <p className="text-[10px] text-neutral-600">© 2026 UPick. All rights reserved.</p>
+        <p className="text-[10px] text-neutral-600">© 2026 기로. All rights reserved.</p>
       </footer>
     </div>
   );

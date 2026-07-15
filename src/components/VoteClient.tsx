@@ -39,7 +39,7 @@ export default function VoteClient({
 }: VoteClientProps) {
   const [userInfo, setUserInfo] = useState<{ gender: string; age_group: string } | null>(() => {
     if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('upick_user_info');
+      const saved = localStorage.getItem('kiro_user_info');
       if (saved) {
         try {
           return JSON.parse(saved);
@@ -68,7 +68,7 @@ export default function VoteClient({
   // CATEGORY FILTER STATE (Multi-select)
   const [selectedCategories, setSelectedCategories] = useState<string[]>(() => {
     if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('upick_filter_categories');
+      const saved = localStorage.getItem('kiro_filter_categories');
       if (saved) {
         try {
           return JSON.parse(saved);
@@ -123,8 +123,8 @@ export default function VoteClient({
   const handleMenuResetClick = () => {
     const now = Date.now();
     if (now - lastMenuClickTime < 300) { // Double tap within 300ms
-      localStorage.removeItem('upick_voted_questions');
-      localStorage.removeItem('upick_user_info');
+      localStorage.removeItem('kiro_voted_questions');
+      localStorage.removeItem('kiro_user_info');
       alert('개발자 모드: 투표 기록 및 프로필이 초기화되었습니다!');
       window.location.href = '/';
     } else {
@@ -133,8 +133,8 @@ export default function VoteClient({
   };
 
   const handleResetHistory = () => {
-    localStorage.removeItem('upick_voted_questions');
-    localStorage.removeItem('upick_user_info');
+    localStorage.removeItem('kiro_voted_questions');
+    localStorage.removeItem('kiro_user_info');
     window.location.reload();
   };
 
@@ -149,7 +149,7 @@ export default function VoteClient({
   // Save category filters on state change
   const updateSelectedCategories = (cats: string[]) => {
     setSelectedCategories(cats);
-    localStorage.setItem('upick_filter_categories', JSON.stringify(cats));
+    localStorage.setItem('kiro_filter_categories', JSON.stringify(cats));
   };
 
   const onToggleCategoryWrapper = (catName: string) => {
@@ -173,21 +173,21 @@ export default function VoteClient({
     if (typeof window !== 'undefined') {
       const urlParams = new URLSearchParams(window.location.search);
       if (urlParams.get('reset') === 'true') {
-        localStorage.removeItem('upick_voted_questions');
-        localStorage.removeItem('upick_user_info');
+        localStorage.removeItem('kiro_voted_questions');
+        localStorage.removeItem('kiro_user_info');
         window.location.href = '/';
         return;
       }
     }
 
-    const storedUser = localStorage.getItem('upick_user_info');
+    const storedUser = localStorage.getItem('kiro_user_info');
     if (storedUser) {
       setUserInfo(JSON.parse(storedUser));
     } else {
       setShowOnboarding(true);
     }
 
-    const votedList = JSON.parse(localStorage.getItem('upick_voted_questions') || '[]');
+    const votedList = JSON.parse(localStorage.getItem('kiro_voted_questions') || '[]');
     
     // Category filter check helper
     const matchesCategory = (q: any) => {
@@ -220,7 +220,7 @@ export default function VoteClient({
   }, [question, allQuestions, selectedCategories]);
 
   const handleOnboardingComplete = (data: { gender: string; age_group: string }) => {
-    localStorage.setItem('upick_user_info', JSON.stringify(data));
+    localStorage.setItem('kiro_user_info', JSON.stringify(data));
     setUserInfo(data);
     setShowOnboarding(false);
   };
@@ -229,7 +229,7 @@ export default function VoteClient({
   useEffect(() => {
     if (!hasVoted || !question || allQuestions.length === 0) return;
 
-    const votedList = JSON.parse(localStorage.getItem('upick_voted_questions') || '[]');
+    const votedList = JSON.parse(localStorage.getItem('kiro_voted_questions') || '[]');
     
     const matchesCategory = (q: any) => {
       if (selectedCategories.includes('전체')) return true;
@@ -262,10 +262,10 @@ export default function VoteClient({
       setVotesB((prev) => prev + 1);
     }
 
-    const votedList = JSON.parse(localStorage.getItem('upick_voted_questions') || '[]');
+    const votedList = JSON.parse(localStorage.getItem('kiro_voted_questions') || '[]');
     if (!votedList.includes(question.id)) {
       votedList.push(question.id);
-      localStorage.setItem('upick_voted_questions', JSON.stringify(votedList));
+      localStorage.setItem('kiro_voted_questions', JSON.stringify(votedList));
     }
 
     const gender = userInfo?.gender || '미선택';
@@ -304,7 +304,7 @@ export default function VoteClient({
     if (nextPrefetchedId) {
       router.replace(`/play?q=${nextPrefetchedId}`);
     } else {
-      const votedList = JSON.parse(localStorage.getItem('upick_voted_questions') || '[]');
+      const votedList = JSON.parse(localStorage.getItem('kiro_voted_questions') || '[]');
       
       const matchesCategory = (q: any) => {
         if (selectedCategories.includes('전체')) return true;
@@ -386,7 +386,7 @@ export default function VoteClient({
             <div className="flex flex-col gap-3 w-full">
               <motion.a
                 whileTap={{ scale: 0.98 }}
-                href="mailto:nocomenty7@gmail.com?subject=[UPick] 새로운 선택지 제안합니다!"
+                href="mailto:nocomenty7@gmail.com?subject=[기로] 새로운 선택지 제안합니다!"
                 className="flex items-center justify-center gap-2 rounded-xl bg-white hover:bg-neutral-200 text-zinc-950 font-black px-6 h-12 text-sm shadow-lg w-full"
               >
                 💡 새로운 선택지 제안하기
@@ -411,7 +411,7 @@ export default function VoteClient({
             <span className="text-zinc-800">|</span>
             <a href="mailto:nocomenty7@gmail.com" className="hover:text-neutral-350 transition-all">문의하기</a>
           </div>
-          <p className="text-[9px] text-neutral-600">© 2026 UPick. All rights reserved.</p>
+          <p className="text-[9px] text-neutral-600">© 2026 기로. All rights reserved.</p>
         </footer>
 
         {/* Bottom Ad */}
@@ -670,7 +670,7 @@ export default function VoteClient({
           <span className="text-zinc-800">|</span>
           <a href="mailto:nocomenty7@gmail.com" className="hover:text-neutral-350 transition-all">문의하기</a>
         </div>
-        <p className="text-[9px] text-neutral-650">© 2026 UPick. All rights reserved.</p>
+        <p className="text-[9px] text-neutral-650">© 2026 기로. All rights reserved.</p>
       </footer>
 
       {/* 4. AdSense Bottom Slot */}

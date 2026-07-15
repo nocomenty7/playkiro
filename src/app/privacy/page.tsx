@@ -20,7 +20,7 @@ export default function PrivacyPage() {
           <section className="space-y-2">
             <h2 className="text-base font-bold text-neutral-200">1. 개인정보의 수집 항목 및 목적</h2>
             <p>
-              UPick('모두의 밸런스게임') 서비스는 별도의 회원가입 과정 없이 서비스를 제공합니다. 다만, 투표의 성별/연령대별 상세 통계를 집계하고 제공하기 위해 사용자의 브라우저 내 로컬 스토리지(localStorage)를 통해 아래의 정보를 저장 및 사용합니다.
+              기로('모두의 밸런스게임') 서비스는 별도의 회원가입 과정 없이 서비스를 제공합니다. 다만, 투표의 성별/연령대별 상세 통계를 집계하고 제공하기 위해 사용자의 브라우저 내 로컬 스토리지(localStorage)를 통해 아래의 정보를 저장 및 사용합니다.
             </p>
             <ul className="list-disc list-inside pl-2 space-y-1">
               <li>수집 항목: 성별, 연령대</li>
@@ -38,7 +38,7 @@ export default function PrivacyPage() {
           <section className="space-y-2">
             <h2 className="text-base font-bold text-neutral-200">3. 제3자 제공 및 광고</h2>
             <p>
-              UPick 서비스는 수익 모델 제공을 위해 구글 애드센스(Google AdSense)를 통한 광고를 노출합니다. 구글은 사용자의 관심사에 맞는 광고를 게재하기 위해 쿠키(Cookie)를 사용하여 사용자의 웹사이트 방문 정보를 수집할 수 있습니다.
+              기로 서비스는 수익 모델 제공을 위해 구글 애드센스(Google AdSense)를 통한 광고를 노출합니다. 구글은 사용자의 관심사에 맞는 광고를 게재하기 위해 쿠키(Cookie)를 사용하여 사용자의 웹사이트 방문 정보를 수집할 수 있습니다.
             </p>
             <p>
               사용자는 브라우저 설정을 통해 쿠키 수집을 거부할 수 있으며, 이와 관련한 자세한 정보는 구글의 개인정보보호 정책 페이지를 통해 확인하실 수 있습니다.
@@ -51,7 +51,7 @@ export default function PrivacyPage() {
               서비스 이용 중 문의사항이 있으시면 아래 연락처로 문의해 주시기 바랍니다.
             </p>
             <ul className="list-inside pl-2 space-y-1">
-              <li>이메일: support@upick-game.com</li>
+              <li>이메일: support@playkiro.kr</li>
             </ul>
           </section>
         </main>
@@ -66,7 +66,7 @@ export default function PrivacyPage() {
           <span className="text-zinc-800">|</span>
           <a href="mailto:nocomenty7@gmail.com" className="hover:text-neutral-300 transition-all">문의하기</a>
         </div>
-        <p className="text-[10px] text-neutral-600">© 2026 UPick. All rights reserved.</p>
+        <p className="text-[10px] text-neutral-600">© 2026 기로. All rights reserved.</p>
       </footer>
     </div>
   );

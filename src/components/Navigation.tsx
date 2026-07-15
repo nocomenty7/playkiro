@@ -64,8 +64,8 @@ export default function Navigation({
   const handleMenuResetClick = () => {
     const now = Date.now();
     if (now - lastMenuClickTime < 300) { // Double tap within 300ms
-      localStorage.removeItem('upick_voted_questions');
-      localStorage.removeItem('upick_user_info');
+      localStorage.removeItem('kiro_voted_questions');
+      localStorage.removeItem('kiro_user_info');
       alert('개발자 모드: 투표 기록 및 프로필이 초기화되었습니다!');
       window.location.reload();
     } else {
@@ -80,7 +80,7 @@ export default function Navigation({
         <Link href="/" className="relative h-11 w-32 flex items-center">
           <img
             src="/logo.png?v=2"
-            alt="UPick Logo"
+            alt="기로 로고"
             className="h-10 w-auto object-contain pt-[2px]"
           />
         </Link>
@@ -133,7 +133,7 @@ export default function Navigation({
                     onClick={() => setShowDrawer(false)}
                     className="flex items-center gap-3 rounded-2xl bg-zinc-900/50 hover:bg-zinc-900 border border-zinc-900 p-3 text-xs font-extrabold text-neutral-250 transition-all hover:border-zinc-800"
                   >
-                    <span>UPick 소개</span>
+                    <span>기로 소개</span>
                   </Link>
                 </nav>
 
@@ -211,7 +211,7 @@ export default function Navigation({
 
               {/* Footer inside Drawer */}
               <div className="text-[10px] text-neutral-600 leading-normal text-center border-t border-zinc-900/40 pt-4">
-                <p>© 2026 UPick. All rights reserved.</p>
+                <p>© 2026 기로. All rights reserved.</p>
               </div>
             </motion.div>
           </div>

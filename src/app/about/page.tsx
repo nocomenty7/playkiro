@@ -36,7 +36,7 @@ export default function AboutPage() {
         >
           <ChevronLeft className="h-5 w-5" />
         </Link>
-        <h1 className="text-sm font-black tracking-wider text-neutral-300">UPick 소개</h1>
+        <h1 className="text-sm font-black tracking-wider text-neutral-300">기로 소개</h1>
         <div className="w-9 h-9" /> {/* Spacer */}
       </header>
 
@@ -55,7 +55,7 @@ export default function AboutPage() {
           >
             <img
               src="/logo.png?v=2"
-              alt="UPick Logo"
+              alt="기로 로고"
               className="max-h-full max-w-full object-contain p-2"
             />
           </motion.div>
@@ -143,7 +143,7 @@ export default function AboutPage() {
 
       {/* Copyright Footer */}
       <footer className="text-[10px] text-center text-zinc-650 py-4 shrink-0 border-t border-zinc-900/20">
-        © 2026 UPick. All rights reserved.
+        © 2026 기로. All rights reserved.
       </footer>
       
     </div>

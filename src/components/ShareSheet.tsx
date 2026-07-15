@@ -39,9 +39,9 @@ export default function ShareSheet({ onClose, shareUrl, questionTitle }: ShareSh
         Kakao.Share.sendDefault({
           objectType: 'feed',
           content: {
-            title: 'UPick - 세상의 모든 극한 밸런스게임',
+            title: '기로 - 세상의 모든 극한 밸런스게임',
             description: questionTitle,
-            imageUrl: 'https://upick.kr/og-image.png',
+            imageUrl: 'https://playkiro.kr/og-image.png',
             link: {
               mobileWebUrl: currentUrl,
               webUrl: currentUrl,

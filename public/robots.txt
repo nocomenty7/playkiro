@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://upick.kr/sitemap.xml
+Sitemap: https://playkiro.kr/sitemap.xml
