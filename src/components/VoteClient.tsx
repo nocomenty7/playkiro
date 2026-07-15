@@ -456,7 +456,7 @@ export default function VoteClient({
       <main className="flex-1 flex flex-col min-h-0 px-4 py-3 justify-between">
         
         {/* Game Capture Area (Captured for Image Export) */}
-        <div id="game-capture-area" className="flex flex-col bg-[#0b0c16]/50 p-4 rounded-3xl border border-zinc-900/80 gap-3.5 flex-1 min-h-0">
+        <div id="game-capture-area" className="flex flex-col bg-[#0b0c16]/50 pt-2.5 pb-4 px-4 rounded-3xl border border-zinc-900/80 gap-2 flex-1 min-h-0">
           
           {/* Header Row: Category Badge (Left) and Share Button (Right) */}
           <div className="flex items-center justify-between shrink-0">
@@ -491,14 +491,14 @@ export default function VoteClient({
           </div>
 
           {/* Question Title Header - Large & Bold inside capture block */}
-          <div className="text-center py-0.5 shrink-0">
-            <h1 className="text-4xl md:text-5xl font-kiro leading-snug text-[#ffe5a9] tracking-tight whitespace-pre-line px-1">
+          <div className="text-center py-0 shrink-0">
+            <h1 className="text-4xl md:text-5xl font-kiro leading-[1.1] text-[#ffe5a9] tracking-tight whitespace-pre-line px-1">
               {question.title}
             </h1>
           </div>
 
           {/* Voting Stack Container */}
-          <div className="flex-grow flex flex-col gap-3 min-h-0 relative">
+          <div className="flex-grow flex flex-col gap-3 mt-3.5 min-h-0 relative">
             
             {/* Card Option A (Top) */}
             <motion.button
@@ -542,7 +542,7 @@ export default function VoteClient({
                   {question.emoji_a && (
                     <span className="text-3xl leading-none shrink-0">{question.emoji_a}</span>
                   )}
-                  <p className="text-3xl md:text-4xl font-kiro leading-tight text-neutral-100 max-h-20 overflow-y-auto">
+                  <p className="text-3xl md:text-4xl font-kiro leading-[1.15] text-neutral-100 max-h-24 overflow-y-auto">
                     {question.option_a}
                   </p>
                 </div>
@@ -606,7 +606,7 @@ export default function VoteClient({
                   {question.emoji_b && (
                     <span className="text-3xl leading-none shrink-0">{question.emoji_b}</span>
                   )}
-                  <p className="text-3xl md:text-4xl font-kiro leading-tight text-neutral-100 max-h-20 overflow-y-auto">
+                  <p className="text-3xl md:text-4xl font-kiro leading-[1.15] text-neutral-100 max-h-24 overflow-y-auto">
                     {question.option_b}
                   </p>
                 </div>
@@ -633,12 +633,12 @@ export default function VoteClient({
 
         {/* Action Controls & Navigation (Post-Vote only) */}
         {hasVoted && (
-          <div className="h-14 shrink-0 flex items-center justify-between gap-3 mt-2.5">
+          <div className="h-12 shrink-0 flex items-center justify-between gap-3 mt-1.5">
             <motion.button
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               onClick={() => setShowStats(true)}
-              className="flex items-center justify-center gap-1.5 rounded-xl border border-zinc-800 bg-zinc-900/50 hover:bg-zinc-900 px-5 h-11 text-sm font-bold text-neutral-200 transition-all flex-1 shadow-md"
+              className="flex items-center justify-center gap-1.5 rounded-xl border border-zinc-800 bg-zinc-900/50 hover:bg-zinc-900 px-5 h-10 text-sm font-bold text-neutral-200 transition-all flex-1 shadow-md"
             >
               <BarChart3 className="h-4 w-4 text-neutral-400" /> 통계 보기
             </motion.button>
@@ -648,7 +648,7 @@ export default function VoteClient({
               animate={{ opacity: 1, y: 0 }}
               onClick={handleNextQuestion}
               disabled={redirecting}
-              className="flex items-center justify-center gap-1.5 rounded-xl bg-white hover:bg-neutral-200 text-zinc-950 font-extrabold px-6 h-11 text-sm transition-all flex-[1.4] shadow-lg disabled:opacity-50"
+              className="flex items-center justify-center gap-1.5 rounded-xl bg-white hover:bg-neutral-200 text-zinc-950 font-extrabold px-6 h-10 text-sm transition-all flex-[1.4] shadow-lg disabled:opacity-50"
             >
               {redirecting ? (
                 <span className="h-4 w-4 animate-spin rounded-full border-2 border-zinc-950 border-t-transparent" />
@@ -662,7 +662,7 @@ export default function VoteClient({
       </main>
 
       {/* Global Trust Footer */}
-      <footer className="w-full py-4 shrink-0 border-t border-zinc-900/40 text-center flex flex-col items-center gap-2">
+      <footer className="w-full py-2 shrink-0 border-t border-zinc-900/40 text-center flex flex-col items-center gap-1">
         <div className="flex items-center justify-center gap-3 text-[10px] text-neutral-500 font-extrabold">
           <Link href="/privacy" className="hover:text-neutral-350 transition-all">개인정보처리방침</Link>
           <span className="text-zinc-800">|</span>
