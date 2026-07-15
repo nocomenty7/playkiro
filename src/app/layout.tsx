@@ -83,7 +83,7 @@ export default function RootLayout({
       <body className="min-h-full bg-[#080911] text-white antialiased">
         {/* Google Analytics (GA4) Script */}
         <Script
-          src="https://www.googletagmanager.com/gtag/js?id=G-1EQTDJBSD4"
+          src="https://www.googletagmanager.com/gtag/js?id=G-PKN41V9Q68"
           strategy="afterInteractive"
         />
         <Script id="google-analytics" strategy="afterInteractive">
@@ -91,10 +91,10 @@ export default function RootLayout({
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
-            gtag('config', 'G-1EQTDJBSD4', { send_page_view: false });
+            gtag('config', 'G-PKN41V9Q68', { send_page_view: false });
           `}
         </Script>
-        <GoogleAnalyticsTracker gaId="G-1EQTDJBSD4" />
+        <GoogleAnalyticsTracker gaId="G-PKN41V9Q68" />
         {children}
       </body>
     </html>
