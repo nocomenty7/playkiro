@@ -1,12 +1,5 @@
+@import url('https://hangeul.pstatic.net/hangeul_static/css/nanum-square-neo.css');
 @import "tailwindcss";
-
-@font-face {
-  font-family: 'NanumSquareRound';
-  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_two@1.0/NanumSquareRound.woff') format('woff');
-  font-weight: normal;
-  font-style: normal;
-  font-display: swap;
-}
 
 :root {
   --background: #080911;
@@ -17,7 +10,7 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-  --font-kiro: "NanumSquareRound", sans-serif;
+  --font-kiro: "NanumSquareNeoVariable", "NanumSquareNeo", sans-serif;
   --color-brand-yellow: #f5c352;
 }
 
