@@ -59,3 +59,12 @@ body {
   width: max-content;
   animation: marquee-reverse 30s linear infinite;
 }
+
+/* Hide scrollbar utility for cleaner UI */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}

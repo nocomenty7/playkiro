@@ -542,7 +542,7 @@ export default function VoteClient({
                   {question.emoji_a && (
                     <span className="text-3xl leading-none shrink-0">{question.emoji_a}</span>
                   )}
-                  <p className="text-3xl md:text-4xl font-kiro leading-[1.15] text-neutral-100 max-h-24 overflow-y-auto">
+                  <p className="text-3xl md:text-4xl font-kiro leading-[1.15] text-neutral-100 max-h-24 overflow-y-auto no-scrollbar">
                     {question.option_a}
                   </p>
                 </div>
@@ -606,7 +606,7 @@ export default function VoteClient({
                   {question.emoji_b && (
                     <span className="text-3xl leading-none shrink-0">{question.emoji_b}</span>
                   )}
-                  <p className="text-3xl md:text-4xl font-kiro leading-[1.15] text-neutral-100 max-h-24 overflow-y-auto">
+                  <p className="text-3xl md:text-4xl font-kiro leading-[1.15] text-neutral-100 max-h-24 overflow-y-auto no-scrollbar">
                     {question.option_b}
                   </p>
                 </div>
