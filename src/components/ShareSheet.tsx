@@ -19,7 +19,7 @@ export default function ShareSheet({ onClose, shareUrl, questionTitle }: ShareSh
     if (typeof window !== 'undefined' && (window as any).Kakao) {
       const Kakao = (window as any).Kakao;
       if (!Kakao.isInitialized()) {
-        Kakao.init('c8bab3f86917bb95745ee4d89ed0e0d1');
+        Kakao.init('83fc930297eef5057e117b3fcb4c4337');
       }
     }
   }, []);
