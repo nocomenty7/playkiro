@@ -103,13 +103,11 @@ function LandingClient() {
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="text-3xl md:text-4xl lg:text-5xl font-kiro leading-snug tracking-tight text-neutral-100 px-2"
+            className="text-3xl md:text-4xl lg:text-5xl font-kiro leading-snug tracking-tight text-neutral-100 px-2 break-keep"
           >
-            당신의 <span className="text-brand-yellow">취향</span>은 다수? 소수?
+            내 <span className="text-brand-yellow">취향</span>은 어느 쪽?
             <br />
-            끝없는 <span className="text-brand-yellow">양자택일</span>과 밸런스게임
-            <br />
-            <span className="text-brand-yellow">기로</span>에 오신 것을 환영합니다!
+            끝없는 밸런스게임, <span className="text-brand-yellow">'기로'</span>
           </motion.h1>
 
           {/* Modern SaaS Value Propositions (Stacked Vertically) */}
