@@ -241,7 +241,7 @@ export default function StreamerModal({ isOpen, onClose }: StreamerModalProps) {
                   : 'text-neutral-400 hover:text-neutral-200'
               }`}
             >
-              <Users className="w-4 h-4 text-blue-400" />
+              <Users className="w-4 h-4 text-amber-400" />
               <span>입장하기 (시청자)</span>
             </button>
 
@@ -283,24 +283,21 @@ export default function StreamerModal({ isOpen, onClose }: StreamerModalProps) {
               </div>
 
               <div>
-                <div className="flex justify-between items-center mb-1.5">
-                  <label className="block text-xs font-extrabold text-neutral-300">시청자 닉네임</label>
-                  <span className="text-[10px] text-neutral-500 font-bold">한글 12자 / 영문 24자 이내</span>
-                </div>
-                {/* Item 6: Updated placeholder text */}
+                {/* Item 6: Removed right-side text '한글 12자 / 영문 24자 이내' */}
+                <label className="block text-xs font-extrabold text-neutral-300 mb-1.5">시청자 닉네임</label>
                 <input
                   type="text"
                   placeholder="한글 12자, 영문 24자 이내 닉네임 입력"
                   value={joinNickname}
                   onChange={(e) => setJoinNickname(e.target.value)}
-                  className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-sm font-bold text-white placeholder-zinc-600 focus:outline-none focus:border-blue-500"
+                  className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-sm font-bold text-white placeholder-zinc-600 focus:outline-none focus:border-brand-yellow"
                 />
               </div>
 
               <button
                 type="submit"
                 disabled={joining}
-                className="w-full py-3.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-black text-sm transition-all shadow-lg flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                className="w-full py-3.5 rounded-xl bg-brand-yellow text-zinc-950 hover:bg-yellow-400 font-black text-sm transition-all shadow-lg flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
               >
                 <span>입장하기</span>
                 <ArrowRight className="w-4 h-4" />
@@ -312,10 +309,8 @@ export default function StreamerModal({ isOpen, onClose }: StreamerModalProps) {
           {activeTab === 'create' && (
             <form onSubmit={handleCreateRoom} className="space-y-4 max-h-[60vh] overflow-y-auto pr-1 no-scrollbar">
               <div>
-                <div className="flex justify-between items-center mb-1.5">
-                  <label className="block text-xs font-extrabold text-neutral-300">스트리머 닉네임</label>
-                  <span className="text-[10px] text-neutral-500 font-bold">한글 12자 / 영문 24자 이내</span>
-                </div>
+                {/* Item 6: Removed right-side text '한글 12자 / 영문 24자 이내' */}
+                <label className="block text-xs font-extrabold text-neutral-300 mb-1.5">스트리머 닉네임</label>
                 <input
                   type="text"
                   placeholder="한글 12자, 영문 24자 이내 닉네임 입력"
