@@ -11,6 +11,15 @@ interface StreamerModalProps {
   onClose: () => void;
 }
 
+// Helper: Korean 12 chars, English 24 chars weight check
+export const validateNicknameLength = (nickname: string): boolean => {
+  let weight = 0;
+  for (let i = 0; i < nickname.length; i++) {
+    weight += nickname.charCodeAt(i) > 128 ? 1 : 0.5;
+  }
+  return weight <= 12; // Korean 12 chars, English 24 chars limit
+};
+
 export default function StreamerModal({ isOpen, onClose }: StreamerModalProps) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<'create' | 'join'>('join');
@@ -43,7 +52,6 @@ export default function StreamerModal({ isOpen, onClose }: StreamerModalProps) {
     { name: '극한 밸런스게임', activeClass: 'border-neutral-500 bg-neutral-500 text-white', inactiveClass: 'border-neutral-500/30 bg-neutral-500/5 text-neutral-400 hover:border-neutral-500/50' }
   ];
 
-  // Fetch Category Question Counts Dynamically on Mount
   useEffect(() => {
     if (!isOpen) return;
     const fetchCounts = async () => {
@@ -94,7 +102,6 @@ export default function StreamerModal({ isOpen, onClose }: StreamerModalProps) {
     return sid;
   };
 
-  // Item 8: Calculate total available questions for selected categories
   const getAvailableQuestionCount = () => {
     if (selectedCategories.includes('전체')) {
       return questionCounts['전체'] || 0;
@@ -110,7 +117,14 @@ export default function StreamerModal({ isOpen, onClose }: StreamerModalProps) {
     e.preventDefault();
     setErrorMsg('');
 
-    // Item 8 Validation: Check if available questions is less than required totalQuestions
+    const trimmedNickname = hostNickname.trim() || '스트리머';
+
+    // Nickname Length Validation
+    if (!validateNicknameLength(trimmedNickname)) {
+      setErrorMsg('닉네임은 한글 12자, 영문 24자 이내로 입력해 주세요.');
+      return;
+    }
+
     const availableCount = getAvailableQuestionCount();
     if (availableCount > 0 && availableCount < totalQuestions) {
       setErrorMsg(`선택한 카테고리의 총 문항 수(${availableCount}개)가 설정한 문제 수(${totalQuestions}개)보다 적습니다. 카테고리를 추가하거나 문제 수를 줄여주세요.`);
@@ -125,7 +139,7 @@ export default function StreamerModal({ isOpen, onClose }: StreamerModalProps) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          hostNickname: hostNickname.trim() || '스트리머',
+          hostNickname: trimmedNickname,
           hostGender,
           hostAgeGroup,
           hostSessionId: sessionId,
@@ -162,6 +176,12 @@ export default function StreamerModal({ isOpen, onClose }: StreamerModalProps) {
 
     if (!nickname) {
       setErrorMsg('참여하실 닉네임을 입력해 주세요.');
+      return;
+    }
+
+    // Nickname Length Validation
+    if (!validateNicknameLength(nickname)) {
+      setErrorMsg('닉네임은 한글 12자, 영문 24자 이내로 입력해 주세요.');
       return;
     }
 
@@ -265,10 +285,12 @@ export default function StreamerModal({ isOpen, onClose }: StreamerModalProps) {
               </div>
 
               <div>
-                <label className="block text-xs font-extrabold text-neutral-300 mb-1.5">시청자 닉네임</label>
+                <div className="flex justify-between items-center mb-1.5">
+                  <label className="block text-xs font-extrabold text-neutral-300">시청자 닉네임</label>
+                  <span className="text-[10px] text-neutral-500 font-bold">한글 12자 / 영문 24자 이내</span>
+                </div>
                 <input
                   type="text"
-                  maxLength={15}
                   placeholder="랭킹표에 표시될 닉네임 입력"
                   value={joinNickname}
                   onChange={(e) => setJoinNickname(e.target.value)}
@@ -291,10 +313,12 @@ export default function StreamerModal({ isOpen, onClose }: StreamerModalProps) {
           {activeTab === 'create' && (
             <form onSubmit={handleCreateRoom} className="space-y-4 max-h-[60vh] overflow-y-auto pr-1 no-scrollbar">
               <div>
-                <label className="block text-xs font-extrabold text-neutral-300 mb-1.5">방장(스트리머) 닉네임</label>
+                <div className="flex justify-between items-center mb-1.5">
+                  <label className="block text-xs font-extrabold text-neutral-300">스트리머 닉네임</label>
+                  <span className="text-[10px] text-neutral-500 font-bold">한글 12자 / 영문 24자 이내</span>
+                </div>
                 <input
                   type="text"
-                  maxLength={15}
                   value={hostNickname}
                   onChange={(e) => setHostNickname(e.target.value)}
                   className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-sm font-bold text-white focus:outline-none focus:border-brand-yellow"
@@ -351,11 +375,10 @@ export default function StreamerModal({ isOpen, onClose }: StreamerModalProps) {
                 </div>
               </div>
 
-              {/* Category Filter Chips matching Navigation.tsx exactly */}
+              {/* Category Filter Chips */}
               <div className="border-t border-zinc-900/80 pt-3">
                 <label className="block text-xs font-extrabold text-neutral-300 mb-2">카테고리 필터</label>
 
-                {/* Option 1: 전체 (Top on its own row) */}
                 <div className="mb-2.5">
                   {categoriesConfig.filter(c => c.name === '전체').map((cat) => {
                     const isActive = selectedCategories.includes(cat.name);
@@ -375,7 +398,6 @@ export default function StreamerModal({ isOpen, onClose }: StreamerModalProps) {
                   })}
                 </div>
 
-                {/* Option 2: Remaining categories (Flex wrap grid below) */}
                 <div className="flex flex-wrap gap-2">
                   {categoriesConfig.filter(c => c.name !== '전체').map((cat) => {
                     const isActive = selectedCategories.includes(cat.name);
