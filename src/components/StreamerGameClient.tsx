@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Users, Trophy, Lock, Play, ArrowRight, Copy, Check, Sparkles, LogOut } from 'lucide-react';
+import { Users, Trophy, Lock, Play, ArrowRight, Copy, Check, Sparkles, LogOut, Home } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 
 interface StreamerGameClientProps {
@@ -80,7 +80,10 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
         setRoom(roomData);
 
         const isHost = roomData.host_id === mySessionId;
-        const nicknameToUse = viewerNickname || (isHost ? `${roomData.host_nickname} (👑)` : '시청자_' + Math.floor(Math.random() * 1000));
+        
+        // Read nickname from sessionStorage first (clean URL without ?nickname=), with fallback to prop
+        const storedNickname = typeof window !== 'undefined' ? sessionStorage.getItem(`kiro_viewer_nickname_${pin}`) : null;
+        const nicknameToUse = storedNickname || viewerNickname || (isHost ? `${roomData.host_nickname} (👑)` : '시청자_' + Math.floor(Math.random() * 1000));
 
         // Show Host Onboarding Guide when host first enters room
         if (isHost && roomData.status === 'VOTING' && roomData.current_question_index === 0) {
@@ -561,7 +564,8 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
             </div>
           </div>
 
-          <div className="pb-8">
+          {/* Action Buttons: Single Mode & Main Navigation */}
+          <div className="pb-8 space-y-3">
             <Link
               href="/play"
               className="w-full py-4.5 rounded-2xl bg-gradient-to-r from-brand-yellow via-amber-400 to-yellow-500 text-zinc-950 font-black text-base md:text-lg shadow-2xl hover:brightness-110 transition-all flex items-center justify-center gap-2 cursor-pointer border border-yellow-300"
@@ -569,6 +573,15 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
               <Sparkles className="w-5 h-5" />
               <span>👤 혼자 플레이하기 (싱글 모드)</span>
               <ArrowRight className="w-5 h-5" />
+            </Link>
+
+            {/* Item 1: Added '메인화면으로 돌아가기' button */}
+            <Link
+              href="/"
+              className="w-full py-3.5 rounded-2xl bg-zinc-900 border border-zinc-800 text-neutral-300 hover:text-white hover:bg-zinc-850 font-black text-sm md:text-base transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md"
+            >
+              <Home className="w-4 h-4 text-neutral-400" />
+              <span>메인화면으로 돌아가기</span>
             </Link>
           </div>
         </div>
@@ -612,7 +625,7 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
               </div>
             )}
 
-            {/* Option A & B Cards - Centered Text & Non-Overlapping Conditional Badges */}
+            {/* Option A & B Cards */}
             {currentQuestion && (
               <div className="grid grid-cols-1 gap-4 pt-1">
                 {/* Option 1 (A) - Yellow / Amber */}
@@ -639,7 +652,6 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
                   )}
 
                   <div className="relative z-10 flex flex-col items-center justify-center gap-1.5 w-full text-center my-auto">
-                    {/* Render Badges ONLY when active (No forced empty space when 0 badges) */}
                     {(myVote === 'A' || room.host_pick === 'A') && (
                       <div className="flex items-center justify-center gap-2 flex-wrap mb-1">
                         {myVote === 'A' && (
@@ -655,7 +667,6 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
                       </div>
                     )}
 
-                    {/* Emoji + Text Vertically & Horizontally Centered */}
                     <div className="flex items-center justify-center gap-2.5 w-full my-auto">
                       {currentQuestion.emoji_a && (
                         <span className="text-3xl md:text-4xl leading-none shrink-0">{currentQuestion.emoji_a}</span>
@@ -665,7 +676,6 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
                       </p>
                     </div>
 
-                    {/* Percentage & Count Result Revealed AFTER Streamer Pick */}
                     {room.status === 'RESULT' && (
                       <motion.div
                         initial={{ opacity: 0, scale: 0.8 }}
@@ -704,7 +714,6 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
                   )}
 
                   <div className="relative z-10 flex flex-col items-center justify-center gap-1.5 w-full text-center my-auto">
-                    {/* Render Badges ONLY when active (No forced empty space when 0 badges) */}
                     {(myVote === 'B' || room.host_pick === 'B') && (
                       <div className="flex items-center justify-center gap-2 flex-wrap mb-1">
                         {myVote === 'B' && (
@@ -720,7 +729,6 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
                       </div>
                     )}
 
-                    {/* Emoji + Text Vertically & Horizontally Centered */}
                     <div className="flex items-center justify-center gap-2.5 w-full my-auto">
                       {currentQuestion.emoji_b && (
                         <span className="text-3xl md:text-4xl leading-none shrink-0">{currentQuestion.emoji_b}</span>
@@ -730,7 +738,6 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
                       </p>
                     </div>
 
-                    {/* Percentage & Count Result Revealed AFTER Streamer Pick */}
                     {room.status === 'RESULT' && (
                       <motion.div
                         initial={{ opacity: 0, scale: 0.8 }}

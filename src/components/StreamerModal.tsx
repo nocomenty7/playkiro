@@ -184,8 +184,10 @@ export default function StreamerModal({ isOpen, onClose }: StreamerModalProps) {
     }
 
     setJoining(true);
+    // Store nickname in sessionStorage so URL parameter is not exposed in address bar
+    sessionStorage.setItem(`kiro_viewer_nickname_${pin}`, nickname);
     onClose();
-    router.push(`/streamer/${pin}?nickname=${encodeURIComponent(nickname)}`);
+    router.push(`/streamer/${pin}`);
   };
 
   if (!isOpen) return null;
@@ -283,7 +285,6 @@ export default function StreamerModal({ isOpen, onClose }: StreamerModalProps) {
               </div>
 
               <div>
-                {/* Item 6: Removed right-side text '한글 12자 / 영문 24자 이내' */}
                 <label className="block text-xs font-extrabold text-neutral-300 mb-1.5">시청자 닉네임</label>
                 <input
                   type="text"
@@ -309,7 +310,6 @@ export default function StreamerModal({ isOpen, onClose }: StreamerModalProps) {
           {activeTab === 'create' && (
             <form onSubmit={handleCreateRoom} className="space-y-4 max-h-[60vh] overflow-y-auto pr-1 no-scrollbar">
               <div>
-                {/* Item 6: Removed right-side text '한글 12자 / 영문 24자 이내' */}
                 <label className="block text-xs font-extrabold text-neutral-300 mb-1.5">스트리머 닉네임</label>
                 <input
                   type="text"
