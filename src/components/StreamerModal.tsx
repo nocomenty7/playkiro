@@ -94,9 +94,29 @@ export default function StreamerModal({ isOpen, onClose }: StreamerModalProps) {
     return sid;
   };
 
+  // Item 8: Calculate total available questions for selected categories
+  const getAvailableQuestionCount = () => {
+    if (selectedCategories.includes('전체')) {
+      return questionCounts['전체'] || 0;
+    }
+    let total = 0;
+    selectedCategories.forEach((cat) => {
+      total += questionCounts[cat] || 0;
+    });
+    return total;
+  };
+
   const handleCreateRoom = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg('');
+
+    // Item 8 Validation: Check if available questions is less than required totalQuestions
+    const availableCount = getAvailableQuestionCount();
+    if (availableCount > 0 && availableCount < totalQuestions) {
+      setErrorMsg(`선택한 카테고리의 총 문항 수(${availableCount}개)가 설정한 문제 수(${totalQuestions}개)보다 적습니다. 카테고리를 추가하거나 문제 수를 줄여주세요.`);
+      return;
+    }
+
     setCreating(true);
 
     try {
@@ -204,7 +224,7 @@ export default function StreamerModal({ isOpen, onClose }: StreamerModalProps) {
               }`}
             >
               <Users className="w-4 h-4 text-blue-400" />
-              <span>코드로 입장하기 (시청자)</span>
+              <span>입장하기 (시청자)</span>
             </button>
 
             <button
@@ -224,7 +244,7 @@ export default function StreamerModal({ isOpen, onClose }: StreamerModalProps) {
           </div>
 
           {errorMsg && (
-            <div className="mb-4 p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs font-bold text-center animate-pulse">
+            <div className="mb-4 p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs font-bold text-center animate-pulse leading-relaxed">
               ⚠️ {errorMsg}
             </div>
           )}
@@ -281,7 +301,7 @@ export default function StreamerModal({ isOpen, onClose }: StreamerModalProps) {
                 />
               </div>
 
-              {/* Gender & Age (6 Exact Single Mode Options) */}
+              {/* Gender & Age */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-extrabold text-neutral-300 mb-1.5">성별</label>

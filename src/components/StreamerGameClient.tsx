@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Tv, Users, Trophy, Lock, Play, ArrowRight, Share2, Check, Sparkles } from 'lucide-react';
+import { Users, Trophy, Lock, Play, ArrowRight, Copy, Check, Sparkles, LogOut } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import TugOfWarBar from './TugOfWarBar';
 
@@ -28,6 +28,7 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState('');
   const [copied, setCopied] = useState(false);
+  const [showToast, setShowToast] = useState(false);
   const [submittingPick, setSubmittingPick] = useState(false);
 
   // Get or initialize Session ID
@@ -72,7 +73,7 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
           .select('*')
           .eq('room_id', roomData.id)
           .eq('session_id', mySessionId)
-          .single();
+          .maybeSingle();
 
         if (existingP) {
           setMyParticipantId(existingP.id);
@@ -108,6 +109,21 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
 
     initRoom();
   }, [pin, mySessionId, viewerNickname]);
+
+  // Item 9: Host Tab Close / Unload Event Handler to finish room safely
+  useEffect(() => {
+    if (!room?.id || room?.host_id !== mySessionId) return;
+
+    const handleBeforeUnload = () => {
+      // Send beacon or async DB call to mark room as finished if host closes tab
+      supabase.from('rooms').update({ status: 'FINISHED' }).eq('id', room.id).then();
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [room?.id, room?.host_id, mySessionId]);
 
   // Fetch Question details
   const fetchQuestionForIndex = async (qId: string) => {
@@ -206,6 +222,8 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
 
   // Actions
   const isHost = room?.host_id === mySessionId;
+  // Item 3: Viewer Count only (excluding host)
+  const viewerCount = Math.max(0, participants.length - (isHost ? 1 : 1));
 
   const handleVoteSubmit = async (voteOption: 'A' | 'B') => {
     if (!room || room.status !== 'VOTING' || myVote || !myParticipantId) return;
@@ -273,10 +291,23 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
     }
   };
 
+  // Item 9: Host Finish/Close Room manually
+  const handleHostFinishRoom = async () => {
+    if (!isHost || !room) return;
+    if (confirm('정말로 함께 플레이하기 방을 종료하시겠습니까?')) {
+      await supabase.from('rooms').update({ status: 'FINISHED' }).eq('id', room.id);
+    }
+  };
+
+  // Item 2: Copy PIN with Clipboard Icon & Center Toast
   const handleCopyPin = () => {
     navigator.clipboard.writeText(pin);
     setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    setShowToast(true);
+    setTimeout(() => {
+      setCopied(false);
+      setShowToast(false);
+    }, 2000);
   };
 
   if (loading) {
@@ -311,7 +342,7 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
             <div className="inline-flex p-3 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 mb-2">
               <Trophy className="w-8 h-8" />
             </div>
-            <h1 className="text-2xl font-black tracking-tight text-white">🏆 최종 랭킹전 결과</h1>
+            <h1 className="text-2xl font-black tracking-tight text-white">🏆 최종 함께 플레이 결과</h1>
             <p className="text-xs text-neutral-400">스트리머 픽을 가장 잘 맞힌 최종 우승자들입니다!</p>
           </div>
 
@@ -378,102 +409,170 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
   // ACTIVE GAMEPLAY SCREEN
   return (
     <div className="min-h-screen bg-[#080911] text-white flex flex-col items-center justify-between p-4 max-w-md mx-auto relative">
-      {/* Top Header Bar */}
+      {/* Item 2: Center Toast Notification */}
+      <AnimatePresence>
+        {showToast && (
+          <motion.div
+            initial={{ opacity: 0, y: 10, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 bg-zinc-900/95 border border-brand-yellow/40 text-brand-yellow px-5 py-3 rounded-2xl shadow-2xl text-xs font-extrabold flex items-center gap-2 backdrop-blur-md"
+          >
+            <span>📋 PIN 번호가 클립보드에 복사되었습니다.</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Top Header Bar with Item 4 (LIVE Indicator), Item 2 (Copy PIN), Item 3 (Viewers Count) */}
       <header className="w-full flex items-center justify-between py-3 px-2 border-b border-zinc-900">
+        {/* Item 4: Red Pulsing LIVE Indicator */}
         <div className="flex items-center gap-2">
-          <span className="text-xs font-black text-neutral-400 bg-zinc-900 px-2.5 py-1 rounded-lg border border-zinc-800">
-            Q {room.current_question_index + 1} / {room.total_questions}
-          </span>
+          <div className="flex items-center gap-1.5 bg-rose-500/10 border border-rose-500/30 px-2.5 py-1 rounded-lg">
+            <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse" />
+            <span className="text-[11px] font-black text-rose-500 tracking-wider">LIVE</span>
+          </div>
+
+          {/* Item 2: PIN with Clipboard Copy Icon */}
           <button
             onClick={handleCopyPin}
-            className="flex items-center gap-1.5 text-xs font-black text-brand-yellow bg-brand-yellow/10 border border-brand-yellow/30 px-2.5 py-1 rounded-lg hover:bg-brand-yellow/20 transition"
+            className="flex items-center gap-1.5 text-xs font-black text-brand-yellow bg-brand-yellow/10 border border-brand-yellow/30 px-2.5 py-1 rounded-lg hover:bg-brand-yellow/20 transition cursor-pointer"
+            title="PIN 번호 복사"
           >
             <span>PIN: {pin}</span>
-            {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Share2 className="w-3.5 h-3.5" />}
+            {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
           </button>
         </div>
 
+        {/* Item 3: Viewers Count Only */}
         <div className="flex items-center gap-1.5 text-xs text-neutral-400 font-bold">
           <Users className="w-4 h-4 text-blue-400" />
-          <span>{participants.length}명</span>
+          <span>시청자 {viewerCount}명</span>
         </div>
       </header>
 
-      {/* Main Question Card Area */}
+      {/* Item 1: Main Question Card Area - Re-using Single Mode UI/UX from VoteClient.tsx */}
       <main className="w-full flex-1 flex flex-col justify-center space-y-4 py-4">
-        {/* Question Title */}
-        {currentQuestion && (
-          <div className="text-center space-y-2">
-            <span className="text-[10px] font-extrabold text-neutral-500 uppercase tracking-widest bg-zinc-900 px-3 py-1 rounded-full border border-zinc-800">
-              {currentQuestion.category || '밸런스게임'}
+        {/* Single Mode Style Card Container */}
+        <div className="bg-zinc-950/40 border border-zinc-900 rounded-3xl p-4 md:p-6 backdrop-blur-xl shadow-2xl space-y-4">
+          
+          {/* Question Category & Progress Badge */}
+          <div className="flex items-center justify-between text-xs px-1">
+            <span className="font-extrabold text-neutral-400 bg-zinc-900 px-3 py-1 rounded-full border border-zinc-800">
+              {currentQuestion?.category || '밸런스게임'}
             </span>
-            <h1 className="text-xl md:text-2xl font-black text-[#ffe5a9] leading-snug tracking-tight px-2 break-keep">
-              {currentQuestion.title}
-            </h1>
+            <span className="font-black text-neutral-400 bg-zinc-900 px-2.5 py-1 rounded-lg border border-zinc-800 text-[11px]">
+              Q {room.current_question_index + 1} / {room.total_questions}
+            </span>
           </div>
-        )}
 
-        {/* Tug of War Realtime Gauge */}
-        <TugOfWarBar
-          votesA={votesA}
-          votesB={votesB}
-          hasVotedOrHost={isHost || !!myVote || room.status !== 'VOTING'}
-          optionAText={currentQuestion?.option_a || '선택 A'}
-          optionBText={currentQuestion?.option_b || '선택 B'}
-        />
+          {/* Single Mode Style Question Title (#ffe5a9 font-kiro) */}
+          {currentQuestion && (
+            <div className="text-center py-1 shrink-0">
+              <h1 className="text-2xl md:text-3xl font-kiro leading-[1.1] text-[#ffe5a9] tracking-tight whitespace-pre-line break-keep px-1">
+                {currentQuestion.title}
+              </h1>
+            </div>
+          )}
 
-        {/* Option Selection Buttons A vs B */}
-        {currentQuestion && (
-          <div className="grid grid-cols-1 gap-3 pt-2">
-            {/* Option A */}
-            <button
-              disabled={room.status !== 'VOTING' || !!myVote || isHost}
-              onClick={() => handleVoteSubmit('A')}
-              className={`w-full p-4 rounded-2xl border text-left transition-all relative overflow-hidden ${
-                myVote === 'A'
-                  ? 'border-blue-500 bg-blue-500/20 ring-2 ring-blue-500'
-                  : room.host_pick === 'A'
-                  ? 'border-amber-400 bg-amber-400/20 ring-2 ring-amber-400'
-                  : 'border-zinc-800 bg-zinc-900/80 hover:border-zinc-700'
-              } ${room.status !== 'VOTING' || !!myVote ? 'opacity-90' : 'cursor-pointer'}`}
-            >
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-black text-blue-400">Option A</span>
-                {myVote === 'A' && <span className="text-xs font-black text-blue-400">내 선택 ✔</span>}
-                {room.host_pick === 'A' && <span className="text-xs font-black text-amber-400">👑 방장 픽</span>}
-              </div>
-              <p className="text-base font-black text-white mt-1 break-keep">{currentQuestion.option_a}</p>
-            </button>
+          {/* Tug of War Realtime Gauge */}
+          <TugOfWarBar
+            votesA={votesA}
+            votesB={votesB}
+            hasVotedOrHost={isHost || !!myVote || room.status !== 'VOTING'}
+            optionAText={currentQuestion?.option_a || '선택 A'}
+            optionBText={currentQuestion?.option_b || '선택 B'}
+          />
 
-            {/* Option B */}
-            <button
-              disabled={room.status !== 'VOTING' || !!myVote || isHost}
-              onClick={() => handleVoteSubmit('B')}
-              className={`w-full p-4 rounded-2xl border text-left transition-all relative overflow-hidden ${
-                myVote === 'B'
-                  ? 'border-rose-500 bg-rose-500/20 ring-2 ring-rose-500'
-                  : room.host_pick === 'B'
-                  ? 'border-amber-400 bg-amber-400/20 ring-2 ring-amber-400'
-                  : 'border-zinc-800 bg-zinc-900/80 hover:border-zinc-700'
-              } ${room.status !== 'VOTING' || !!myVote ? 'opacity-90' : 'cursor-pointer'}`}
-            >
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-black text-rose-400">Option B</span>
-                {myVote === 'B' && <span className="text-xs font-black text-rose-400">내 선택 ✔</span>}
-                {room.host_pick === 'B' && <span className="text-xs font-black text-amber-400">👑 방장 픽</span>}
-              </div>
-              <p className="text-base font-black text-white mt-1 break-keep">{currentQuestion.option_b}</p>
-            </button>
-          </div>
-        )}
+          {/* Single Mode Style Option A & B Buttons */}
+          {currentQuestion && (
+            <div className="grid grid-cols-1 gap-3 pt-1">
+              {/* Option A */}
+              <button
+                disabled={room.status !== 'VOTING' || !!myVote || isHost}
+                onClick={() => handleVoteSubmit('A')}
+                className={`relative flex w-full flex-col items-center justify-center overflow-hidden rounded-2xl py-3.5 px-4 transition-all duration-300 text-left border ${
+                  myVote === 'A'
+                    ? 'bg-zinc-900/90 border-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.2)]'
+                    : room.host_pick === 'A'
+                    ? 'bg-zinc-900/90 border-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.2)]'
+                    : 'bg-zinc-900/50 border-zinc-800/80 hover:bg-zinc-900/80 hover:border-zinc-700'
+                } ${room.status !== 'VOTING' || !!myVote ? 'opacity-90' : 'cursor-pointer'}`}
+              >
+                {myVote === 'A' && (
+                  <div className="absolute top-2 right-3 z-20 flex items-center gap-1 rounded-full bg-blue-500 px-2 py-0.5 text-[9px] font-black text-white shadow-md">
+                    <span>✓</span>
+                    <span>내 투표</span>
+                  </div>
+                )}
+                {room.host_pick === 'A' && (
+                  <div className="absolute bottom-2 right-3 z-20 flex items-center gap-1 rounded-full bg-amber-500 px-2 py-0.5 text-[9px] font-black text-zinc-950 shadow-md">
+                    <span>👑</span>
+                    <span>방장 픽</span>
+                  </div>
+                )}
+
+                <div className="relative z-10 flex items-center justify-center gap-2.5 w-full text-center py-1">
+                  {currentQuestion.emoji_a && (
+                    <span className="text-3xl leading-none shrink-0">{currentQuestion.emoji_a}</span>
+                  )}
+                  <p className="text-xl md:text-2xl font-kiro leading-[1.15] text-neutral-100 max-h-24 overflow-y-auto no-scrollbar break-keep">
+                    {currentQuestion.option_a}
+                  </p>
+                </div>
+              </button>
+
+              {/* Option B */}
+              <button
+                disabled={room.status !== 'VOTING' || !!myVote || isHost}
+                onClick={() => handleVoteSubmit('B')}
+                className={`relative flex w-full flex-col items-center justify-center overflow-hidden rounded-2xl py-3.5 px-4 transition-all duration-300 text-left border ${
+                  myVote === 'B'
+                    ? 'bg-zinc-900/90 border-rose-500 shadow-[0_0_15px_rgba(244,63,94,0.2)]'
+                    : room.host_pick === 'B'
+                    ? 'bg-zinc-900/90 border-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.2)]'
+                    : 'bg-zinc-900/50 border-zinc-800/80 hover:bg-zinc-900/80 hover:border-zinc-700'
+                } ${room.status !== 'VOTING' || !!myVote ? 'opacity-90' : 'cursor-pointer'}`}
+              >
+                {myVote === 'B' && (
+                  <div className="absolute top-2 right-3 z-20 flex items-center gap-1 rounded-full bg-rose-500 px-2 py-0.5 text-[9px] font-black text-white shadow-md">
+                    <span>✓</span>
+                    <span>내 투표</span>
+                  </div>
+                )}
+                {room.host_pick === 'B' && (
+                  <div className="absolute bottom-2 right-3 z-20 flex items-center gap-1 rounded-full bg-amber-500 px-2 py-0.5 text-[9px] font-black text-zinc-950 shadow-md">
+                    <span>👑</span>
+                    <span>방장 픽</span>
+                  </div>
+                )}
+
+                <div className="relative z-10 flex items-center justify-center gap-2.5 w-full text-center py-1">
+                  {currentQuestion.emoji_b && (
+                    <span className="text-3xl leading-none shrink-0">{currentQuestion.emoji_b}</span>
+                  )}
+                  <p className="text-xl md:text-2xl font-kiro leading-[1.15] text-neutral-100 max-h-24 overflow-y-auto no-scrollbar break-keep">
+                    {currentQuestion.option_b}
+                  </p>
+                </div>
+              </button>
+            </div>
+          )}
+        </div>
       </main>
 
       {/* Streamer Host Control Panel (Visible only to Host) */}
       {isHost && (
         <footer className="w-full bg-zinc-950 border border-zinc-800 rounded-2xl p-4 space-y-3 shadow-2xl">
           <div className="flex items-center justify-between text-xs font-extrabold text-neutral-400 border-b border-zinc-900 pb-2">
-            <span>👑 스트리머 수동 컨트롤</span>
-            <span className="text-brand-yellow font-black">상태: {room.status}</span>
+            <span>👑 스트리머 수동 진행 컨트롤</span>
+            <button
+              onClick={handleHostFinishRoom}
+              className="flex items-center gap-1 text-xs text-rose-400 hover:text-rose-300 font-bold cursor-pointer"
+              title="방 종료하기"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+              <span>방 종료</span>
+            </button>
           </div>
 
           {room.status === 'VOTING' && (

@@ -171,7 +171,7 @@ function LandingClient() {
               onClick={handleStartGame}
               className="w-full flex items-center justify-center gap-2 rounded-2xl bg-brand-yellow hover:bg-[#e0b240] text-zinc-950 font-black text-base px-6 h-14 shadow-[0_0_30px_rgba(245,195,82,0.3)] transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
             >
-              <span>👤 혼자서 취향 테스트하기 (싱글 모드)</span>
+              <span>👤 혼자 플레이하기 (싱글 모드)</span>
             </button>
 
             <button

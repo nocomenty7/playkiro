@@ -19,8 +19,13 @@ export default function TugOfWarBar({
   optionBText,
 }: TugOfWarBarProps) {
   const totalVotes = votesA + votesB;
-  const percentA = totalVotes > 0 ? Math.round((votesA / totalVotes) * 100) : 50;
-  const percentB = totalVotes > 0 ? 100 - percentA : 50;
+  let percentA = 50;
+  let percentB = 50;
+
+  if (totalVotes > 0) {
+    percentA = Math.round((votesA / totalVotes) * 100);
+    percentB = 100 - percentA;
+  }
 
   if (!hasVotedOrHost) {
     return (
@@ -39,7 +44,7 @@ export default function TugOfWarBar({
           A. {optionAText} ({percentA}%)
         </span>
         <span className="text-neutral-500 font-extrabold text-[11px] bg-zinc-900 px-2.5 py-0.5 rounded-full border border-zinc-800">
-          총 {totalVotes}명 참여 중
+          총 {totalVotes}명 투표
         </span>
         <span className="text-rose-400 truncate max-w-[42%] text-right">
           B. {optionBText} ({percentB}%)
@@ -47,27 +52,39 @@ export default function TugOfWarBar({
       </div>
 
       {/* Dynamic Animated Tug-of-War Bar */}
-      <div className="relative h-6 w-full bg-zinc-900 rounded-full overflow-hidden flex items-center p-1 border border-zinc-800 shadow-inner">
-        <motion.div
-          className="h-full bg-gradient-to-r from-blue-600 to-indigo-500 rounded-l-full flex items-center justify-start pl-2 text-[10px] font-black text-white"
-          initial={{ width: '50%' }}
-          animate={{ width: `${percentA}%` }}
-          transition={{ type: 'spring', stiffness: 120, damping: 18 }}
-        >
-          {percentA > 12 && <span>{percentA}%</span>}
-        </motion.div>
+      <div className="relative h-6 w-full bg-zinc-900 rounded-full overflow-hidden flex items-center p-0.5 border border-zinc-800 shadow-inner">
+        {/* Option A Portion */}
+        {percentA > 0 && (
+          <motion.div
+            className={`h-full bg-gradient-to-r from-blue-600 to-indigo-500 flex items-center justify-start pl-2 text-[10px] font-black text-white ${
+              percentB === 0 ? 'rounded-full' : 'rounded-l-full'
+            }`}
+            initial={{ width: '50%' }}
+            animate={{ width: `${percentA}%` }}
+            transition={{ type: 'spring', stiffness: 120, damping: 18 }}
+          >
+            {percentA >= 10 && <span>{percentA}%</span>}
+          </motion.div>
+        )}
 
-        <motion.div
-          className="h-full bg-gradient-to-r from-rose-500 to-pink-600 rounded-r-full flex items-center justify-end pr-2 text-[10px] font-black text-white"
-          initial={{ width: '50%' }}
-          animate={{ width: `${percentB}%` }}
-          transition={{ type: 'spring', stiffness: 120, damping: 18 }}
-        >
-          {percentB > 12 && <span>{percentB}%</span>}
-        </motion.div>
+        {/* Option B Portion */}
+        {percentB > 0 && (
+          <motion.div
+            className={`h-full bg-gradient-to-r from-rose-500 to-pink-600 flex items-center justify-end pr-2 text-[10px] font-black text-white ${
+              percentA === 0 ? 'rounded-full' : 'rounded-r-full'
+            }`}
+            initial={{ width: '50%' }}
+            animate={{ width: `${percentB}%` }}
+            transition={{ type: 'spring', stiffness: 120, damping: 18 }}
+          >
+            {percentB >= 10 && <span>{percentB}%</span>}
+          </motion.div>
+        )}
 
-        {/* Center Divider Indicator */}
-        <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-white/40 -translate-x-1/2 z-10 pointer-events-none" />
+        {/* Center Divider Indicator (Only visible if both A and B have >0%) */}
+        {percentA > 0 && percentB > 0 && (
+          <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-white/40 -translate-x-1/2 z-10 pointer-events-none" />
+        )}
       </div>
     </div>
   );
