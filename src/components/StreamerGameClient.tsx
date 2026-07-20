@@ -4,8 +4,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Users, Lock, Play, ArrowRight, Copy, Check, Sparkles, LogOut, Home } from 'lucide-react';
+import { Users, Lock, Play, ArrowRight, Copy, Check, Sparkles, LogOut, Home, BarChart3 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
+import StatsBottomSheet from './StatsBottomSheet';
 
 interface StreamerGameClientProps {
   pin: string;
@@ -40,6 +41,9 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
   const [copied, setCopied] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [submittingPick, setSubmittingPick] = useState(false);
+
+  // Stats Bottom Sheet Modal State
+  const [showStatsModal, setShowStatsModal] = useState(false);
 
   // Host Onboarding Guide Modal State
   const [showHostGuide, setShowHostGuide] = useState(false);
@@ -158,7 +162,7 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
     if (data) setCurrentQuestion(data);
   };
 
-  // Fetch Participants (Optimized payload)
+  // Fetch Participants
   const fetchParticipants = async (roomId: string) => {
     const { data } = await supabase
       .from('room_participants')
@@ -169,7 +173,7 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
     if (data) setParticipants(data);
   };
 
-  // Fetch Room Votes count for current question (Optimized lightweight payload)
+  // Fetch Room Votes count for current question
   const fetchRoomVotes = async (roomId: string, qId: string) => {
     if (!roomId || !qId) return;
     const { data } = await supabase
@@ -188,7 +192,7 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
       setVotesA(countA);
       setVotesB(countB);
 
-      // Check my vote efficiently
+      // Check my vote
       if (myParticipantId) {
         const myVoteEntry = data.find((v) => v.participant_id === myParticipantId);
         if (myVoteEntry) setMyVote(myVoteEntry.vote as 'A' | 'B');
@@ -226,6 +230,7 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
               setMyVote(null);
               setVotesA(0);
               setVotesB(0);
+              setShowStatsModal(false);
               const newQId = updatedRoom.question_ids[updatedRoom.current_question_index];
               fetchQuestionForIndex(newQId);
               fetchRoomVotes(updatedRoom.id, newQId);
@@ -415,6 +420,14 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Stats Bottom Sheet Modal (Single Mode Gender/Age Stats) */}
+      {showStatsModal && currentQuestion?.id && (
+        <StatsBottomSheet
+          questionId={currentQuestion.id}
+          onClose={() => setShowStatsModal(false)}
+        />
+      )}
 
       {/* Host Onboarding Guide Modal */}
       <AnimatePresence>
@@ -765,6 +778,23 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
                 </button>
               </div>
             )}
+
+            {/* Detailed Stats Button Revealed AFTER Streamer Pick (RESULT status) */}
+            {room.status === 'RESULT' && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="pt-2"
+              >
+                <button
+                  onClick={() => setShowStatsModal(true)}
+                  className="w-full flex items-center justify-center gap-2 rounded-2xl border border-zinc-800 bg-zinc-900/80 hover:bg-zinc-850 px-5 py-3 text-sm font-black text-neutral-200 hover:text-white transition-all shadow-md cursor-pointer"
+                >
+                  <BarChart3 className="h-4 w-4 text-amber-400" />
+                  <span>상세 통계 보기</span>
+                </button>
+              </motion.div>
+            )}
           </div>
         </main>
       )}
@@ -800,7 +830,6 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
               </button>
             )}
 
-            {/* Item 1: Removed crown emoji (👑) from host pick buttons */}
             {room.status === 'LOCKED' && (
               <div className="space-y-2.5">
                 <span className="text-xs md:text-sm text-neutral-300 font-extrabold block text-center">
