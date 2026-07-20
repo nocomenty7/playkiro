@@ -9,6 +9,7 @@ interface TugOfWarBarProps {
   hasVotedOrHost: boolean;
   optionAText: string;
   optionBText: string;
+  hostNickname?: string;
 }
 
 export default function TugOfWarBar({
@@ -17,6 +18,7 @@ export default function TugOfWarBar({
   hasVotedOrHost,
   optionAText,
   optionBText,
+  hostNickname = '스트리머',
 }: TugOfWarBarProps) {
   const totalVotes = votesA + votesB;
   let percentA = 50;
@@ -27,24 +29,25 @@ export default function TugOfWarBar({
     percentB = 100 - percentA;
   }
 
+  // Item 4: Custom unvoted message with streamer nickname
   if (!hasVotedOrHost) {
     return (
       <div className="w-full bg-zinc-900/80 border border-zinc-800 rounded-2xl p-5 text-center text-neutral-300 text-sm md:text-base font-extrabold backdrop-blur-sm shadow-inner my-2">
         <span className="inline-block animate-pulse mr-2 text-base md:text-lg">🔒</span>
-        선택지에 투표를 완료하면 <span className="text-brand-yellow font-black">실시간 득표율 게이지</span>가 동기화되어 보여집니다!
+        <span className="text-brand-yellow font-black">{hostNickname}</span>님의 선택을 예상하여 픽해주세요.
       </div>
     );
   }
 
   return (
     <div className="w-full bg-zinc-950/90 border border-zinc-800/80 rounded-2xl p-4 md:p-5 space-y-3 shadow-xl my-2">
-      {/* Top Info Header: Option A vs Option B Percentages (Increased font size) */}
+      {/* Top Info Header: Item 5 (A., B. prefix removed) */}
       <div className="flex items-center justify-between text-sm md:text-base font-black px-1">
         <span className="text-blue-400 truncate max-w-[48%]">
-          A. {optionAText} ({percentA}%)
+          {optionAText} ({percentA}%)
         </span>
         <span className="text-rose-400 truncate max-w-[48%] text-right">
-          B. {optionBText} ({percentB}%)
+          {optionBText} ({percentB}%)
         </span>
       </div>
 
@@ -84,7 +87,7 @@ export default function TugOfWarBar({
         )}
       </div>
 
-      {/* Item 2: Reposition "Total Votes Count" Badge to BOTTOM CENTER right below the gauge bar */}
+      {/* Total Votes Count Badge */}
       <div className="flex justify-center pt-1">
         <span className="text-xs md:text-sm text-neutral-300 font-black bg-zinc-900/90 px-3.5 py-1 rounded-full border border-zinc-800 shadow-sm">
           총 {totalVotes}명 투표

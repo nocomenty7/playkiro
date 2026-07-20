@@ -119,7 +119,6 @@ export default function StreamerModal({ isOpen, onClose }: StreamerModalProps) {
 
     const trimmedNickname = hostNickname.trim() || '스트리머';
 
-    // Nickname Length Validation
     if (!validateNicknameLength(trimmedNickname)) {
       setErrorMsg('닉네임은 한글 12자, 영문 24자 이내로 입력해 주세요.');
       return;
@@ -179,7 +178,6 @@ export default function StreamerModal({ isOpen, onClose }: StreamerModalProps) {
       return;
     }
 
-    // Nickname Length Validation
     if (!validateNicknameLength(nickname)) {
       setErrorMsg('닉네임은 한글 12자, 영문 24자 이내로 입력해 주세요.');
       return;
@@ -289,9 +287,10 @@ export default function StreamerModal({ isOpen, onClose }: StreamerModalProps) {
                   <label className="block text-xs font-extrabold text-neutral-300">시청자 닉네임</label>
                   <span className="text-[10px] text-neutral-500 font-bold">한글 12자 / 영문 24자 이내</span>
                 </div>
+                {/* Item 6: Updated placeholder text */}
                 <input
                   type="text"
-                  placeholder="랭킹표에 표시될 닉네임 입력"
+                  placeholder="한글 12자, 영문 24자 이내 닉네임 입력"
                   value={joinNickname}
                   onChange={(e) => setJoinNickname(e.target.value)}
                   className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-sm font-bold text-white placeholder-zinc-600 focus:outline-none focus:border-blue-500"
@@ -319,6 +318,7 @@ export default function StreamerModal({ isOpen, onClose }: StreamerModalProps) {
                 </div>
                 <input
                   type="text"
+                  placeholder="한글 12자, 영문 24자 이내 닉네임 입력"
                   value={hostNickname}
                   onChange={(e) => setHostNickname(e.target.value)}
                   className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-sm font-bold text-white focus:outline-none focus:border-brand-yellow"

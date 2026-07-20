@@ -229,7 +229,7 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
   // Actions
   const isHost = room?.host_id === mySessionId;
 
-  // Item 1: Exclude Streamer (Host) from Ranking Tables
+  // Exclude Streamer (Host) from Ranking Tables
   const viewerParticipants = participants.filter((p) => p.session_id !== room?.host_id);
   const rankedViewers = calculateViewerRanks(viewerParticipants);
   const viewerCount = viewerParticipants.length;
@@ -338,8 +338,9 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
     );
   }
 
+  // Item 1: Enable Smooth Full Page Scrolling (overflow-y-auto min-h-screen)
   return (
-    <div className="min-h-screen bg-[#080911] text-white flex flex-col justify-between antialiased">
+    <div className="min-h-screen overflow-y-auto bg-[#080911] text-white flex flex-col justify-between antialiased">
       {/* Toast Notification */}
       <AnimatePresence>
         {showToast && (
@@ -367,7 +368,7 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
       </header>
 
       {/* Sub-Header Live Bar */}
-      <div className="w-full border-b border-zinc-900/80 bg-zinc-950/60 backdrop-blur-sm">
+      <div className="w-full border-b border-zinc-900/80 bg-zinc-950/60 backdrop-blur-sm shrink-0">
         <div className="max-w-md mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
             {/* LIVE Badge */}
@@ -387,18 +388,11 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
             </button>
           </div>
 
-          {/* Viewer Count (Only number, Excludes Streamer) */}
+          {/* Viewer Count */}
           <div className="flex items-center gap-2 text-xs md:text-sm text-neutral-300 font-black bg-zinc-900 border border-zinc-800 px-3 py-1.5 rounded-xl">
             <Users className="w-4.5 h-4.5 text-blue-400" />
             <span>{viewerCount}</span>
           </div>
-        </div>
-
-        {/* Host Sub-Header Banner */}
-        <div className="w-full bg-gradient-to-r from-zinc-950 via-zinc-900 to-zinc-950 border-t border-zinc-900/60 py-2.5 text-center">
-          <span className="text-sm md:text-base font-black text-[#ffe5a9] tracking-tight">
-            ({room.host_nickname})의 선택은?
-          </span>
         </div>
       </div>
 
@@ -406,7 +400,6 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
       {room.status === 'FINISHED' ? (
         <div className="w-full max-w-md mx-auto p-4 flex-1 flex flex-col justify-between space-y-8 pt-8">
           <div className="space-y-8">
-            {/* Title (Enlarged 2 levels & Excludes Streamer) */}
             <div className="text-center space-y-3">
               <div className="inline-flex p-4 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 mb-2">
                 <Trophy className="w-11 h-11" />
@@ -417,10 +410,10 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
               </p>
             </div>
 
-            {/* Top 3 Podium (With Tie Rank Handling & Excludes Host) */}
+            {/* Top 3 Podium */}
             {rankedViewers.length >= 1 && (
               <div className="grid grid-cols-3 gap-3 items-end pt-6 pb-2">
-                {/* 2nd Place / Tie 1st */}
+                {/* 2nd Place */}
                 {rankedViewers[1] ? (
                   <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 text-center space-y-1.5">
                     <span className="text-3xl">{rankedViewers[1].rank === 1 ? '👑' : '🥈'}</span>
@@ -436,7 +429,7 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
                   <p className="text-base font-black text-amber-400">{rankedViewers[0].rank}등 ({rankedViewers[0].score}점)</p>
                 </div>
 
-                {/* 3rd Place / Tie */}
+                {/* 3rd Place */}
                 {rankedViewers[2] ? (
                   <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 text-center space-y-1.5">
                     <span className="text-3xl">{rankedViewers[2].rank === 1 ? '👑' : rankedViewers[2].rank === 2 ? '🥈' : '🥉'}</span>
@@ -447,7 +440,7 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
               </div>
             )}
 
-            {/* Full Ranking Table (Excludes Streamer & Handles Tie Ranks) */}
+            {/* Full Ranking Table */}
             <div className="bg-zinc-950 border border-zinc-900 rounded-2xl p-5 space-y-3 max-h-60 overflow-y-auto">
               <span className="text-xs md:text-sm font-extrabold text-neutral-400 uppercase tracking-widest block mb-3">시청자 전체 순위표</span>
               {rankedViewers.map((p) => (
@@ -462,7 +455,6 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
             </div>
           </div>
 
-          {/* CTA Button Copy: 혼자 플레이하기 (싱글 모드) */}
           <div className="pb-8">
             <Link
               href="/play"
@@ -488,22 +480,26 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
               </span>
             </div>
 
+            {/* Item 2: Question Title reduced 1 level down */}
             {currentQuestion && (
               <div className="text-center py-2 shrink-0">
-                <h1 className="text-3xl md:text-4xl lg:text-5xl font-kiro leading-snug text-[#ffe5a9] tracking-tight whitespace-pre-line break-keep px-1">
+                <h1 className="text-2xl md:text-3xl lg:text-4xl font-kiro leading-snug text-[#ffe5a9] tracking-tight whitespace-pre-line break-keep px-1">
                   {currentQuestion.title}
                 </h1>
               </div>
             )}
 
+            {/* Item 4: Tug of War Realtime Gauge with hostNickname */}
             <TugOfWarBar
               votesA={votesA}
               votesB={votesB}
               hasVotedOrHost={isHost || !!myVote || room.status !== 'VOTING'}
-              optionAText={currentQuestion?.option_a || '선택 A'}
-              optionBText={currentQuestion?.option_b || '선택 B'}
+              optionAText={currentQuestion?.option_a || '선택 1'}
+              optionBText={currentQuestion?.option_b || '선택 2'}
+              hostNickname={room.host_nickname}
             />
 
+            {/* Item 2: Option A & B Buttons text size reduced 1 level down */}
             {currentQuestion && (
               <div className="grid grid-cols-1 gap-4 pt-1">
                 {/* Option A */}
@@ -518,10 +514,11 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
                       : 'bg-zinc-900/50 border-zinc-800/80 hover:bg-zinc-900/80 hover:border-zinc-700'
                   } ${room.status !== 'VOTING' || !!myVote ? 'opacity-90' : 'cursor-pointer'}`}
                 >
+                  {/* Item 3: Badge changed from '내 투표' to '내 예상' */}
                   {myVote === 'A' && (
                     <div className="absolute top-2.5 right-3.5 z-20 flex items-center gap-1 rounded-full bg-blue-500 px-2.5 py-0.5 text-xs font-black text-white shadow-md">
                       <span>✓</span>
-                      <span>내 투표</span>
+                      <span>내 예상</span>
                     </div>
                   )}
                   {room.host_pick === 'A' && (
@@ -535,7 +532,7 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
                     {currentQuestion.emoji_a && (
                       <span className="text-3xl md:text-4xl leading-none shrink-0">{currentQuestion.emoji_a}</span>
                     )}
-                    <p className="text-2xl md:text-3xl font-kiro leading-snug text-neutral-100 max-h-28 overflow-y-auto no-scrollbar break-keep">
+                    <p className="text-xl md:text-2xl font-kiro leading-snug text-neutral-100 max-h-28 overflow-y-auto no-scrollbar break-keep">
                       {currentQuestion.option_a}
                     </p>
                   </div>
@@ -553,10 +550,11 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
                       : 'bg-zinc-900/50 border-zinc-800/80 hover:bg-zinc-900/80 hover:border-zinc-700'
                   } ${room.status !== 'VOTING' || !!myVote ? 'opacity-90' : 'cursor-pointer'}`}
                 >
+                  {/* Item 3: Badge changed from '내 투표' to '내 예상' */}
                   {myVote === 'B' && (
                     <div className="absolute top-2.5 right-3.5 z-20 flex items-center gap-1 rounded-full bg-rose-500 px-2.5 py-0.5 text-xs font-black text-white shadow-md">
                       <span>✓</span>
-                      <span>내 투표</span>
+                      <span>내 예상</span>
                     </div>
                   )}
                   {room.host_pick === 'B' && (
@@ -570,7 +568,7 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
                     {currentQuestion.emoji_b && (
                       <span className="text-3xl md:text-4xl leading-none shrink-0">{currentQuestion.emoji_b}</span>
                     )}
-                    <p className="text-2xl md:text-3xl font-kiro leading-snug text-neutral-100 max-h-28 overflow-y-auto no-scrollbar break-keep">
+                    <p className="text-xl md:text-2xl font-kiro leading-snug text-neutral-100 max-h-28 overflow-y-auto no-scrollbar break-keep">
                       {currentQuestion.option_b}
                     </p>
                   </div>
@@ -607,6 +605,7 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
               </button>
             )}
 
+            {/* Item 5: Removed A, B labels from streamer pick buttons */}
             {room.status === 'LOCKED' && (
               <div className="space-y-2.5">
                 <span className="text-xs md:text-sm text-neutral-300 font-extrabold block text-center">
@@ -618,14 +617,14 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
                     onClick={() => handleHostPickSubmit('A')}
                     className="py-3.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-black text-xs md:text-sm transition-all shadow-md cursor-pointer disabled:opacity-50"
                   >
-                    👑 A 픽하기 ({currentQuestion?.option_a})
+                    👑 픽하기: {currentQuestion?.option_a}
                   </button>
                   <button
                     disabled={submittingPick}
                     onClick={() => handleHostPickSubmit('B')}
                     className="py-3.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-black text-xs md:text-sm transition-all shadow-md cursor-pointer disabled:opacity-50"
                   >
-                    👑 B 픽하기 ({currentQuestion?.option_b})
+                    👑 픽하기: {currentQuestion?.option_b}
                   </button>
                 </div>
               </div>
