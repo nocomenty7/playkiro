@@ -17,10 +17,17 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Host session ID가 필요합니다.' }, { status: 400 });
     }
 
+    // Auto-cleanup: Delete finished rooms created more than 2 hours ago to keep DB lightweight
+    try {
+      const twoHoursAgo = new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString();
+      await supabase.from('rooms').delete().lt('created_at', twoHoursAgo);
+    } catch (cleanErr) {
+      console.warn('Background cleanup warning:', cleanErr);
+    }
+
     // 1. Fetch matching questions from Supabase
     let query = supabase.from('questions').select('id, category');
 
-    // If '전체' is not in categories, filter by selected categories
     if (!categories.includes('전체') && categories.length > 0) {
       query = query.in('category', categories);
     }
@@ -30,7 +37,6 @@ export async function POST(request: Request) {
     let targetPool: any[] = [];
 
     if (fetchError || !questions || questions.length === 0) {
-      // Fallback: get all questions if category filter yielded 0
       const { data: allQuestions, error: allErr } = await supabase.from('questions').select('id');
       if (allErr || !allQuestions || allQuestions.length === 0) {
         return NextResponse.json({ error: '질문 데이터를 불러올 수 없습니다.' }, { status: 400 });
@@ -40,7 +46,6 @@ export async function POST(request: Request) {
       targetPool = questions;
     }
 
-    // Shuffle and slice question IDs
     const shuffled = [...targetPool].sort(() => 0.5 - Math.random());
     const selectedQuestionIds = shuffled.slice(0, Math.min(totalQuestions, shuffled.length)).map((q) => q.id);
 
@@ -52,7 +57,6 @@ export async function POST(request: Request) {
     while (!isUnique && attempts < 10) {
       attempts++;
       pin = Math.floor(100000 + Math.random() * 900000).toString();
-      // Use maybeSingle to prevent PGRST116 single exception when 0 rows match
       const { data: existing } = await supabase.from('rooms').select('id').eq('pin', pin).maybeSingle();
       if (!existing) {
         isUnique = true;
