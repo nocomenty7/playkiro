@@ -178,7 +178,7 @@ function LandingClient() {
               onClick={() => setShowStreamerModal(true)}
               className="w-full flex items-center justify-center gap-2 rounded-2xl bg-zinc-900 border border-zinc-700 hover:bg-zinc-800 text-white font-black text-sm px-6 h-12 transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
             >
-              <span>📺 다같이 랭킹전 플레이 (스트리머 모드)</span>
+              <span>📺 함께 플레이하기 (스트리머 모드)</span>
             </button>
           </motion.div>
 

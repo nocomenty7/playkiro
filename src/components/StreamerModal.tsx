@@ -1,9 +1,10 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Tv, Users, Sparkles, Trophy, ArrowRight } from 'lucide-react';
+import { X, Tv, Users, ArrowRight } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
 
 interface StreamerModalProps {
   isOpen: boolean;
@@ -21,6 +22,7 @@ export default function StreamerModal({ isOpen, onClose }: StreamerModalProps) {
   const [totalQuestions, setTotalQuestions] = useState(10);
   const [selectedCategories, setSelectedCategories] = useState<string[]>(['전체']);
   const [creating, setCreating] = useState(false);
+  const [questionCounts, setQuestionCounts] = useState<{ [key: string]: number }>({});
 
   // Join Form State
   const [joinPin, setJoinPin] = useState('');
@@ -28,17 +30,54 @@ export default function StreamerModal({ isOpen, onClose }: StreamerModalProps) {
   const [joining, setJoining] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
-  const availableCategories = ['전체', '음식', '일상', '스타일', '여가', '관계', '돈', '상상', '극한 밸런스게임'];
+  // Identical Category Config and Color Themes from Navigation.tsx
+  const categoriesConfig = [
+    { name: '전체', activeClass: 'border-white bg-white text-zinc-950', inactiveClass: 'border-zinc-800 bg-zinc-900/50 text-neutral-400 hover:border-zinc-700' },
+    { name: '음식', activeClass: 'border-red-500 bg-red-500 text-white', inactiveClass: 'border-red-500/30 bg-red-500/5 text-red-400 hover:border-red-500/50' },
+    { name: '일상', activeClass: 'border-orange-500 bg-orange-500 text-white', inactiveClass: 'border-orange-500/30 bg-orange-500/5 text-orange-400 hover:border-orange-500/50' },
+    { name: '스타일', activeClass: 'border-purple-500 bg-purple-500 text-white', inactiveClass: 'border-purple-500/30 bg-purple-500/5 text-purple-400 hover:border-purple-500/50' },
+    { name: '여가', activeClass: 'border-green-500 bg-green-500 text-white', inactiveClass: 'border-green-500/30 bg-green-500/5 text-green-400 hover:border-green-500/50' },
+    { name: '관계', activeClass: 'border-blue-500 bg-blue-500 text-white', inactiveClass: 'border-blue-500/30 bg-blue-500/5 text-blue-400 hover:border-blue-500/50' },
+    { name: '돈', activeClass: 'border-[#8b5a2b] bg-[#8b5a2b] text-white', inactiveClass: 'border-[rgba(139,90,43,0.3)] bg-[rgba(139,90,43,0.05)] text-[#d2b48c] hover:border-[rgba(139,90,43,0.5)]' },
+    { name: '상상', activeClass: 'border-pink-500 bg-pink-500 text-white', inactiveClass: 'border-pink-500/30 bg-pink-500/5 text-pink-400 hover:border-pink-500/50' },
+    { name: '극한 밸런스게임', activeClass: 'border-neutral-500 bg-neutral-500 text-white', inactiveClass: 'border-neutral-500/30 bg-neutral-500/5 text-neutral-400 hover:border-neutral-500/50' }
+  ];
 
-  const toggleCategory = (cat: string) => {
-    if (cat === '전체') {
+  // Fetch Category Question Counts Dynamically on Mount
+  useEffect(() => {
+    if (!isOpen) return;
+    const fetchCounts = async () => {
+      try {
+        const { data } = await supabase.from('questions').select('category');
+        if (data) {
+          const counts: { [key: string]: number } = {};
+          let total = 0;
+          data.forEach((q: any) => {
+            const cat = q.category?.trim();
+            if (cat) {
+              counts[cat] = (counts[cat] || 0) + 1;
+              total++;
+            }
+          });
+          counts['전체'] = total;
+          setQuestionCounts(counts);
+        }
+      } catch (e) {
+        console.error('Failed to fetch category counts inside StreamerModal:', e);
+      }
+    };
+    fetchCounts();
+  }, [isOpen]);
+
+  const toggleCategory = (catName: string) => {
+    if (catName === '전체') {
       setSelectedCategories(['전체']);
     } else {
       let updated = selectedCategories.filter((c) => c !== '전체');
-      if (updated.includes(cat)) {
-        updated = updated.filter((c) => c !== cat);
+      if (updated.includes(catName)) {
+        updated = updated.filter((c) => c !== catName);
       } else {
-        updated.push(cat);
+        updated.push(catName);
       }
       if (updated.length === 0) updated = ['전체'];
       setSelectedCategories(updated);
@@ -135,7 +174,7 @@ export default function StreamerModal({ isOpen, onClose }: StreamerModalProps) {
           {/* Close Button */}
           <button
             onClick={onClose}
-            className="absolute top-5 right-5 p-2 rounded-full bg-zinc-900 text-neutral-400 hover:text-white hover:bg-zinc-800 transition"
+            className="absolute top-5 right-5 p-2 rounded-full bg-zinc-900 text-neutral-400 hover:text-white hover:bg-zinc-800 transition cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -146,8 +185,8 @@ export default function StreamerModal({ isOpen, onClose }: StreamerModalProps) {
               <Tv className="w-6 h-6" />
             </div>
             <div>
-              <h2 className="text-xl font-black text-white tracking-tight">스트리머 랭킹전 모드</h2>
-              <p className="text-xs text-neutral-400">시청자들과 실시간으로 취향을 겨루는 다중 접속 모드</p>
+              <h2 className="text-xl font-black text-white tracking-tight">함께 플레이하기 (스트리머 모드)</h2>
+              <p className="text-xs text-neutral-400">실시간으로 취향을 확인하는 다중 접속 모드</p>
             </div>
           </div>
 
@@ -158,7 +197,7 @@ export default function StreamerModal({ isOpen, onClose }: StreamerModalProps) {
                 setActiveTab('join');
                 setErrorMsg('');
               }}
-              className={`py-2.5 px-4 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 ${
+              className={`py-2.5 px-4 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 cursor-pointer ${
                 activeTab === 'join'
                   ? 'bg-zinc-800 text-white shadow-md'
                   : 'text-neutral-400 hover:text-neutral-200'
@@ -173,7 +212,7 @@ export default function StreamerModal({ isOpen, onClose }: StreamerModalProps) {
                 setActiveTab('create');
                 setErrorMsg('');
               }}
-              className={`py-2.5 px-4 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 ${
+              className={`py-2.5 px-4 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 cursor-pointer ${
                 activeTab === 'create'
                   ? 'bg-brand-yellow text-zinc-950 shadow-md font-black'
                   : 'text-neutral-400 hover:text-neutral-200'
@@ -222,7 +261,7 @@ export default function StreamerModal({ isOpen, onClose }: StreamerModalProps) {
                 disabled={joining}
                 className="w-full py-3.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-black text-sm transition-all shadow-lg flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
               >
-                <span>방 입장하기</span>
+                <span>입장하기</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
             </form>
@@ -230,7 +269,7 @@ export default function StreamerModal({ isOpen, onClose }: StreamerModalProps) {
 
           {/* Tab 2: Create Room (Streamer Host) */}
           {activeTab === 'create' && (
-            <form onSubmit={handleCreateRoom} className="space-y-4 max-h-[60vh] overflow-y-auto pr-1">
+            <form onSubmit={handleCreateRoom} className="space-y-4 max-h-[60vh] overflow-y-auto pr-1 no-scrollbar">
               <div>
                 <label className="block text-xs font-extrabold text-neutral-300 mb-1.5">방장(스트리머) 닉네임</label>
                 <input
@@ -242,9 +281,10 @@ export default function StreamerModal({ isOpen, onClose }: StreamerModalProps) {
                 />
               </div>
 
+              {/* Gender & Age (6 Exact Single Mode Options) */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-extrabold text-neutral-300 mb-1.5">성별 (취향 통계용)</label>
+                  <label className="block text-xs font-extrabold text-neutral-300 mb-1.5">성별</label>
                   <select
                     value={hostGender}
                     onChange={(e) => setHostGender(e.target.value)}
@@ -255,7 +295,7 @@ export default function StreamerModal({ isOpen, onClose }: StreamerModalProps) {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-extrabold text-neutral-300 mb-1.5">연령대 (취향 통계용)</label>
+                  <label className="block text-xs font-extrabold text-neutral-300 mb-1.5">연령대</label>
                   <select
                     value={hostAgeGroup}
                     onChange={(e) => setHostAgeGroup(e.target.value)}
@@ -264,7 +304,9 @@ export default function StreamerModal({ isOpen, onClose }: StreamerModalProps) {
                     <option value="10s">10대</option>
                     <option value="20s">20대</option>
                     <option value="30s">30대</option>
-                    <option value="40s">40대 이상</option>
+                    <option value="40s">40대</option>
+                    <option value="50s">50대</option>
+                    <option value="60s">60대 이상</option>
                   </select>
                 </div>
               </div>
@@ -277,7 +319,7 @@ export default function StreamerModal({ isOpen, onClose }: StreamerModalProps) {
                       key={num}
                       type="button"
                       onClick={() => setTotalQuestions(num)}
-                      className={`py-2 rounded-xl text-xs font-black border transition-all ${
+                      className={`py-2 rounded-xl text-xs font-black border transition-all cursor-pointer ${
                         totalQuestions === num
                           ? 'border-brand-yellow bg-brand-yellow/10 text-brand-yellow'
                           : 'border-zinc-800 bg-zinc-900 text-neutral-400'
@@ -289,23 +331,45 @@ export default function StreamerModal({ isOpen, onClose }: StreamerModalProps) {
                 </div>
               </div>
 
-              <div>
-                <label className="block text-xs font-extrabold text-neutral-300 mb-1.5">카테고리 필터 선택</label>
-                <div className="flex flex-wrap gap-1.5">
-                  {availableCategories.map((cat) => {
-                    const isSelected = selectedCategories.includes(cat);
+              {/* Category Filter Chips matching Navigation.tsx exactly */}
+              <div className="border-t border-zinc-900/80 pt-3">
+                <label className="block text-xs font-extrabold text-neutral-300 mb-2">카테고리 필터</label>
+
+                {/* Option 1: 전체 (Top on its own row) */}
+                <div className="mb-2.5">
+                  {categoriesConfig.filter(c => c.name === '전체').map((cat) => {
+                    const isActive = selectedCategories.includes(cat.name);
+                    const count = questionCounts[cat.name];
                     return (
                       <button
-                        key={cat}
+                        key={cat.name}
                         type="button"
-                        onClick={() => toggleCategory(cat)}
-                        className={`px-3 py-1.5 rounded-full text-xs font-extrabold border transition-all ${
-                          isSelected
-                            ? 'border-brand-yellow bg-brand-yellow text-zinc-950'
-                            : 'border-zinc-800 bg-zinc-900 text-neutral-400 hover:border-zinc-700'
+                        onClick={() => toggleCategory(cat.name)}
+                        className={`w-full px-3 py-2 rounded-full text-xs font-black border transition-all cursor-pointer text-center ${
+                          isActive ? cat.activeClass : cat.inactiveClass
                         }`}
                       >
-                        {cat}
+                        {cat.name} {count !== undefined ? `(${count})` : ''}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Option 2: Remaining categories (Flex wrap grid below) */}
+                <div className="flex flex-wrap gap-2">
+                  {categoriesConfig.filter(c => c.name !== '전체').map((cat) => {
+                    const isActive = selectedCategories.includes(cat.name);
+                    const count = questionCounts[cat.name];
+                    return (
+                      <button
+                        key={cat.name}
+                        type="button"
+                        onClick={() => toggleCategory(cat.name)}
+                        className={`px-3 py-1.5 rounded-full text-xs font-black border transition-all cursor-pointer ${
+                          isActive ? cat.activeClass : cat.inactiveClass
+                        }`}
+                      >
+                        {cat.name} {count !== undefined ? `(${count})` : ''}
                       </button>
                     );
                   })}
@@ -317,7 +381,7 @@ export default function StreamerModal({ isOpen, onClose }: StreamerModalProps) {
                 disabled={creating}
                 className="w-full py-3.5 rounded-xl bg-brand-yellow text-zinc-950 font-black text-sm transition-all shadow-lg hover:brightness-110 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 mt-4"
               >
-                <span>{creating ? '방 생성 중...' : '👑 방 생성하고 6자리 PIN 발급'}</span>
+                <span>{creating ? '방 생성 중...' : '방 만들기 & PIN 발급'}</span>
               </button>
             </form>
           )}

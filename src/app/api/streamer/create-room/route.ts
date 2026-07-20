@@ -14,7 +14,7 @@ export async function POST(request: Request) {
     } = body;
 
     if (!hostSessionId) {
-      return NextResponse.json({ error: 'Host session ID is required' }, { status: 400 });
+      return NextResponse.json({ error: 'Host session ID가 필요합니다.' }, { status: 400 });
     }
 
     // 1. Fetch matching questions from Supabase
@@ -31,9 +31,9 @@ export async function POST(request: Request) {
 
     if (fetchError || !questions || questions.length === 0) {
       // Fallback: get all questions if category filter yielded 0
-      const { data: allQuestions } = await supabase.from('questions').select('id');
-      if (!allQuestions || allQuestions.length === 0) {
-        return NextResponse.json({ error: 'No questions available' }, { status: 400 });
+      const { data: allQuestions, error: allErr } = await supabase.from('questions').select('id');
+      if (allErr || !allQuestions || allQuestions.length === 0) {
+        return NextResponse.json({ error: '질문 데이터를 불러올 수 없습니다.' }, { status: 400 });
       }
       targetPool = allQuestions;
     } else {
@@ -52,14 +52,15 @@ export async function POST(request: Request) {
     while (!isUnique && attempts < 10) {
       attempts++;
       pin = Math.floor(100000 + Math.random() * 900000).toString();
-      const { data: existing } = await supabase.from('rooms').select('id').eq('pin', pin).single();
+      // Use maybeSingle to prevent PGRST116 single exception when 0 rows match
+      const { data: existing } = await supabase.from('rooms').select('id').eq('pin', pin).maybeSingle();
       if (!existing) {
         isUnique = true;
       }
     }
 
     if (!isUnique) {
-      return NextResponse.json({ error: 'Failed to generate PIN code' }, { status: 500 });
+      return NextResponse.json({ error: 'PIN 코드 생성에 실패했습니다. 다시 시도해 주세요.' }, { status: 500 });
     }
 
     // 3. Insert new room into `rooms` table
@@ -84,7 +85,14 @@ export async function POST(request: Request) {
 
     if (insertError || !room) {
       console.error('Failed to create room in DB:', insertError);
-      return NextResponse.json({ error: 'Failed to create room' }, { status: 500 });
+      return NextResponse.json(
+        {
+          error: insertError
+            ? `DB 방 생성 실패: ${insertError.message} (Supabase에 rooms 테이블이 생성되었는지 확인해 주세요)`
+            : '방 생성 실패',
+        },
+        { status: 500 }
+      );
     }
 
     // 4. Register host as first participant
@@ -105,6 +113,6 @@ export async function POST(request: Request) {
     });
   } catch (error: any) {
     console.error('Create room API exception:', error);
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+    return NextResponse.json({ error: error.message || '서버 오류가 발생했습니다.' }, { status: 500 });
   }
 }
