@@ -24,8 +24,8 @@ export default function StreamerModal({ isOpen, onClose }: StreamerModalProps) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<'create' | 'join'>('join');
 
-  // Create Form State
-  const [hostNickname, setHostNickname] = useState('스트리머');
+  // Item 1: Initial Streamer Nickname state set to empty string
+  const [hostNickname, setHostNickname] = useState('');
   const [hostGender, setHostGender] = useState('male');
   const [hostAgeGroup, setHostAgeGroup] = useState('20s');
   const [totalQuestions, setTotalQuestions] = useState(10);
@@ -41,7 +41,7 @@ export default function StreamerModal({ isOpen, onClose }: StreamerModalProps) {
 
   // Identical Category Config and Color Themes from Navigation.tsx
   const categoriesConfig = [
-    { name: '전체', activeClass: 'border-white bg-white text-zinc-950', inactiveClass: 'border-zinc-800 bg-zinc-900/50 text-neutral-400 hover:border-zinc-700' },
+    { name: '전체', activeClass: 'border-white bg-white text-[#080911]', inactiveClass: 'border-zinc-800 bg-zinc-900/50 text-neutral-400 hover:border-zinc-700' },
     { name: '음식', activeClass: 'border-red-500 bg-red-500 text-white', inactiveClass: 'border-red-500/30 bg-red-500/5 text-red-400 hover:border-red-500/50' },
     { name: '일상', activeClass: 'border-orange-500 bg-orange-500 text-white', inactiveClass: 'border-orange-500/30 bg-orange-500/5 text-orange-400 hover:border-orange-500/50' },
     { name: '스타일', activeClass: 'border-purple-500 bg-purple-500 text-white', inactiveClass: 'border-purple-500/30 bg-purple-500/5 text-purple-400 hover:border-purple-500/50' },
@@ -113,11 +113,17 @@ export default function StreamerModal({ isOpen, onClose }: StreamerModalProps) {
     return total;
   };
 
+  // Item 1: Form Validation for empty streamer nickname
   const handleCreateRoom = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg('');
 
-    const trimmedNickname = hostNickname.trim() || '스트리머';
+    const trimmedNickname = hostNickname.trim();
+
+    if (!trimmedNickname) {
+      setErrorMsg('스트리머 닉네임을 입력해 주세요.');
+      return;
+    }
 
     if (!validateNicknameLength(trimmedNickname)) {
       setErrorMsg('닉네임은 한글 12자, 영문 24자 이내로 입력해 주세요.');
@@ -184,7 +190,6 @@ export default function StreamerModal({ isOpen, onClose }: StreamerModalProps) {
     }
 
     setJoining(true);
-    // Store nickname in sessionStorage so URL parameter is not exposed in address bar
     sessionStorage.setItem(`kiro_viewer_nickname_${pin}`, nickname);
     onClose();
     router.push(`/streamer/${pin}`);
@@ -288,7 +293,7 @@ export default function StreamerModal({ isOpen, onClose }: StreamerModalProps) {
                 <label className="block text-xs font-extrabold text-neutral-300 mb-1.5">시청자 닉네임</label>
                 <input
                   type="text"
-                  placeholder="한글 12자, 영문 24자 이내 닉네임 입력"
+                  placeholder="본인 닉네임을 입력하세요."
                   value={joinNickname}
                   onChange={(e) => setJoinNickname(e.target.value)}
                   className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-sm font-bold text-white placeholder-zinc-600 focus:outline-none focus:border-brand-yellow"
@@ -311,12 +316,13 @@ export default function StreamerModal({ isOpen, onClose }: StreamerModalProps) {
             <form onSubmit={handleCreateRoom} className="space-y-4 max-h-[60vh] overflow-y-auto pr-1 no-scrollbar">
               <div>
                 <label className="block text-xs font-extrabold text-neutral-300 mb-1.5">스트리머 닉네임</label>
+                {/* Item 1: Placeholder updated to '본인 닉네임을 입력하세요.' */}
                 <input
                   type="text"
-                  placeholder="한글 12자, 영문 24자 이내 닉네임 입력"
+                  placeholder="본인 닉네임을 입력하세요."
                   value={hostNickname}
                   onChange={(e) => setHostNickname(e.target.value)}
-                  className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-sm font-bold text-white focus:outline-none focus:border-brand-yellow"
+                  className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-sm font-bold text-white placeholder-zinc-600 focus:outline-none focus:border-brand-yellow"
                 />
               </div>
 

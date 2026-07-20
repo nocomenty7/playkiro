@@ -289,7 +289,6 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
     );
   };
 
-  // Item 1: Prevent locking votes when 0 viewers have voted
   const handleHostLockVotes = async () => {
     if (!isHost || !room || totalVotesCount === 0) return;
     await supabase.from('rooms').update({ status: 'LOCKED' }).eq('id', room.id);
@@ -345,6 +344,7 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
     }
   };
 
+  // Item 2: Updated Toast message text to '📋 PIN 코드가 클립보드에 복사되었습니다.'
   const handleCopyPin = () => {
     navigator.clipboard.writeText(pin);
     setCopied(true);
@@ -386,16 +386,16 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
 
   return (
     <div className="min-h-screen overflow-y-auto bg-[#080911] text-white flex flex-col justify-between antialiased pb-6">
-      {/* Toast Notification */}
+      {/* Item 2: Center Toast Notification with z-[100] to show over onboarding modal */}
       <AnimatePresence>
         {showToast && (
           <motion.div
             initial={{ opacity: 0, y: 10, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
-            className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 bg-zinc-900/95 border border-brand-yellow/40 text-brand-yellow px-6 py-3.5 rounded-2xl shadow-2xl text-sm font-black flex items-center gap-2 backdrop-blur-md"
+            className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[100] bg-zinc-900/95 border border-brand-yellow/40 text-brand-yellow px-6 py-3.5 rounded-2xl shadow-2xl text-sm font-black flex items-center gap-2 backdrop-blur-md"
           >
-            <span>📋 PIN 번호가 클립보드에 복사되었습니다.</span>
+            <span>📋 PIN 코드가 클립보드에 복사되었습니다.</span>
           </motion.div>
         )}
       </AnimatePresence>
@@ -510,7 +510,6 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
       {room.status === 'FINISHED' ? (
         <div className="w-full max-w-md mx-auto p-4 flex-1 flex flex-col justify-between space-y-8 pt-8">
           <div className="space-y-8">
-            {/* Item 2: Removed circular trophy icon above header */}
             <div className="text-center space-y-3">
               <h1 className="text-3xl md:text-4xl lg:text-5xl font-black tracking-tight text-white">🏆 최종 결과</h1>
               <p className="text-base md:text-lg text-neutral-300 font-bold">
@@ -565,7 +564,6 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
 
           {/* Action Buttons: Single Mode & Main Navigation */}
           <div className="pb-8 space-y-3">
-            {/* Item 3: Removed Sparkles icon from start of button */}
             <Link
               href="/play"
               className="w-full py-4.5 rounded-2xl bg-gradient-to-r from-brand-yellow via-amber-400 to-yellow-500 text-zinc-950 font-black text-base md:text-lg shadow-2xl hover:brightness-110 transition-all flex items-center justify-center gap-2 cursor-pointer border border-yellow-300"
@@ -771,7 +769,6 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
               </button>
             </div>
 
-            {/* Item 1: Disable lock button when 0 votes have been cast */}
             {room.status === 'VOTING' && (
               <button
                 disabled={totalVotesCount === 0}
