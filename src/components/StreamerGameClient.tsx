@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Users, Trophy, Lock, Play, ArrowRight, Copy, Check, Sparkles, LogOut, Home } from 'lucide-react';
+import { Users, Lock, Play, ArrowRight, Copy, Check, Sparkles, LogOut, Home } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 
 interface StreamerGameClientProps {
@@ -289,8 +289,9 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
     );
   };
 
+  // Item 1: Prevent locking votes when 0 viewers have voted
   const handleHostLockVotes = async () => {
-    if (!isHost || !room) return;
+    if (!isHost || !room || totalVotesCount === 0) return;
     await supabase.from('rooms').update({ status: 'LOCKED' }).eq('id', room.id);
   };
 
@@ -509,10 +510,8 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
       {room.status === 'FINISHED' ? (
         <div className="w-full max-w-md mx-auto p-4 flex-1 flex flex-col justify-between space-y-8 pt-8">
           <div className="space-y-8">
+            {/* Item 2: Removed circular trophy icon above header */}
             <div className="text-center space-y-3">
-              <div className="inline-flex p-4 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 mb-2">
-                <Trophy className="w-11 h-11" />
-              </div>
               <h1 className="text-3xl md:text-4xl lg:text-5xl font-black tracking-tight text-white">🏆 최종 결과</h1>
               <p className="text-base md:text-lg text-neutral-300 font-bold">
                 스트리머 픽을 가장 잘 맞힌 시청자 순위입니다!
@@ -566,16 +565,15 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
 
           {/* Action Buttons: Single Mode & Main Navigation */}
           <div className="pb-8 space-y-3">
+            {/* Item 3: Removed Sparkles icon from start of button */}
             <Link
               href="/play"
               className="w-full py-4.5 rounded-2xl bg-gradient-to-r from-brand-yellow via-amber-400 to-yellow-500 text-zinc-950 font-black text-base md:text-lg shadow-2xl hover:brightness-110 transition-all flex items-center justify-center gap-2 cursor-pointer border border-yellow-300"
             >
-              <Sparkles className="w-5 h-5" />
               <span>👤 혼자 플레이하기 (싱글 모드)</span>
               <ArrowRight className="w-5 h-5" />
             </Link>
 
-            {/* Item 1: Added '메인화면으로 돌아가기' button */}
             <Link
               href="/"
               className="w-full py-3.5 rounded-2xl bg-zinc-900 border border-zinc-800 text-neutral-300 hover:text-white hover:bg-zinc-850 font-black text-sm md:text-base transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md"
@@ -773,13 +771,19 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
               </button>
             </div>
 
+            {/* Item 1: Disable lock button when 0 votes have been cast */}
             {room.status === 'VOTING' && (
               <button
+                disabled={totalVotesCount === 0}
                 onClick={handleHostLockVotes}
-                className="w-full py-3.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-zinc-950 font-black text-sm md:text-base transition-all shadow-lg flex items-center justify-center gap-2 cursor-pointer"
+                className={`w-full py-3.5 rounded-xl text-sm md:text-base font-black transition-all shadow-lg flex items-center justify-center gap-2 border ${
+                  totalVotesCount === 0
+                    ? 'bg-zinc-900 border-zinc-800 text-neutral-500 cursor-not-allowed opacity-60'
+                    : 'bg-amber-500 hover:bg-amber-400 text-zinc-950 border-amber-400 cursor-pointer'
+                }`}
               >
                 <Lock className="w-4.5 h-4.5" />
-                <span>시청자 투표 마감하기</span>
+                <span>{totalVotesCount === 0 ? '시청자 투표 참여 대기 중... (0명)' : '시청자 투표 마감하기'}</span>
               </button>
             )}
 
