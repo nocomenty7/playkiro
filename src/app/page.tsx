@@ -6,6 +6,7 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, Trophy, Users, ShieldAlert, BrainCircuit, BarChart3, Loader2 } from 'lucide-react';
 import Navigation from '../components/Navigation';
+import StreamerModal from '../components/StreamerModal';
 
 function LandingClient() {
   const searchParams = useSearchParams();
@@ -13,6 +14,7 @@ function LandingClient() {
   const q = searchParams.get('q');
 
   const [showDrawer, setShowDrawer] = useState(false);
+  const [showStreamerModal, setShowStreamerModal] = useState(false);
   const [isNavigating, setIsNavigating] = useState(false);
   const [selectedCategories, setSelectedCategories] = useState<string[]>(() => {
     if (typeof window !== 'undefined') {
@@ -158,18 +160,25 @@ function LandingClient() {
             </div>
           </div>
 
-          {/* Primary CTA */}
+          {/* Primary CTA - Mode Split */}
           <motion.div 
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.2 }}
-            className="pt-2 max-w-sm mx-auto"
+            className="pt-2 max-w-sm mx-auto space-y-3"
           >
             <button
               onClick={handleStartGame}
-              className="w-full flex items-center justify-center gap-2 rounded-2xl bg-brand-yellow hover:bg-[#e0b240] text-zinc-950 font-black text-lg px-8 h-14 shadow-[0_0_30px_rgba(245,195,82,0.3)] transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+              className="w-full flex items-center justify-center gap-2 rounded-2xl bg-brand-yellow hover:bg-[#e0b240] text-zinc-950 font-black text-base px-6 h-14 shadow-[0_0_30px_rgba(245,195,82,0.3)] transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
             >
-              🎮 시작하기
+              <span>👤 혼자서 취향 테스트하기 (싱글 모드)</span>
+            </button>
+
+            <button
+              onClick={() => setShowStreamerModal(true)}
+              className="w-full flex items-center justify-center gap-2 rounded-2xl bg-zinc-900 border border-zinc-700 hover:bg-zinc-800 text-white font-black text-sm px-6 h-12 transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+            >
+              <span>📺 다같이 랭킹전 플레이 (스트리머 모드)</span>
             </button>
           </motion.div>
 
@@ -299,6 +308,12 @@ function LandingClient() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Streamer Mode Creation/Join Modal */}
+      <StreamerModal
+        isOpen={showStreamerModal}
+        onClose={() => setShowStreamerModal(false)}
+      />
 
     </div>
   );
