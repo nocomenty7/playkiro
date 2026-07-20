@@ -266,14 +266,12 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
     percentB = 100 - percentA;
   }
 
-  // Item 2: Allow viewers to change/update prediction vote seamlessly while VOTING
   const handleVoteSubmit = async (voteOption: 'A' | 'B') => {
     if (!room || room.status !== 'VOTING' || !myParticipantId) return;
 
     setMyVote(voteOption);
     const currentQId = room.question_ids[room.current_question_index];
 
-    // Use upsert so viewers can change their prediction vote until host locks question!
     await supabase.from('room_votes').upsert(
       [
         {
@@ -614,14 +612,14 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
               </div>
             )}
 
-            {/* Item 2 & Item 4: Option A & B Cards with Inline Non-Overlapping Badges */}
+            {/* Option A & B Cards - Centered Text & Non-Overlapping Conditional Badges */}
             {currentQuestion && (
               <div className="grid grid-cols-1 gap-4 pt-1">
                 {/* Option 1 (A) - Yellow / Amber */}
                 <button
                   disabled={room.status !== 'VOTING' || isHost}
                   onClick={() => handleVoteSubmit('A')}
-                  className={`relative flex w-full flex-col items-center justify-center overflow-hidden rounded-2xl py-4 px-5 transition-all duration-300 text-left border ${
+                  className={`relative flex w-full min-h-[90px] flex-col items-center justify-center overflow-hidden rounded-2xl py-4 px-5 transition-all duration-300 text-left border ${
                     myVote === 'A'
                       ? 'bg-zinc-900/90 border-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.25)]'
                       : room.host_pick === 'A'
@@ -640,26 +638,29 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
                     />
                   )}
 
-                  <div className="relative z-10 flex flex-col items-center justify-center gap-2 w-full text-center py-1">
-                    {/* Item 4: Inline Non-Overlapping Badge Container */}
-                    <div className="flex items-center justify-center gap-2 flex-wrap min-h-[22px]">
-                      {myVote === 'A' && (
-                        <span className="rounded-full bg-black text-white border border-zinc-700 px-2.5 py-0.5 text-xs font-black shadow-md">
-                          ✓ 내 예상
-                        </span>
-                      )}
-                      {room.host_pick === 'A' && (
-                        <span className="rounded-full bg-white text-black px-2.5 py-0.5 text-xs font-black shadow-md">
-                          👑 스트리머 픽
-                        </span>
-                      )}
-                    </div>
+                  <div className="relative z-10 flex flex-col items-center justify-center gap-1.5 w-full text-center my-auto">
+                    {/* Render Badges ONLY when active (No forced empty space when 0 badges) */}
+                    {(myVote === 'A' || room.host_pick === 'A') && (
+                      <div className="flex items-center justify-center gap-2 flex-wrap mb-1">
+                        {myVote === 'A' && (
+                          <span className="rounded-full bg-black text-white border border-zinc-700 px-2.5 py-0.5 text-xs font-black shadow-md">
+                            ✓ 내 예상
+                          </span>
+                        )}
+                        {room.host_pick === 'A' && (
+                          <span className="rounded-full bg-white text-black px-2.5 py-0.5 text-xs font-black shadow-md">
+                            👑 스트리머 픽
+                          </span>
+                        )}
+                      </div>
+                    )}
 
-                    <div className="flex items-center justify-center gap-2.5 w-full">
+                    {/* Emoji + Text Vertically & Horizontally Centered */}
+                    <div className="flex items-center justify-center gap-2.5 w-full my-auto">
                       {currentQuestion.emoji_a && (
                         <span className="text-3xl md:text-4xl leading-none shrink-0">{currentQuestion.emoji_a}</span>
                       )}
-                      <p className="text-xl md:text-2xl font-kiro leading-snug text-neutral-100 max-h-28 overflow-y-auto no-scrollbar break-keep">
+                      <p className="text-xl md:text-2xl font-kiro leading-snug text-neutral-100 max-h-28 overflow-y-auto no-scrollbar break-keep my-auto">
                         {currentQuestion.option_a}
                       </p>
                     </div>
@@ -683,7 +684,7 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
                 <button
                   disabled={room.status !== 'VOTING' || isHost}
                   onClick={() => handleVoteSubmit('B')}
-                  className={`relative flex w-full flex-col items-center justify-center overflow-hidden rounded-2xl py-4 px-5 transition-all duration-300 text-left border ${
+                  className={`relative flex w-full min-h-[90px] flex-col items-center justify-center overflow-hidden rounded-2xl py-4 px-5 transition-all duration-300 text-left border ${
                     myVote === 'B'
                       ? 'bg-zinc-900/90 border-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.25)]'
                       : room.host_pick === 'B'
@@ -702,26 +703,29 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
                     />
                   )}
 
-                  <div className="relative z-10 flex flex-col items-center justify-center gap-2 w-full text-center py-1">
-                    {/* Item 4: Inline Non-Overlapping Badge Container */}
-                    <div className="flex items-center justify-center gap-2 flex-wrap min-h-[22px]">
-                      {myVote === 'B' && (
-                        <span className="rounded-full bg-black text-white border border-zinc-700 px-2.5 py-0.5 text-xs font-black shadow-md">
-                          ✓ 내 예상
-                        </span>
-                      )}
-                      {room.host_pick === 'B' && (
-                        <span className="rounded-full bg-white text-black px-2.5 py-0.5 text-xs font-black shadow-md">
-                          👑 스트리머 픽
-                        </span>
-                      )}
-                    </div>
+                  <div className="relative z-10 flex flex-col items-center justify-center gap-1.5 w-full text-center my-auto">
+                    {/* Render Badges ONLY when active (No forced empty space when 0 badges) */}
+                    {(myVote === 'B' || room.host_pick === 'B') && (
+                      <div className="flex items-center justify-center gap-2 flex-wrap mb-1">
+                        {myVote === 'B' && (
+                          <span className="rounded-full bg-black text-white border border-zinc-700 px-2.5 py-0.5 text-xs font-black shadow-md">
+                            ✓ 내 예상
+                          </span>
+                        )}
+                        {room.host_pick === 'B' && (
+                          <span className="rounded-full bg-white text-black px-2.5 py-0.5 text-xs font-black shadow-md">
+                            👑 스트리머 픽
+                          </span>
+                        )}
+                      </div>
+                    )}
 
-                    <div className="flex items-center justify-center gap-2.5 w-full">
+                    {/* Emoji + Text Vertically & Horizontally Centered */}
+                    <div className="flex items-center justify-center gap-2.5 w-full my-auto">
                       {currentQuestion.emoji_b && (
                         <span className="text-3xl md:text-4xl leading-none shrink-0">{currentQuestion.emoji_b}</span>
                       )}
-                      <p className="text-xl md:text-2xl font-kiro leading-snug text-neutral-100 max-h-28 overflow-y-auto no-scrollbar break-keep">
+                      <p className="text-xl md:text-2xl font-kiro leading-snug text-neutral-100 max-h-28 overflow-y-auto no-scrollbar break-keep my-auto">
                         {currentQuestion.option_b}
                       </p>
                     </div>
@@ -772,7 +776,6 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
               </button>
             )}
 
-            {/* Item 3: Removed '픽하기:' prefix from streamer pick buttons */}
             {room.status === 'LOCKED' && (
               <div className="space-y-2.5">
                 <span className="text-xs md:text-sm text-neutral-300 font-extrabold block text-center">
