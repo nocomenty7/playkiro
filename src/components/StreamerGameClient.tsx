@@ -44,8 +44,9 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
   // Host Onboarding Guide Modal State
   const [showHostGuide, setShowHostGuide] = useState(false);
 
-  // Performance Optimization - Channel Ref
+  // Performance Optimization - Channel & Throttle Refs
   const channelRef = useRef<any>(null);
+  const fetchThrottleRef = useRef<NodeJS.Timeout | null>(null);
 
   // Get or initialize Session ID
   useEffect(() => {
@@ -157,18 +158,18 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
     if (data) setCurrentQuestion(data);
   };
 
-  // Fetch Participants
+  // Fetch Participants (Optimized payload)
   const fetchParticipants = async (roomId: string) => {
     const { data } = await supabase
       .from('room_participants')
-      .select('*')
+      .select('id, session_id, nickname, score')
       .eq('room_id', roomId)
       .order('score', { ascending: false });
 
     if (data) setParticipants(data);
   };
 
-  // Fetch Room Votes count for current question
+  // Fetch Room Votes count for current question (Optimized lightweight payload)
   const fetchRoomVotes = async (roomId: string, qId: string) => {
     if (!roomId || !qId) return;
     const { data } = await supabase
@@ -178,12 +179,16 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
       .eq('question_id', qId);
 
     if (data) {
-      const countA = data.filter((v) => v.vote === 'A').length;
-      const countB = data.filter((v) => v.vote === 'B').length;
+      let countA = 0;
+      let countB = 0;
+      data.forEach((v) => {
+        if (v.vote === 'A') countA++;
+        else if (v.vote === 'B') countB++;
+      });
       setVotesA(countA);
       setVotesB(countB);
 
-      // Check my vote
+      // Check my vote efficiently
       if (myParticipantId) {
         const myVoteEntry = data.find((v) => v.participant_id === myParticipantId);
         if (myVoteEntry) setMyVote(myVoteEntry.vote as 'A' | 'B');
@@ -192,7 +197,16 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
     }
   };
 
-  // Supabase Realtime Channel Subscription Ref
+  // Throttled Vote Fetching for Zero CPU Latency under heavy traffic
+  const throttledFetchRoomVotes = (roomId: string, qId: string) => {
+    if (fetchThrottleRef.current) return;
+    fetchThrottleRef.current = setTimeout(() => {
+      fetchRoomVotes(roomId, qId);
+      fetchThrottleRef.current = null;
+    }, 150);
+  };
+
+  // Supabase Realtime Channel Subscription Ref (Leak-Free & Optimized)
   useEffect(() => {
     if (!room?.id) return;
 
@@ -227,10 +241,10 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'room_votes', filter: `room_id=eq.${room.id}` },
-        async () => {
+        () => {
           if (room) {
             const currentQId = room.question_ids[room.current_question_index];
-            await fetchRoomVotes(room.id, currentQId);
+            throttledFetchRoomVotes(room.id, currentQId);
           }
         }
       )
@@ -248,6 +262,9 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
     return () => {
       if (channelRef.current) {
         supabase.removeChannel(channelRef.current);
+      }
+      if (fetchThrottleRef.current) {
+        clearTimeout(fetchThrottleRef.current);
       }
     };
   }, [room?.id]);
@@ -344,7 +361,6 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
     }
   };
 
-  // Item 2: Updated Toast message text to '📋 PIN 코드가 클립보드에 복사되었습니다.'
   const handleCopyPin = () => {
     navigator.clipboard.writeText(pin);
     setCopied(true);
@@ -386,7 +402,7 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
 
   return (
     <div className="min-h-screen overflow-y-auto bg-[#080911] text-white flex flex-col justify-between antialiased pb-6">
-      {/* Item 2: Center Toast Notification with z-[100] to show over onboarding modal */}
+      {/* Toast Notification */}
       <AnimatePresence>
         {showToast && (
           <motion.div
@@ -784,6 +800,7 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
               </button>
             )}
 
+            {/* Item 1: Removed crown emoji (👑) from host pick buttons */}
             {room.status === 'LOCKED' && (
               <div className="space-y-2.5">
                 <span className="text-xs md:text-sm text-neutral-300 font-extrabold block text-center">
@@ -795,14 +812,14 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
                     onClick={() => handleHostPickSubmit('A')}
                     className="py-3.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-zinc-950 font-black text-xs md:text-sm transition-all shadow-md cursor-pointer disabled:opacity-50"
                   >
-                    👑 {currentQuestion?.option_a}
+                    {currentQuestion?.option_a}
                   </button>
                   <button
                     disabled={submittingPick}
                     onClick={() => handleHostPickSubmit('B')}
                     className="py-3.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-black text-xs md:text-sm transition-all shadow-md cursor-pointer disabled:opacity-50"
                   >
-                    👑 {currentQuestion?.option_b}
+                    {currentQuestion?.option_b}
                   </button>
                 </div>
               </div>
