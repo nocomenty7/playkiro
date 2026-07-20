@@ -4,7 +4,7 @@ import React, { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, Trophy, Users, ShieldAlert, BrainCircuit, BarChart3, Loader2 } from 'lucide-react';
+import { Sparkles, Trophy, Users, ShieldAlert, BrainCircuit, BarChart3, Loader2, Tv } from 'lucide-react';
 import Navigation from '../components/Navigation';
 import StreamerModal from '../components/StreamerModal';
 
@@ -240,6 +240,16 @@ function LandingClient() {
                 />
               </div>
             </div>
+          </div>
+
+          <div className="group rounded-3xl border border-zinc-900 bg-zinc-900/10 p-8 space-y-4 hover:border-zinc-800 transition-all duration-300">
+            <div className="h-12 w-12 rounded-2xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400">
+              <Tv className="h-6 w-6" />
+            </div>
+            <h3 className="text-xl font-extrabold text-neutral-100">함께 플레이하기 (스트리머 모드)</h3>
+            <p className="text-sm text-neutral-450 leading-relaxed">
+              스트리머와 시청자들이 6자리 PIN 코드로 동시 접속하여 실시간으로 취향을 확인하고 예측 성공률을 겨루는 다중 접속 모드입니다. 방송 송출 환경과 소통 게임에 최적화된 랭킹전 플랫폼을 경험해보세요.
+            </p>
           </div>
 
           <div className="group rounded-3xl border border-zinc-900 bg-zinc-900/10 p-8 space-y-4 hover:border-zinc-800 transition-all duration-300">
