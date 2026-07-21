@@ -29,16 +29,23 @@ body {
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* Light Mode Comprehensive Theme Rules */
+/* ==========================================================================
+   LIGHT MODE SYSTEM-WIDE HIGH-CONTRAST LEGIBILITY RULES (html.light)
+   ========================================================================== */
+
+/* 1. Base Container & Body Overrides */
 html.light body {
   background-color: #f8fafc !important;
   color: #0f172a !important;
 }
 
-html.light .bg-\[\#080911\] {
+html.light .bg-\[\#080911\],
+html.light .bg-\[\#080911\]\/85 {
   background-color: #f8fafc !important;
 }
 
+html.light .bg-\[\#0b0c16\]\/50,
+html.light .bg-\[\#0c0d1b\],
 html.light .bg-\[\#0d0e1d\] {
   background-color: #ffffff !important;
 }
@@ -60,13 +67,19 @@ html.light .bg-zinc-900\/90 {
   background-color: #f1f5f9 !important;
 }
 
+/* 2. Borders & Dividers */
 html.light .border-zinc-900,
-html.light .border-zinc-800,
+html.light .border-zinc-900\/40,
+html.light .border-zinc-900\/80,
 html.light .border-zinc-850,
-html.light .border-zinc-700 {
-  border-color: #e2e8f0 !important;
+html.light .border-zinc-800,
+html.light .border-zinc-800\/80,
+html.light .border-zinc-700,
+html.light .border-zinc-700\/80 {
+  border-color: #cbd5e1 !important;
 }
 
+/* 3. High-Contrast Text Color Overrides for Light Mode */
 html.light .text-white {
   color: #0f172a !important;
 }
@@ -76,17 +89,82 @@ html.light .text-neutral-100 {
 }
 
 html.light .text-neutral-200,
+html.light .text-neutral-250,
 html.light .text-neutral-300 {
   color: #334155 !important;
 }
 
 html.light .text-neutral-400,
-html.light .text-neutral-500 {
-  color: #64748b !important;
+html.light .text-neutral-450,
+html.light .text-neutral-500,
+html.light .text-neutral-600,
+html.light .text-neutral-650 {
+  color: #475569 !important;
+}
+
+html.light .text-zinc-300,
+html.light .text-zinc-400,
+html.light .text-zinc-500 {
+  color: #475569 !important;
+}
+
+/* 4. Brand Accent Color Contrast Polish (Yellow / Amber / Green / Mint) */
+html.light .text-brand-yellow,
+html.light .text-\[\#f5c352\] {
+  color: #d97706 !important; /* Deep rich amber instead of faint light yellow */
+}
+
+html.light .text-amber-300,
+html.light .text-amber-400,
+html.light .text-amber-455 {
+  color: #b45309 !important; /* Deep amber 700 for high legibility */
 }
 
 html.light .text-\[\#ffe5a9\] {
-  color: #92400e !important;
+  color: #78350f !important; /* Rich amber 900 for titles */
+}
+
+html.light .text-emerald-400,
+html.light .text-emerald-455,
+html.light .text-emerald-500 {
+  color: #047857 !important; /* Deep emerald 700 */
+}
+
+html.light .text-rose-400,
+html.light .text-rose-500 {
+  color: #be123c !important; /* Deep rose 700 */
+}
+
+/* 5. Option Cards & Interactive Components in Light Mode */
+html.light .bg-zinc-900\/50.border-amber-500 {
+  background-color: #fffbeb !important;
+  border-color: #f59e0b !important;
+}
+
+html.light .bg-zinc-900\/50.border-emerald-500 {
+  background-color: #ecfdf5 !important;
+  border-color: #10b981 !important;
+}
+
+html.light input,
+html.light select,
+html.light textarea {
+  color: #0f172a !important;
+  background-color: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+}
+
+html.light input::placeholder,
+html.light select::placeholder,
+html.light textarea::placeholder {
+  color: #94a3b8 !important;
+}
+
+/* 6. Modals, Drawers & Overlays */
+html.light .bg-black\/85,
+html.light .bg-black\/75,
+html.light .bg-black\/65 {
+  background-color: rgba(15, 23, 42, 0.65) !important;
 }
 
 /* Infinite Marquee Animations for Vercel/Linear Style Landing Page */
