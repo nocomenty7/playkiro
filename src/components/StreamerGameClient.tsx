@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Users, Lock, Play, ArrowRight, Copy, Check, Sparkles, LogOut, Home, BarChart3, RefreshCw, Loader2 } from 'lucide-react';
+import { Users, Lock, Play, ArrowRight, Copy, Check, Sparkles, LogOut, Home, BarChart3, Loader2 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import StatsBottomSheet from './StatsBottomSheet';
 
@@ -410,7 +410,7 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
     }
   };
 
-  // Optimistic UI Update + Loading Spinner for Pass Question
+  // Item 1: Removed fast-forward emoji icon completely from handleHostPassQuestion button
   const handleHostPassQuestion = async () => {
     if (!isHost || !room || submittingPass || actionLoading) return;
 
@@ -786,20 +786,20 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
               </div>
             )}
 
-            {/* Option A & B Cards */}
+            {/* Option A & B Cards with Dramatic Streamer Pick Highlights */}
             {currentQuestion && (
               <div className="grid grid-cols-1 gap-4 pt-1">
                 {/* Option 1 (A) - Yellow / Amber */}
                 <button
                   disabled={room.status !== 'VOTING' || isHost}
                   onClick={() => handleVoteSubmit('A')}
-                  className={`relative flex w-full min-h-[90px] flex-col items-center justify-center overflow-hidden rounded-2xl py-4 px-5 transition-all duration-300 text-left border ${
-                    myVote === 'A'
-                      ? 'bg-zinc-900/90 border-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.25)]'
-                      : room.host_pick === 'A'
+                  className={`relative flex w-full min-h-[95px] flex-col items-center justify-center overflow-hidden rounded-2xl py-4 px-5 transition-all duration-300 text-left border ${
+                    room.host_pick === 'A'
+                      ? 'bg-gradient-to-br from-amber-500/25 via-zinc-900 to-amber-950/40 border-4 border-amber-400 shadow-[0_0_35px_rgba(245,158,11,0.6)] ring-4 ring-amber-400/20 scale-[1.02]'
+                      : myVote === 'A'
                       ? 'bg-zinc-900/90 border-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.25)]'
                       : 'bg-zinc-900/50 border-zinc-800/80 hover:bg-zinc-900/80 hover:border-zinc-700'
-                  } ${room.status !== 'VOTING' ? 'opacity-90' : 'cursor-pointer'}`}
+                  } ${room.status !== 'VOTING' ? 'opacity-95' : 'cursor-pointer'}`}
                 >
                   {/* Card Fill Animation Revealed AFTER Streamer Pick (RESULT status) */}
                   {room.status === 'RESULT' && (
@@ -807,7 +807,7 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
                       initial={{ scaleX: 0 }}
                       animate={{ scaleX: 1 }}
                       transition={{ duration: 0.6, ease: 'easeOut' }}
-                      className="absolute inset-0 z-0 opacity-20 bg-amber-500"
+                      className={`absolute inset-0 z-0 opacity-20 ${room.host_pick === 'A' ? 'bg-amber-400' : 'bg-amber-500'}`}
                       style={{ width: `${percentA}%`, transformOrigin: 'left' }}
                     />
                   )}
@@ -820,10 +820,16 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
                             ✓ 내 예상
                           </span>
                         )}
+                        {/* Dramatic Streamer Pick Badge */}
                         {room.host_pick === 'A' && (
-                          <span className="rounded-full bg-white text-black px-2.5 py-0.5 text-xs font-black shadow-md">
-                            👑 스트리머 픽
-                          </span>
+                          <motion.span
+                            initial={{ scale: 0.8, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            transition={{ type: 'spring', stiffness: 300, damping: 15 }}
+                            className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-amber-300 via-yellow-400 to-amber-500 text-zinc-950 px-3.5 py-1 text-xs md:text-sm font-black shadow-[0_0_15px_rgba(245,158,11,0.8)] ring-2 ring-yellow-200"
+                          >
+                            <span>👑 {room.host_nickname}의 선택!</span>
+                          </motion.span>
                         )}
                       </div>
                     )}
@@ -832,7 +838,11 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
                       {currentQuestion.emoji_a && (
                         <span className="text-3xl md:text-4xl leading-none shrink-0">{currentQuestion.emoji_a}</span>
                       )}
-                      <p className="text-xl md:text-2xl font-kiro leading-snug text-neutral-100 max-h-28 overflow-y-auto no-scrollbar break-keep my-auto">
+                      <p className={`text-xl md:text-2xl font-kiro leading-snug max-h-28 overflow-y-auto no-scrollbar break-keep my-auto ${
+                        room.host_pick === 'A'
+                          ? 'text-amber-300 font-black tracking-tight drop-shadow-[0_2px_12px_rgba(245,158,11,0.6)]'
+                          : 'text-neutral-100'
+                      }`}>
                         {currentQuestion.option_a}
                       </p>
                     </div>
@@ -844,24 +854,26 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
                         transition={{ type: 'spring', damping: 15 }}
                         className="flex items-baseline justify-center gap-1.5 mt-1"
                       >
-                        <span className="text-2xl md:text-3xl font-black text-amber-400">{percentA.toFixed(1)}%</span>
+                        <span className={`text-2xl md:text-3xl font-black ${room.host_pick === 'A' ? 'text-amber-300 drop-shadow-[0_0_8px_rgba(245,158,11,0.7)]' : 'text-amber-400'}`}>
+                          {percentA.toFixed(1)}%
+                        </span>
                         <span className="text-xs text-neutral-400 font-extrabold">({votesA}명)</span>
                       </motion.div>
                     )}
                   </div>
                 </button>
 
-                {/* Option 2 (B) - Mint / Emerald */}
+                {/* Option 2 (B) - Mint / Emerald / Highlighted */}
                 <button
                   disabled={room.status !== 'VOTING' || isHost}
                   onClick={() => handleVoteSubmit('B')}
-                  className={`relative flex w-full min-h-[90px] flex-col items-center justify-center overflow-hidden rounded-2xl py-4 px-5 transition-all duration-300 text-left border ${
-                    myVote === 'B'
+                  className={`relative flex w-full min-h-[95px] flex-col items-center justify-center overflow-hidden rounded-2xl py-4 px-5 transition-all duration-300 text-left border ${
+                    room.host_pick === 'B'
+                      ? 'bg-gradient-to-br from-amber-500/25 via-zinc-900 to-amber-950/40 border-4 border-amber-400 shadow-[0_0_35px_rgba(245,158,11,0.6)] ring-4 ring-amber-400/20 scale-[1.02]'
+                      : myVote === 'B'
                       ? 'bg-zinc-900/90 border-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.25)]'
-                      : room.host_pick === 'B'
-                      ? 'bg-zinc-900/90 border-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.25)]'
                       : 'bg-zinc-900/50 border-zinc-800/80 hover:bg-zinc-900/80 hover:border-zinc-700'
-                  } ${room.status !== 'VOTING' ? 'opacity-90' : 'cursor-pointer'}`}
+                  } ${room.status !== 'VOTING' ? 'opacity-95' : 'cursor-pointer'}`}
                 >
                   {/* Card Fill Animation Revealed AFTER Streamer Pick (RESULT status) */}
                   {room.status === 'RESULT' && (
@@ -869,7 +881,7 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
                       initial={{ scaleX: 0 }}
                       animate={{ scaleX: 1 }}
                       transition={{ duration: 0.6, ease: 'easeOut' }}
-                      className="absolute inset-0 z-0 opacity-20 bg-emerald-500"
+                      className={`absolute inset-0 z-0 opacity-20 ${room.host_pick === 'B' ? 'bg-amber-400' : 'bg-emerald-500'}`}
                       style={{ width: `${percentB}%`, transformOrigin: 'left' }}
                     />
                   )}
@@ -882,10 +894,16 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
                             ✓ 내 예상
                           </span>
                         )}
+                        {/* Dramatic Streamer Pick Badge */}
                         {room.host_pick === 'B' && (
-                          <span className="rounded-full bg-white text-black px-2.5 py-0.5 text-xs font-black shadow-md">
-                            👑 스트리머 픽
-                          </span>
+                          <motion.span
+                            initial={{ scale: 0.8, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            transition={{ type: 'spring', stiffness: 300, damping: 15 }}
+                            className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-amber-300 via-yellow-400 to-amber-500 text-zinc-950 px-3.5 py-1 text-xs md:text-sm font-black shadow-[0_0_15px_rgba(245,158,11,0.8)] ring-2 ring-yellow-200"
+                          >
+                            <span>👑 {room.host_nickname}의 선택!</span>
+                          </motion.span>
                         )}
                       </div>
                     )}
@@ -894,7 +912,11 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
                       {currentQuestion.emoji_b && (
                         <span className="text-3xl md:text-4xl leading-none shrink-0">{currentQuestion.emoji_b}</span>
                       )}
-                      <p className="text-xl md:text-2xl font-kiro leading-snug text-neutral-100 max-h-28 overflow-y-auto no-scrollbar break-keep my-auto">
+                      <p className={`text-xl md:text-2xl font-kiro leading-snug max-h-28 overflow-y-auto no-scrollbar break-keep my-auto ${
+                        room.host_pick === 'B'
+                          ? 'text-amber-300 font-black tracking-tight drop-shadow-[0_2px_12px_rgba(245,158,11,0.6)]'
+                          : 'text-neutral-100'
+                      }`}>
                         {currentQuestion.option_b}
                       </p>
                     </div>
@@ -906,7 +928,9 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
                         transition={{ type: 'spring', damping: 15 }}
                         className="flex items-baseline justify-center gap-1.5 mt-1"
                       >
-                        <span className="text-2xl md:text-3xl font-black text-emerald-400">{percentB.toFixed(1)}%</span>
+                        <span className={`text-2xl md:text-3xl font-black ${room.host_pick === 'B' ? 'text-amber-300 drop-shadow-[0_0_8px_rgba(245,158,11,0.7)]' : 'text-emerald-400'}`}>
+                          {percentB.toFixed(1)}%
+                        </span>
                         <span className="text-xs text-neutral-400 font-extrabold">({votesB}명)</span>
                       </motion.div>
                     )}
@@ -951,7 +975,7 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
                     className="flex items-center gap-1 text-xs md:text-sm text-amber-400 hover:text-amber-300 font-extrabold cursor-pointer disabled:opacity-50"
                     title="문제 패스 및 새로고침"
                   >
-                    <RefreshCw className={`w-3.5 h-3.5 ${actionLoading === 'pass' ? 'animate-spin' : ''}`} />
+                    {actionLoading === 'pass' && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
                     <span>문제 패스</span>
                   </button>
                 )}
