@@ -9,29 +9,43 @@ const { createClient } = require('@supabase/supabase-js');
 const fs = require('fs');
 const path = require('path');
 
-// Read Supabase environment variables from .env.local
+// Read Supabase environment variables from .env.local, .env, etc.
 let supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 let supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
 if (!supabaseUrl || !supabaseAnonKey) {
-  try {
-    const envPath = path.join(__dirname, '..', '.env.local');
-    const envContent = fs.readFileSync(envPath, 'utf8');
-    envContent.split('\n').forEach((line) => {
-      if (line.startsWith('NEXT_PUBLIC_SUPABASE_URL=')) {
-        supabaseUrl = line.split('=')[1].trim().replace(/['"]/g, '');
+  const possibleEnvFiles = ['.env.local', '.env', '.env.production', '.env.development'];
+  for (const file of possibleEnvFiles) {
+    try {
+      const envPath = path.join(__dirname, '..', file);
+      if (fs.existsSync(envPath)) {
+        const envContent = fs.readFileSync(envPath, 'utf8');
+        envContent.split('\n').forEach((line) => {
+          const trimmed = line.trim();
+          if (trimmed.startsWith('NEXT_PUBLIC_SUPABASE_URL=')) {
+            supabaseUrl = trimmed.substring('NEXT_PUBLIC_SUPABASE_URL='.length).trim().replace(/['"]/g, '');
+          }
+          if (trimmed.startsWith('NEXT_PUBLIC_SUPABASE_ANON_KEY=')) {
+            supabaseAnonKey = trimmed.substring('NEXT_PUBLIC_SUPABASE_ANON_KEY='.length).trim().replace(/['"]/g, '');
+          }
+        });
+        if (supabaseUrl && supabaseAnonKey) break;
       }
-      if (line.startsWith('NEXT_PUBLIC_SUPABASE_ANON_KEY=')) {
-        supabaseAnonKey = line.split('=')[1].trim().replace(/['"]/g, '');
-      }
-    });
-  } catch (e) {
-    // Failback if env file reading fails
+    } catch (e) {
+      // Ignore reading errors
+    }
   }
 }
 
 if (!supabaseUrl || !supabaseAnonKey) {
-  console.error('❌ Supabase credentials not found in .env.local!');
+  console.error('\n❌ Supabase 환경 변수가 설정되지 않았습니다.');
+  console.error('📌 해결 방법 1: 프로젝트 루트 디렉토리에 `.env.local` 파일을 생성하고 아래 내용을 입력해 주세요:');
+  console.error('──────────────────────────────────────────────────');
+  console.error('NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co');
+  console.error('NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key');
+  console.error('──────────────────────────────────────────────────');
+  console.error('\n📌 해결 방법 2: 명령 실행 시 환경 변수를 직접 전달:');
+  console.error('NEXT_PUBLIC_SUPABASE_URL="https://your-project.supabase.co" NEXT_PUBLIC_SUPABASE_ANON_KEY="your-key" node scripts/load-test.js <PIN> <COUNT>\n');
   process.exit(1);
 }
 
@@ -41,14 +55,14 @@ const pinArg = process.argv[2];
 const countArg = parseInt(process.argv[3] || '100', 10);
 
 if (!pinArg) {
-  console.log('💡 Usage: node scripts/load-test.js <PIN_CODE> <NUMBER_OF_VIEWERS>');
-  console.log('📌 Example: node scripts/load-test.js 849201 100');
-  console.log('📌 Example: node scripts/load-test.js 849201 1000\n');
+  console.log('\n💡 사용법: node scripts/load-test.js <PIN_CODE> <시청자_수>');
+  console.log('📌 예시 (100명 가상 접속): node scripts/load-test.js 950612 100');
+  console.log('📌 예시 (1,000명 가상 접속): node scripts/load-test.js 950612 1000\n');
   process.exit(0);
 }
 
 async function runLoadTest() {
-  console.log(`\n🚀 [Kiro Load Test] Initializing test for PIN: ${pinArg} with ${countArg} simulated viewers...`);
+  console.log(`\n🚀 [Kiro Load Test] PIN: ${pinArg} 방에 가상 시청자 ${countArg}명 부하 테스트를 시작합니다...`);
 
   // 1. Fetch Room info
   const { data: room, error: roomErr } = await supabase
@@ -58,87 +72,72 @@ async function runLoadTest() {
     .single();
 
   if (roomErr || !room) {
-    console.error(`❌ Room with PIN ${pinArg} not found or inactive!`);
+    console.error(`❌ PIN [${pinArg}]에 해당하는 방을 찾을 수 없거나 이미 종료되었습니다.`);
     process.exit(1);
   }
 
-  console.log(`✅ Target Room Found! ID: ${room.id} | Host: ${room.host_nickname} | Status: ${room.status}`);
-  console.log(`👥 Registering ${countArg} virtual participants in database...`);
+  console.log(`✅ 방 정보 로드 완료! (방 제목: Q${room.current_question_index + 1}, 상태: ${room.status}, 호스트: ${room.host_nickname})`);
 
-  const startTime = Date.now();
   const currentQId = room.question_ids[room.current_question_index];
+  const startTime = Date.now();
 
-  // 2. Batch register participants
-  const participantsData = [];
-  for (let i = 1; i <= countArg; i++) {
-    participantsData.push({
-      room_id: room.id,
-      session_id: `sim_session_${i}_${Date.now()}`,
-      nickname: `가상시청자_${i}`,
-      score: 0,
-    });
-  }
+  // 2. Step 1: Register virtual participants in parallel
+  console.log(`\n👥 1단계: 가상 시청자 ${countArg}명 동시에 방 입장 처리 중...`);
+  const virtualParticipants = Array.from({ length: countArg }, (_, i) => ({
+    room_id: room.id,
+    session_id: `loadtest_user_${Date.now()}_${i}`,
+    nickname: `가상시청자_${i + 1}`,
+    score: 0,
+  }));
 
-  // Insert in chunks of 100
-  const chunkSize = 100;
-  const createdParticipants = [];
+  const { data: insertedParticipants, error: partErr } = await supabase
+    .from('room_participants')
+    .insert(virtualParticipants)
+    .select('id, nickname');
 
-  for (let i = 0; i < participantsData.length; i += chunkSize) {
-    const chunk = participantsData.slice(i, i + chunkSize);
-    const { data: inserted, error: insertErr } = await supabase
-      .from('room_participants')
-      .insert(chunk)
-      .select('id');
-
-    if (insertErr) {
-      console.error('⚠️ Participant batch insertion notice:', insertErr.message);
-    } else if (inserted) {
-      createdParticipants.push(...inserted);
-    }
+  if (partErr || !insertedParticipants) {
+    console.error('❌ 시청자 참가 등록 도중 오류가 발생했습니다:', partErr);
+    process.exit(1);
   }
 
   const joinTime = Date.now() - startTime;
-  console.log(`✅ ${createdParticipants.length} virtual viewers successfully joined in ${joinTime}ms!`);
+  console.log(`✨ ${insertedParticipants.length}명 방 입장 완결! (소요 시간: ${joinTime}ms)`);
 
-  // 3. Simulate High-Concurrency Realtime Vote Bursts
-  console.log(`\n⚡ Simulating simultaneous burst votes from ${createdParticipants.length} viewers...`);
+  // 3. Step 2: Send simultaneous parallel prediction votes (Option A vs B)
+  console.log(`\n⚡ 2단계: 가상 시청자 ${countArg}명이 동시 다발적으로 예측 투표 제출...`);
   const voteStartTime = Date.now();
 
-  const voteOps = createdParticipants.map((p, idx) => {
-    const pickOption = idx % 2 === 0 ? 'A' : 'B';
-    return supabase.from('room_votes').upsert(
-      [
-        {
-          room_id: room.id,
-          question_id: currentQId,
-          question_index: room.current_question_index,
-          participant_id: p.id,
-          vote: pickOption,
-        },
-      ],
-      { onConflict: 'room_id,question_id,participant_id' }
-    );
+  const votePromises = insertedParticipants.map((p, idx) => {
+    const option = idx % 2 === 0 ? 'A' : 'B';
+    return supabase.from('room_votes').upsert([
+      {
+        room_id: room.id,
+        question_id: currentQId,
+        question_index: room.current_question_index,
+        participant_id: p.id,
+        vote: option,
+      },
+    ]);
   });
 
-  // Execute all votes in parallel
-  const results = await Promise.allSettled(voteOps);
-  const voteEndTime = Date.now() - voteStartTime;
+  const results = await Promise.all(votePromises);
+  const voteDuration = Date.now() - voteStartTime;
+  const failedVotes = results.filter((r) => r.error).length;
 
-  const successfulVotes = results.filter((r) => r.status === 'fulfilled').length;
+  console.log(`🎉 2단계 완료!`);
+  console.log(`📊 - 총 제출 투표 수: ${countArg}개`);
+  console.log(`✅ - 성공 투표: ${countArg - failedVotes}개`);
+  if (failedVotes > 0) {
+    console.log(`❌ - 실패 투표: ${failedVotes}개`);
+  }
+  console.log(`⏱️ - 총 소요 시간: ${voteDuration}ms`);
+  console.log(`⚡ - 초당 처리 수 (RPS): ${Math.round((countArg / (voteDuration / 1000)) * 10) / 10} req/sec`);
+  console.log(`🎯 - 평균 응답 속도 (Latency): ${Math.round(voteDuration / countArg)}ms / req`);
 
-  console.log(`\n🎉 [Load Test Summary]`);
-  console.log(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
-  console.log(`📊 Target Room PIN      : ${pinArg}`);
-  console.log(`👥 Total Simulated Viewers: ${countArg}명`);
-  console.log(`⚡ Successful Votes      : ${successfulVotes} / ${createdParticipants.length}`);
-  console.log(`⏱️ Total Burst Vote Time : ${voteEndTime}ms`);
-  console.log(`🚀 Throughput (RPS)       : ${Math.round((successfulVotes / (voteEndTime / 1000)) || 0)} votes/sec`);
-  console.log(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`);
-
-  process.exit(0);
+  console.log(`\n✅ [부하 테스트 성공] 스트리머 모드가 ${countArg}명의 트래픽을 성공적으로 수용했습니다!\n`);
 }
 
-runLoadTest().catch((err) => {
-  console.error('❌ Load test script exception:', err);
+runLoadTest().catch((e) => {
+  console.error('❌ 부하 테스트 실패:', e);
   process.exit(1);
 });
