@@ -540,7 +540,7 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
   }
 
   return (
-    <div className="min-h-screen overflow-y-auto bg-[#080911] text-white flex flex-col justify-between antialiased pb-6 relative">
+    <div className="min-h-screen min-h-[100dvh] overflow-y-auto overscroll-y-contain touch-pan-y bg-[#080911] text-white flex flex-col justify-between antialiased pb-12 relative">
       {/* Toast Notification */}
       <AnimatePresence>
         {showToast && (
@@ -671,50 +671,50 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
 
       {/* FINISHED STATE VIEW */}
       {room.status === 'FINISHED' ? (
-        <div className="w-full max-w-md mx-auto p-4 flex-1 flex flex-col justify-between space-y-8 pt-8">
-          <div className="space-y-8">
-            <div className="text-center space-y-3">
+        <div className="w-full max-w-md mx-auto p-4 space-y-6 pt-6 pb-12">
+          <div className="space-y-6">
+            <div className="text-center space-y-2">
               <h1 className="text-3xl md:text-4xl lg:text-5xl font-black tracking-tight text-white">🏆 최종 결과</h1>
-              <p className="text-base md:text-lg text-neutral-300 font-bold">
+              <p className="text-sm md:text-base text-neutral-300 font-bold">
                 스트리머 픽을 가장 잘 맞힌 시청자 순위입니다!
               </p>
             </div>
 
             {/* Top 3 Podium */}
             {rankedViewers.length >= 1 && (
-              <div className="grid grid-cols-3 gap-3 items-end pt-6 pb-2">
+              <div className="grid grid-cols-3 gap-3 items-end pt-4 pb-1">
                 {/* 2nd Place */}
                 {rankedViewers[1] ? (
-                  <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 text-center space-y-1.5">
-                    <span className="text-3xl">{rankedViewers[1].rank === 1 ? '👑' : '🥈'}</span>
-                    <p className="text-sm md:text-base font-black truncate text-neutral-200">{rankedViewers[1].nickname}</p>
-                    <p className="text-sm font-black text-amber-400">{rankedViewers[1].rank}등 ({rankedViewers[1].score}점)</p>
+                  <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-3.5 text-center space-y-1">
+                    <span className="text-2xl md:text-3xl">{rankedViewers[1].rank === 1 ? '👑' : '🥈'}</span>
+                    <p className="text-xs md:text-sm font-black truncate text-neutral-200">{rankedViewers[1].nickname}</p>
+                    <p className="text-xs md:text-sm font-black text-amber-400">{rankedViewers[1].rank}등 ({rankedViewers[1].score}점)</p>
                   </div>
                 ) : <div />}
 
                 {/* 1st Place */}
-                <div className="bg-gradient-to-b from-amber-500/20 to-zinc-900 border border-amber-500/40 rounded-2xl p-5 text-center space-y-2 shadow-2xl transform -translate-y-3">
-                  <span className="text-4xl animate-bounce">👑</span>
-                  <p className="text-base md:text-lg font-black truncate text-amber-300">{rankedViewers[0].nickname}</p>
-                  <p className="text-base font-black text-amber-400">{rankedViewers[0].rank}등 ({rankedViewers[0].score}점)</p>
+                <div className="bg-gradient-to-b from-amber-500/20 to-zinc-900 border border-amber-500/40 rounded-2xl p-4 text-center space-y-1.5 shadow-2xl transform -translate-y-2">
+                  <span className="text-3xl md:text-4xl animate-bounce">👑</span>
+                  <p className="text-sm md:text-base font-black truncate text-amber-300">{rankedViewers[0].nickname}</p>
+                  <p className="text-sm md:text-base font-black text-amber-400">{rankedViewers[0].rank}등 ({rankedViewers[0].score}점)</p>
                 </div>
 
                 {/* 3rd Place */}
                 {rankedViewers[2] ? (
-                  <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 text-center space-y-1.5">
-                    <span className="text-3xl">{rankedViewers[2].rank === 1 ? '👑' : rankedViewers[2].rank === 2 ? '🥈' : '🥉'}</span>
-                    <p className="text-sm md:text-base font-black truncate text-neutral-200">{rankedViewers[2].nickname}</p>
-                    <p className="text-sm font-black text-amber-600">{rankedViewers[2].rank}등 ({rankedViewers[2].score}점)</p>
+                  <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-3.5 text-center space-y-1">
+                    <span className="text-2xl md:text-3xl">{rankedViewers[2].rank === 1 ? '👑' : rankedViewers[2].rank === 2 ? '🥈' : '🥉'}</span>
+                    <p className="text-xs md:text-sm font-black truncate text-neutral-200">{rankedViewers[2].nickname}</p>
+                    <p className="text-xs md:text-sm font-black text-amber-600">{rankedViewers[2].rank}등 ({rankedViewers[2].score}점)</p>
                   </div>
                 ) : <div />}
               </div>
             )}
 
             {/* Full Ranking Table */}
-            <div className="bg-zinc-950 border border-zinc-900 rounded-2xl p-5 space-y-3 max-h-60 overflow-y-auto">
-              <span className="text-xs md:text-sm font-extrabold text-neutral-400 uppercase tracking-widest block mb-3">시청자 전체 순위표</span>
+            <div className="bg-zinc-950 border border-zinc-900 rounded-2xl p-4 md:p-5 space-y-2.5 max-h-72 overflow-y-auto overscroll-contain touch-pan-y">
+              <span className="text-xs md:text-sm font-extrabold text-neutral-400 uppercase tracking-widest block mb-2">시청자 전체 순위표</span>
               {rankedViewers.map((p) => (
-                <div key={p.id} className="flex items-center justify-between py-2.5 px-4 rounded-xl bg-zinc-900/50 text-sm md:text-base">
+                <div key={p.id} className="flex items-center justify-between py-2.5 px-3.5 rounded-xl bg-zinc-900/50 text-sm md:text-base">
                   <div className="flex items-center gap-3">
                     <span className="font-black text-amber-400 min-w-[28px]">{p.rank}등</span>
                     <span className="font-bold text-neutral-100">{p.nickname}</span>
@@ -726,10 +726,10 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
           </div>
 
           {/* Action Buttons: Single Mode & Main Navigation */}
-          <div className="pb-8 space-y-3">
+          <div className="pt-2 space-y-3">
             <Link
               href="/play"
-              className="w-full py-4.5 rounded-2xl bg-gradient-to-r from-brand-yellow via-amber-400 to-yellow-500 text-zinc-950 font-black text-base md:text-lg shadow-2xl hover:brightness-110 transition-all flex items-center justify-center gap-2 cursor-pointer border border-yellow-300"
+              className="w-full py-4 rounded-2xl bg-gradient-to-r from-brand-yellow via-amber-400 to-yellow-500 text-zinc-950 font-black text-base md:text-lg shadow-2xl hover:brightness-110 transition-all flex items-center justify-center gap-2 cursor-pointer border border-yellow-300"
             >
               <span>👤 혼자 플레이하기 (싱글 모드)</span>
               <ArrowRight className="w-5 h-5" />
