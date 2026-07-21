@@ -770,8 +770,14 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
             {['VOTING', 'LOCKED'].includes(room.status) && (
               <div className="space-y-3 my-2">
                 <div className="flex justify-center">
-                  <span className="text-xs md:text-sm text-neutral-300 font-black bg-zinc-900 px-4 py-1.5 rounded-full border border-zinc-800 shadow-sm">
-                    총 {totalVotesCount}명 투표
+                  <span className={`text-xs md:text-sm font-black px-4 py-1.5 rounded-full border shadow-sm ${
+                    room.status === 'VOTING'
+                      ? 'text-neutral-300 bg-zinc-900 border-zinc-800'
+                      : 'text-amber-400 bg-amber-500/10 border-amber-500/30'
+                  }`}>
+                    {room.status === 'VOTING'
+                      ? `투표중(총 ${totalVotesCount}명 투표)`
+                      : `투표마감(총 ${totalVotesCount}명 투표)`}
                   </span>
                 </div>
 
