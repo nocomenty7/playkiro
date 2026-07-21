@@ -67,6 +67,16 @@ html.light .bg-zinc-900\/90 {
   background-color: #f1f5f9 !important;
 }
 
+/* Progress bar empty track & button backgrounds in Light Mode */
+html.light .bg-zinc-850,
+html.light .bg-zinc-800 {
+  background-color: #e2e8f0 !important;
+}
+
+html.light .bg-zinc-700 {
+  background-color: #cbd5e1 !important;
+}
+
 /* 2. Borders & Dividers */
 html.light .border-zinc-900,
 html.light .border-zinc-900\/40,
@@ -104,7 +114,9 @@ html.light .text-neutral-650 {
 
 html.light .text-zinc-300,
 html.light .text-zinc-400,
-html.light .text-zinc-500 {
+html.light .text-zinc-500,
+html.light .text-zinc-600,
+html.light .text-zinc-700 {
   color: #475569 !important;
 }
 
@@ -146,9 +158,17 @@ html.light .bg-zinc-900\/50.border-emerald-500 {
   border-color: #10b981 !important;
 }
 
-/* Fix Streamer Pick Card Dark Gradient in Light Mode */
+/* Fix Streamer Pick Card & Leaderboard Podium Gradients in Light Mode */
 html.light .via-zinc-900 {
   --tw-gradient-via: #fffbeb !important;
+}
+
+html.light .to-zinc-900 {
+  --tw-gradient-to: #fef3c7 !important;
+}
+
+html.light .from-amber-500\/20 {
+  --tw-gradient-from: #fef08a !important;
 }
 
 html.light .to-amber-950\/40 {
