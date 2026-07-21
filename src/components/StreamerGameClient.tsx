@@ -905,7 +905,7 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
                   className="w-full py-3 rounded-xl bg-zinc-900 hover:bg-zinc-850 border border-zinc-800 text-amber-400 hover:text-amber-300 font-extrabold text-xs md:text-sm transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md disabled:opacity-50"
                 >
                   <RotateCcw className="w-4 h-4" />
-                  <span>⏭️ 이 문제 패스하기 (새 문제 교체)</span>
+                  <span>이 문제 패스하기 (새 문제 교체)</span>
                 </button>
               </div>
             )}
@@ -937,7 +937,7 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
                   className="w-full py-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-850 border border-zinc-800 text-amber-400 hover:text-amber-300 font-extrabold text-xs md:text-sm transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md disabled:opacity-50"
                 >
                   <RotateCcw className="w-4 h-4" />
-                  <span>⏭️ 이 문제 패스하기 (새 문제 교체)</span>
+                  <span>이 문제 패스하기 (새 문제 교체)</span>
                 </button>
               </div>
             )}
@@ -957,7 +957,7 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
                   className="w-full py-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-850 border border-zinc-800 text-amber-400 hover:text-amber-300 font-extrabold text-xs md:text-sm transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md disabled:opacity-50"
                 >
                   <RotateCcw className="w-4 h-4" />
-                  <span>⏭️ 이 문제 패스하기 (새 문제 교체)</span>
+                  <span>이 문제 패스하기 (새 문제 교체)</span>
                 </button>
               </div>
             )}
