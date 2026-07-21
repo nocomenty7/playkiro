@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Tv, Users, ArrowRight } from 'lucide-react';
+import { X, Tv, Users, ArrowRight, Loader2 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 
 interface StreamerModalProps {
@@ -24,7 +24,6 @@ export default function StreamerModal({ isOpen, onClose }: StreamerModalProps) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<'create' | 'join'>('join');
 
-  // Item 1: Initial Streamer Nickname state set to empty string
   const [hostNickname, setHostNickname] = useState('');
   const [hostGender, setHostGender] = useState('male');
   const [hostAgeGroup, setHostAgeGroup] = useState('20s');
@@ -39,7 +38,6 @@ export default function StreamerModal({ isOpen, onClose }: StreamerModalProps) {
   const [joining, setJoining] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
-  // Identical Category Config and Color Themes from Navigation.tsx
   const categoriesConfig = [
     { name: '전체', activeClass: 'border-white bg-white text-[#080911]', inactiveClass: 'border-zinc-800 bg-zinc-900/50 text-neutral-400 hover:border-zinc-700' },
     { name: '음식', activeClass: 'border-red-500 bg-red-500 text-white', inactiveClass: 'border-red-500/30 bg-red-500/5 text-red-400 hover:border-red-500/50' },
@@ -113,7 +111,6 @@ export default function StreamerModal({ isOpen, onClose }: StreamerModalProps) {
     return total;
   };
 
-  // Item 1: Form Validation for empty streamer nickname
   const handleCreateRoom = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg('');
@@ -162,7 +159,6 @@ export default function StreamerModal({ isOpen, onClose }: StreamerModalProps) {
       router.push(`/streamer/${data.pin}`);
     } catch (err: any) {
       setErrorMsg(err.message || '방 생성 도중 오류가 발생했습니다.');
-    } finally {
       setCreating(false);
     }
   };
@@ -305,8 +301,17 @@ export default function StreamerModal({ isOpen, onClose }: StreamerModalProps) {
                 disabled={joining}
                 className="w-full py-3.5 rounded-xl bg-brand-yellow text-zinc-950 hover:bg-yellow-400 font-black text-sm transition-all shadow-lg flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
               >
-                <span>입장하기</span>
-                <ArrowRight className="w-4 h-4" />
+                {joining ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>입장 중...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>입장하기</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </>
+                )}
               </button>
             </form>
           )}
@@ -316,7 +321,6 @@ export default function StreamerModal({ isOpen, onClose }: StreamerModalProps) {
             <form onSubmit={handleCreateRoom} className="space-y-4 max-h-[60vh] overflow-y-auto pr-1 no-scrollbar">
               <div>
                 <label className="block text-xs font-extrabold text-neutral-300 mb-1.5">스트리머 닉네임</label>
-                {/* Item 1: Placeholder updated to '본인 닉네임을 입력하세요.' */}
                 <input
                   type="text"
                   placeholder="본인 닉네임을 입력하세요."
@@ -424,7 +428,14 @@ export default function StreamerModal({ isOpen, onClose }: StreamerModalProps) {
                 disabled={creating}
                 className="w-full py-3.5 rounded-xl bg-brand-yellow text-zinc-950 font-black text-sm transition-all shadow-lg hover:brightness-110 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 mt-4"
               >
-                <span>{creating ? '방 생성 중...' : '방 만들기 & PIN 발급'}</span>
+                {creating ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin text-zinc-950" />
+                    <span>방 생성 및 PIN 발급 중...</span>
+                  </>
+                ) : (
+                  <span>방 만들기 & PIN 발급</span>
+                )}
               </button>
             </form>
           )}
