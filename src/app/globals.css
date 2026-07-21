@@ -146,6 +146,22 @@ html.light .bg-zinc-900\/50.border-emerald-500 {
   border-color: #10b981 !important;
 }
 
+/* Fix Streamer Pick Card Dark Gradient in Light Mode */
+html.light .via-zinc-900 {
+  --tw-gradient-via: #fffbeb !important;
+}
+
+html.light .to-amber-950\/40 {
+  --tw-gradient-to: #fef3c7 !important;
+}
+
+/* Fix Marquee Left/Right Fade Edges in Light Mode */
+html.light .from-\[\#080911\] {
+  --tw-gradient-from: #f8fafc !important;
+  --tw-gradient-to: rgba(248, 250, 252, 0) !important;
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important;
+}
+
 html.light input,
 html.light select,
 html.light textarea {
@@ -162,9 +178,10 @@ html.light textarea::placeholder {
 
 /* 6. Modals, Drawers & Overlays */
 html.light .bg-black\/85,
+html.light .bg-black\/80,
 html.light .bg-black\/75,
 html.light .bg-black\/65 {
-  background-color: rgba(15, 23, 42, 0.65) !important;
+  background-color: rgba(15, 23, 42, 0.55) !important;
 }
 
 /* Infinite Marquee Animations for Vercel/Linear Style Landing Page */

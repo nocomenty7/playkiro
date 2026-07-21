@@ -240,11 +240,11 @@ export default function StreamerModal({ isOpen, onClose }: StreamerModalProps) {
               }}
               className={`py-2.5 px-4 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 cursor-pointer ${
                 activeTab === 'join'
-                  ? 'bg-zinc-800 text-white shadow-md'
+                  ? 'bg-amber-400 text-zinc-950 shadow-md font-black'
                   : 'text-neutral-400 hover:text-neutral-200'
               }`}
             >
-              <Users className="w-4 h-4 text-amber-400" />
+              <Users className="w-4 h-4 text-zinc-950" />
               <span>입장하기 (시청자)</span>
             </button>
 
