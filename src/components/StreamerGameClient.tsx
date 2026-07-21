@@ -298,6 +298,10 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
     percentB = 100 - percentA;
   }
 
+  // Check Prediction Victory (Viewer's prediction matches Streamer Pick)
+  const isPredictionMatched = !isHost && room?.status === 'RESULT' && myVote && room?.host_pick && myVote === room?.host_pick;
+  const isPredictionFailed = !isHost && room?.status === 'RESULT' && myVote && room?.host_pick && myVote !== room?.host_pick;
+
   const handleVoteSubmit = async (voteOption: 'A' | 'B') => {
     if (!room || room.status !== 'VOTING' || !myParticipantId) return;
 
@@ -410,7 +414,6 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
     }
   };
 
-  // Item 1: Removed fast-forward emoji icon completely from handleHostPassQuestion button
   const handleHostPassQuestion = async () => {
     if (!isHost || !room || submittingPass || actionLoading) return;
 
@@ -542,7 +545,7 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
   }
 
   return (
-    <div className="min-h-screen overflow-y-auto bg-[#080911] text-white flex flex-col justify-between antialiased pb-6">
+    <div className="min-h-screen overflow-y-auto bg-[#080911] text-white flex flex-col justify-between antialiased pb-6 relative">
       {/* Toast Notification */}
       <AnimatePresence>
         {showToast && (
@@ -786,7 +789,33 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
               </div>
             )}
 
-            {/* Option A & B Cards with Dramatic Streamer Pick Highlights */}
+            {/* Dramatic Viewer Prediction Victory Banner (RESULT Status) */}
+            <AnimatePresence>
+              {isPredictionMatched && (
+                <motion.div
+                  initial={{ scale: 0.6, y: -15, opacity: 0 }}
+                  animate={{ scale: 1, y: 0, opacity: 1 }}
+                  exit={{ scale: 0.6, opacity: 0 }}
+                  transition={{ type: 'spring', stiffness: 450, damping: 15 }}
+                  className="w-full bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-500 text-zinc-950 rounded-2xl py-3.5 px-4 text-center font-black text-base md:text-lg shadow-[0_0_30px_rgba(245,158,11,0.8)] border-2 border-yellow-200 flex items-center justify-center gap-2 transform my-1"
+                >
+                  <span className="text-2xl animate-bounce">🎯</span>
+                  <span className="tracking-tight">예측 성공! 스트리머 픽 적중 (+100점) 🎉</span>
+                </motion.div>
+              )}
+
+              {isPredictionFailed && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="w-full bg-zinc-900/90 border border-zinc-800 text-neutral-400 rounded-2xl py-2.5 px-4 text-center text-xs md:text-sm font-extrabold my-1"
+                >
+                  <span>😅 아쉽게 비껴갔네요! 다음 문제에서 정답을 노려보세요!</span>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Option A & B Cards with Dramatic Streamer Pick & Match Highlights */}
             {currentQuestion && (
               <div className="grid grid-cols-1 gap-4 pt-1">
                 {/* Option 1 (A) - Yellow / Amber */}
@@ -795,7 +824,9 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
                   onClick={() => handleVoteSubmit('A')}
                   className={`relative flex w-full min-h-[95px] flex-col items-center justify-center overflow-hidden rounded-2xl py-4 px-5 transition-all duration-300 text-left border ${
                     room.host_pick === 'A'
-                      ? 'bg-gradient-to-br from-amber-500/25 via-zinc-900 to-amber-950/40 border-4 border-amber-400 shadow-[0_0_35px_rgba(245,158,11,0.6)] ring-4 ring-amber-400/20 scale-[1.02]'
+                      ? myVote === 'A'
+                        ? 'bg-gradient-to-br from-amber-500/30 via-zinc-900 to-emerald-950/40 border-4 border-amber-400 shadow-[0_0_40px_rgba(245,158,11,0.7)] ring-4 ring-yellow-300/40 scale-[1.03]'
+                        : 'bg-gradient-to-br from-amber-500/25 via-zinc-900 to-amber-950/40 border-4 border-amber-400 shadow-[0_0_35px_rgba(245,158,11,0.6)] ring-4 ring-amber-400/20 scale-[1.02]'
                       : myVote === 'A'
                       ? 'bg-zinc-900/90 border-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.25)]'
                       : 'bg-zinc-900/50 border-zinc-800/80 hover:bg-zinc-900/80 hover:border-zinc-700'
@@ -816,8 +847,12 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
                     {(myVote === 'A' || room.host_pick === 'A') && (
                       <div className="flex items-center justify-center gap-2 flex-wrap mb-1">
                         {myVote === 'A' && (
-                          <span className="rounded-full bg-black text-white border border-zinc-700 px-2.5 py-0.5 text-xs font-black shadow-md">
-                            ✓ 내 예상
+                          <span className={`rounded-full px-2.5 py-0.5 text-xs font-black shadow-md ${
+                            room.host_pick === 'A'
+                              ? 'bg-emerald-500 text-zinc-950 border border-emerald-300 ring-2 ring-emerald-400/50'
+                              : 'bg-black text-white border border-zinc-700'
+                          }`}>
+                            {room.host_pick === 'A' ? '🎯 내 예상 적중 (+100점)' : '✓ 내 예상'}
                           </span>
                         )}
                         {/* Dramatic Streamer Pick Badge */}
@@ -869,7 +904,9 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
                   onClick={() => handleVoteSubmit('B')}
                   className={`relative flex w-full min-h-[95px] flex-col items-center justify-center overflow-hidden rounded-2xl py-4 px-5 transition-all duration-300 text-left border ${
                     room.host_pick === 'B'
-                      ? 'bg-gradient-to-br from-amber-500/25 via-zinc-900 to-amber-950/40 border-4 border-amber-400 shadow-[0_0_35px_rgba(245,158,11,0.6)] ring-4 ring-amber-400/20 scale-[1.02]'
+                      ? myVote === 'B'
+                        ? 'bg-gradient-to-br from-amber-500/30 via-zinc-900 to-emerald-950/40 border-4 border-amber-400 shadow-[0_0_40px_rgba(245,158,11,0.7)] ring-4 ring-yellow-300/40 scale-[1.03]'
+                        : 'bg-gradient-to-br from-amber-500/25 via-zinc-900 to-amber-950/40 border-4 border-amber-400 shadow-[0_0_35px_rgba(245,158,11,0.6)] ring-4 ring-amber-400/20 scale-[1.02]'
                       : myVote === 'B'
                       ? 'bg-zinc-900/90 border-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.25)]'
                       : 'bg-zinc-900/50 border-zinc-800/80 hover:bg-zinc-900/80 hover:border-zinc-700'
@@ -890,8 +927,12 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
                     {(myVote === 'B' || room.host_pick === 'B') && (
                       <div className="flex items-center justify-center gap-2 flex-wrap mb-1">
                         {myVote === 'B' && (
-                          <span className="rounded-full bg-black text-white border border-zinc-700 px-2.5 py-0.5 text-xs font-black shadow-md">
-                            ✓ 내 예상
+                          <span className={`rounded-full px-2.5 py-0.5 text-xs font-black shadow-md ${
+                            room.host_pick === 'B'
+                              ? 'bg-emerald-500 text-zinc-950 border border-emerald-300 ring-2 ring-emerald-400/50'
+                              : 'bg-black text-white border border-zinc-700'
+                          }`}>
+                            {room.host_pick === 'B' ? '🎯 내 예상 적중 (+100점)' : '✓ 내 예상'}
                           </span>
                         )}
                         {/* Dramatic Streamer Pick Badge */}
