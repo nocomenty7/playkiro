@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { X, Users, PieChart, BarChart } from 'lucide-react';
+import { X, Users, PieChart, BarChart, Info } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 
 interface StatsBottomSheetProps {
@@ -169,7 +169,7 @@ export default function StatsBottomSheet({ questionId, onClose }: StatsBottomShe
   }, [questionId]);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-sm">
+    <div className="fixed inset-0 z-[120] flex items-end justify-center bg-black/70 backdrop-blur-sm">
       {/* Backdrop Click to Close */}
       <div className="absolute inset-0" onClick={onClose} />
 
@@ -178,55 +178,65 @@ export default function StatsBottomSheet({ questionId, onClose }: StatsBottomShe
         animate={{ y: 0 }}
         exit={{ y: '100%' }}
         transition={{ type: 'spring', damping: 25, stiffness: 220 }}
-        className="relative z-10 w-full max-w-md rounded-t-3xl bg-neutral-900/98 border-t border-neutral-800 p-6 text-white shadow-2xl backdrop-blur-xl flex flex-col max-h-[80dvh] overflow-hidden"
+        className="relative z-10 w-full max-w-md rounded-t-3xl bg-[#0d0e1d] border-t border-zinc-800 p-6 text-white shadow-2xl backdrop-blur-xl flex flex-col max-h-[85vh] h-[85vh] overflow-hidden"
       >
         {/* Fixed Header Indicator */}
-        <div className="mx-auto mb-4 h-1.5 w-12 rounded-full bg-neutral-700 cursor-pointer shrink-0" onClick={onClose} />
+        <div className="mx-auto mb-3 h-1.5 w-12 rounded-full bg-zinc-700 cursor-pointer shrink-0" onClick={onClose} />
 
-        {/* Fixed Title Header */}
-        <div className="mb-5 flex items-center justify-between shrink-0">
-          <h3 className="text-2xl font-black tracking-tight flex items-center gap-2">
-            <Users className="h-6 w-6 text-neutral-400" />
-            상세 통계 내용
-          </h3>
-          <button
-            onClick={onClose}
-            className="rounded-full bg-neutral-800 p-2 text-neutral-400 hover:bg-neutral-700 hover:text-white transition"
-          >
-            <X className="h-6 w-6" />
-          </button>
+        {/* Fixed Title Header with Clear Service-Wide Label */}
+        <div className="mb-4 space-y-2 shrink-0 border-b border-zinc-850 pb-3">
+          <div className="flex items-center justify-between">
+            <h3 className="text-xl md:text-2xl font-black tracking-tight flex items-center gap-2 text-white">
+              <Users className="h-6 w-6 text-amber-400" />
+              <span>📊 기로 서비스 전체 누적 통계</span>
+            </h3>
+            <button
+              onClick={onClose}
+              className="rounded-full bg-zinc-800 p-2 text-neutral-400 hover:bg-zinc-700 hover:text-white transition cursor-pointer"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+          
+          <div className="flex items-start gap-1.5 bg-amber-500/10 border border-amber-500/30 p-2.5 rounded-xl text-amber-300 text-xs font-extrabold">
+            <Info className="w-4 h-4 shrink-0 mt-0.5" />
+            <p className="leading-snug">
+              기로(kiro) 전체 싱글 모드 유저들의 누적 선택 통계입니다.<br />
+              <span className="text-neutral-400 font-normal">(현재 방송방 시청자 픽 현황은 카드 결과에 노출됩니다.)</span>
+            </p>
+          </div>
         </div>
 
-        {/* Scrollable Content Container */}
+        {/* Scrollable Content Container with Touch-Pan-Y & Overscroll Contain */}
         {loading ? (
           <div className="flex flex-col items-center justify-center py-20 gap-3 flex-1">
-            <span className="h-9 w-9 animate-spin rounded-full border-4 border-t-transparent border-neutral-600" />
-            <p className="text-sm text-neutral-500 font-semibold">통계 데이터를 불러오는 중...</p>
+            <span className="h-9 w-9 animate-spin rounded-full border-4 border-t-transparent border-amber-400" />
+            <p className="text-sm text-neutral-400 font-extrabold">전체 유저 통계 데이터를 불러오는 중...</p>
           </div>
         ) : stats ? (
-          <div className="flex-1 overflow-y-auto space-y-6 pr-1 pb-4 min-h-0">
+          <div className="flex-1 overflow-y-auto overscroll-contain touch-pan-y space-y-6 pr-1 pb-6 min-h-0 text-white">
             {/* Stats Overview */}
-            <div className="text-center bg-neutral-850 border border-neutral-800 rounded-2xl py-4 px-6">
-              <span className="text-xs text-neutral-400 block mb-0.5 font-bold uppercase tracking-wider">전체 참여자 수</span>
-              <span className="text-3xl font-black text-white">{stats.totalVotes.toLocaleString()}</span>
-              <span className="text-sm text-neutral-400 font-semibold"> 명 투표 완료</span>
+            <div className="text-center bg-zinc-900/90 border border-zinc-800 rounded-2xl py-4 px-6 shadow-inner">
+              <span className="text-xs text-neutral-400 block mb-0.5 font-bold uppercase tracking-wider">서비스 전체 누적 참여자 수</span>
+              <span className="text-3xl font-black text-amber-400">{stats.totalVotes.toLocaleString()}</span>
+              <span className="text-sm text-neutral-300 font-extrabold"> 명 투표 완료</span>
             </div>
 
             {/* Gender Breakdown (Option A vs Option B ratio per gender) */}
             <div className="space-y-4">
               <h4 className="text-base font-extrabold text-neutral-200 flex items-center gap-2">
-                <PieChart className="h-5 w-5 text-neutral-400" /> 성별 선택 비율
+                <PieChart className="h-5 w-5 text-amber-400" /> 성별 선택 비율 (전체 유저)
               </h4>
               
-              <div className="space-y-4 bg-neutral-850/30 border border-neutral-850 p-4 rounded-2xl">
+              <div className="space-y-4 bg-zinc-900/60 border border-zinc-800 p-4 rounded-2xl">
                 {/* 1. Male Breakdown */}
                 <div className="space-y-1.5">
                   <div className="flex justify-between items-center text-xs font-bold px-1">
-                    <span className="text-neutral-300 font-extrabold text-sm">🙋‍♂️ 남성 통계</span>
+                    <span className="text-neutral-200 font-extrabold text-sm">🙋‍♂️ 남성 유저 통계</span>
                     {stats.gender.maleA + stats.gender.maleB > 0 ? (
-                      <div className="space-x-1.5">
+                      <div className="space-x-1.5 font-black">
                         <span className="text-amber-400">{stats.gender.maleAPercent}%</span>
-                        <span className="text-neutral-600">|</span>
+                        <span className="text-zinc-600">|</span>
                         <span className="text-emerald-400">{stats.gender.maleBPercent}%</span>
                       </div>
                     ) : (
@@ -249,11 +259,11 @@ export default function StatsBottomSheet({ questionId, onClose }: StatsBottomShe
                 {/* 2. Female Breakdown */}
                 <div className="space-y-1.5">
                   <div className="flex justify-between items-center text-xs font-bold px-1">
-                    <span className="text-neutral-300 font-extrabold text-sm">🙋‍♀️ 여성 통계</span>
+                    <span className="text-neutral-200 font-extrabold text-sm">🙋‍♀️ 여성 유저 통계</span>
                     {stats.gender.femaleA + stats.gender.femaleB > 0 ? (
-                      <div className="space-x-1.5">
+                      <div className="space-x-1.5 font-black">
                         <span className="text-amber-400">{stats.gender.femaleAPercent}%</span>
-                        <span className="text-neutral-600">|</span>
+                        <span className="text-zinc-600">|</span>
                         <span className="text-emerald-400">{stats.gender.femaleBPercent}%</span>
                       </div>
                     ) : (
@@ -278,15 +288,15 @@ export default function StatsBottomSheet({ questionId, onClose }: StatsBottomShe
             {/* Age Group Breakdown (Option A vs Option B ratio per age group) */}
             <div className="space-y-4">
               <h4 className="text-base font-extrabold text-neutral-200 flex items-center gap-2">
-                <BarChart className="h-5 w-5 text-neutral-400" /> 연령별 선택 비율
+                <BarChart className="h-5 w-5 text-amber-400" /> 연령별 선택 비율 (전체 유저)
               </h4>
-              <div className="space-y-3 bg-neutral-850/40 border border-neutral-850 p-4 rounded-2xl">
+              <div className="space-y-3 bg-zinc-900/60 border border-zinc-800 p-4 rounded-2xl">
                 {stats.ageGroups.map((group) => (
                   <div key={group.name} className="flex flex-col gap-1.5 text-sm">
                     <div className="flex justify-between items-center px-0.5">
                       <span className="text-neutral-300 font-extrabold text-xs">{group.name}</span>
                       {group.total > 0 ? (
-                        <div className="text-[11px] font-bold space-x-1.5">
+                        <div className="text-[11px] font-black space-x-1.5">
                           <span className="text-amber-400">{group.percentA}%</span>
                           <span className="text-zinc-700">/</span>
                           <span className="text-emerald-400">{group.percentB}%</span>

@@ -951,7 +951,7 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
                   className="w-full flex items-center justify-center gap-2 rounded-2xl border border-zinc-800 bg-zinc-900/80 hover:bg-zinc-850 px-5 py-3 text-sm font-black text-neutral-200 hover:text-white transition-all shadow-md cursor-pointer"
                 >
                   <BarChart3 className="h-4 w-4 text-amber-400" />
-                  <span>상세 통계 보기</span>
+                  <span>서비스 전체 누적 통계 (싱글 데이터)</span>
                 </button>
               </motion.div>
             )}
