@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Users, Lock, Play, ArrowRight, Copy, Check, Sparkles, LogOut, Home, BarChart3 } from 'lucide-react';
+import { Users, Lock, Play, ArrowRight, Copy, Check, Sparkles, LogOut, Home, BarChart3, RotateCcw } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import StatsBottomSheet from './StatsBottomSheet';
 
@@ -41,6 +41,7 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
   const [copied, setCopied] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [submittingPick, setSubmittingPick] = useState(false);
+  const [submittingPass, setSubmittingPass] = useState(false);
 
   // Stats Bottom Sheet Modal State
   const [showStatsModal, setShowStatsModal] = useState(false);
@@ -226,12 +227,17 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
         async (payload) => {
           const updatedRoom = payload.new;
           setRoom((prev: any) => {
-            if (prev && updatedRoom.current_question_index !== prev.current_question_index) {
+            const prevQId = prev?.question_ids?.[prev?.current_question_index];
+            const newQId = updatedRoom?.question_ids?.[updatedRoom?.current_question_index];
+            const isQuestionIndexChanged = prev && updatedRoom.current_question_index !== prev.current_question_index;
+            const isQuestionIdChanged = prev && newQId !== prevQId;
+            const isStatusResetToVoting = prev && prev.status !== 'VOTING' && updatedRoom.status === 'VOTING';
+
+            if (isQuestionIndexChanged || isQuestionIdChanged || isStatusResetToVoting) {
               setMyVote(null);
               setVotesA(0);
               setVotesB(0);
               setShowStatsModal(false);
-              const newQId = updatedRoom.question_ids[updatedRoom.current_question_index];
               fetchQuestionForIndex(newQId);
               fetchRoomVotes(updatedRoom.id, newQId);
             }
@@ -356,6 +362,69 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
           host_pick: null,
         })
         .eq('id', room.id);
+    }
+  };
+
+  const handleHostPassQuestion = async () => {
+    if (!isHost || !room || submittingPass) return;
+
+    if (!confirm('이 문제를 패스하고 새로운 문제로 교체하시겠습니까?\n(현재 문항 번호는 유지됩니다.)')) {
+      return;
+    }
+
+    setSubmittingPass(true);
+
+    try {
+      const currentQId = room.question_ids[room.current_question_index];
+
+      // 1. Fetch matching category questions
+      let query = supabase.from('questions').select('id, category');
+      if (room.categories && !room.categories.includes('전체') && room.categories.length > 0) {
+        query = query.in('category', room.categories);
+      }
+
+      const { data: availableQuestions } = await query;
+      const candidatePool = (availableQuestions || []).map((q: any) => q.id);
+
+      // Exclude question IDs already used in room.question_ids
+      const unusedPool = candidatePool.filter((id: string) => !room.question_ids.includes(id));
+
+      let newQId = '';
+      if (unusedPool.length > 0) {
+        newQId = unusedPool[Math.floor(Math.random() * unusedPool.length)];
+      } else {
+        const fallbackPool = candidatePool.filter((id: string) => id !== currentQId);
+        if (fallbackPool.length > 0) {
+          newQId = fallbackPool[Math.floor(Math.random() * fallbackPool.length)];
+        } else {
+          newQId = currentQId;
+        }
+      }
+
+      // 2. Delete votes recorded for the old question in this room
+      await supabase
+        .from('room_votes')
+        .delete()
+        .eq('room_id', room.id)
+        .eq('question_id', currentQId);
+
+      // 3. Replace current index question ID with newQId (current_question_index remains UNCHANGED)
+      const updatedQuestionIds = [...room.question_ids];
+      updatedQuestionIds[room.current_question_index] = newQId;
+
+      await supabase
+        .from('rooms')
+        .update({
+          question_ids: updatedQuestionIds,
+          status: 'VOTING',
+          host_pick: null,
+        })
+        .eq('id', room.id);
+    } catch (err) {
+      console.error('Pass question error:', err);
+      alert('문제 패스 처리 중 오류가 발생했습니다.');
+    } finally {
+      setSubmittingPass(false);
     }
   };
 
@@ -816,18 +885,29 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
             </div>
 
             {room.status === 'VOTING' && (
-              <button
-                disabled={totalVotesCount === 0}
-                onClick={handleHostLockVotes}
-                className={`w-full py-3.5 rounded-xl text-sm md:text-base font-black transition-all shadow-lg flex items-center justify-center gap-2 border ${
-                  totalVotesCount === 0
-                    ? 'bg-zinc-900 border-zinc-800 text-neutral-500 cursor-not-allowed opacity-60'
-                    : 'bg-amber-500 hover:bg-amber-400 text-zinc-950 border-amber-400 cursor-pointer'
-                }`}
-              >
-                <Lock className="w-4.5 h-4.5" />
-                <span>{totalVotesCount === 0 ? '시청자 투표 참여 대기 중... (0명)' : '시청자 투표 마감하기'}</span>
-              </button>
+              <div className="space-y-2.5">
+                <button
+                  disabled={totalVotesCount === 0}
+                  onClick={handleHostLockVotes}
+                  className={`w-full py-3.5 rounded-xl text-sm md:text-base font-black transition-all shadow-lg flex items-center justify-center gap-2 border ${
+                    totalVotesCount === 0
+                      ? 'bg-zinc-900 border-zinc-800 text-neutral-500 cursor-not-allowed opacity-60'
+                      : 'bg-amber-500 hover:bg-amber-400 text-zinc-950 border-amber-400 cursor-pointer'
+                  }`}
+                >
+                  <Lock className="w-4.5 h-4.5" />
+                  <span>{totalVotesCount === 0 ? '시청자 투표 참여 대기 중... (0명)' : '시청자 투표 마감하기'}</span>
+                </button>
+
+                <button
+                  disabled={submittingPass}
+                  onClick={handleHostPassQuestion}
+                  className="w-full py-3 rounded-xl bg-zinc-900 hover:bg-zinc-850 border border-zinc-800 text-amber-400 hover:text-amber-300 font-extrabold text-xs md:text-sm transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md disabled:opacity-50"
+                >
+                  <RotateCcw className="w-4 h-4" />
+                  <span>⏭️ 이 문제 패스하기 (새 문제 교체)</span>
+                </button>
+              </div>
             )}
 
             {room.status === 'LOCKED' && (
@@ -851,17 +931,35 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
                     {currentQuestion?.option_b}
                   </button>
                 </div>
+                <button
+                  disabled={submittingPass}
+                  onClick={handleHostPassQuestion}
+                  className="w-full py-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-850 border border-zinc-800 text-amber-400 hover:text-amber-300 font-extrabold text-xs md:text-sm transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md disabled:opacity-50"
+                >
+                  <RotateCcw className="w-4 h-4" />
+                  <span>⏭️ 이 문제 패스하기 (새 문제 교체)</span>
+                </button>
               </div>
             )}
 
             {room.status === 'RESULT' && (
-              <button
-                onClick={handleNextQuestion}
-                className="w-full py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-sm md:text-base transition-all shadow-lg flex items-center justify-center gap-2 cursor-pointer"
-              >
-                <Play className="w-4.5 h-4.5" />
-                <span>{room.current_question_index + 1 >= room.total_questions ? '🏆 최종 결과 발표' : '다음 문제 진행하기'}</span>
-              </button>
+              <div className="space-y-2.5">
+                <button
+                  onClick={handleNextQuestion}
+                  className="w-full py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-sm md:text-base transition-all shadow-lg flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  <Play className="w-4.5 h-4.5" />
+                  <span>{room.current_question_index + 1 >= room.total_questions ? '🏆 최종 결과 발표' : '다음 문제 진행하기'}</span>
+                </button>
+                <button
+                  disabled={submittingPass}
+                  onClick={handleHostPassQuestion}
+                  className="w-full py-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-850 border border-zinc-800 text-amber-400 hover:text-amber-300 font-extrabold text-xs md:text-sm transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md disabled:opacity-50"
+                >
+                  <RotateCcw className="w-4 h-4" />
+                  <span>⏭️ 이 문제 패스하기 (새 문제 교체)</span>
+                </button>
+              </div>
             )}
           </div>
         </div>
