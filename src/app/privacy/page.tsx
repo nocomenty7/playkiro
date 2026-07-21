@@ -1,19 +1,23 @@
 import React from 'react';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
+import ThemeToggle from '@/components/ThemeToggle';
 
 export default function PrivacyPage() {
   return (
     <div className="h-[100dvh] overflow-y-auto bg-zinc-950 text-neutral-100 font-sans p-6 md:p-12 max-w-2xl mx-auto flex flex-col justify-between">
       <div className="space-y-6">
-        <header className="flex items-center gap-3 py-4 border-b border-zinc-900">
-          <Link
-            href="/"
-            className="flex items-center justify-center p-2 rounded-xl bg-zinc-900 border border-zinc-800 text-neutral-400 hover:text-white transition"
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </Link>
-          <h1 className="text-xl font-extrabold tracking-tight">개인정보처리방침</h1>
+        <header className="flex items-center justify-between py-4 border-b border-zinc-900">
+          <div className="flex items-center gap-3">
+            <Link
+              href="/"
+              className="flex items-center justify-center p-2 rounded-xl bg-zinc-900 border border-zinc-800 text-neutral-400 hover:text-white transition"
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </Link>
+            <h1 className="text-xl font-extrabold tracking-tight">개인정보처리방침</h1>
+          </div>
+          <ThemeToggle />
         </header>
 
         <main className="space-y-6 text-sm text-neutral-400 leading-relaxed font-normal">
@@ -36,37 +40,16 @@ export default function PrivacyPage() {
           </section>
 
           <section className="space-y-2">
-            <h2 className="text-base font-bold text-neutral-200">3. 제3자 제공 및 광고</h2>
+            <h2 className="text-base font-bold text-neutral-200">3. 개인정보 안전성 확보 조치</h2>
             <p>
-              기로 서비스는 수익 모델 제공을 위해 구글 애드센스(Google AdSense)를 통한 광고를 노출합니다. 구글은 사용자의 관심사에 맞는 광고를 게재하기 위해 쿠키(Cookie)를 사용하여 사용자의 웹사이트 방문 정보를 수집할 수 있습니다.
+              기로 서비스는 개인정보보호법에 따라 사용자의 익명 정보를 안전하게 보호하고 있으며, 무단 접근 및 훼손을 방지하기 위해 보안 대책을 적용하고 있습니다.
             </p>
-            <p>
-              사용자는 브라우저 설정을 통해 쿠키 수집을 거부할 수 있으며, 이와 관련한 자세한 정보는 구글의 개인정보보호 정책 페이지를 통해 확인하실 수 있습니다.
-            </p>
-          </section>
-
-          <section className="space-y-2">
-            <h2 className="text-base font-bold text-neutral-200">4. 개인정보 보호책임자</h2>
-            <p>
-              서비스 이용 중 문의사항이 있으시면 아래 연락처로 문의해 주시기 바랍니다.
-            </p>
-            <ul className="list-inside pl-2 space-y-1">
-              <li>이메일: support@playkiro.kr</li>
-            </ul>
           </section>
         </main>
       </div>
 
-      {/* Global Trust Footer */}
-      <footer className="w-full py-6 shrink-0 border-t border-zinc-900/40 text-center flex flex-col items-center gap-2.5 mt-10">
-        <div className="flex items-center gap-3 text-xs text-neutral-500 font-extrabold">
-          <Link href="/privacy" className="hover:text-neutral-300 transition-all">개인정보처리방침</Link>
-          <span className="text-zinc-800">|</span>
-          <Link href="/terms" className="hover:text-neutral-300 transition-all">이용약관</Link>
-          <span className="text-zinc-800">|</span>
-          <a href="mailto:nocomenty7@gmail.com" className="hover:text-neutral-300 transition-all">문의하기</a>
-        </div>
-        <p className="text-[10px] text-neutral-600">© 2026 기로. All rights reserved.</p>
+      <footer className="pt-8 border-t border-zinc-900 text-center text-xs text-neutral-500">
+        <p>© 2026 기로. All rights reserved.</p>
       </footer>
     </div>
   );

@@ -7,6 +7,11 @@
   --foreground: #f8fafc;
 }
 
+html.light {
+  --background: #f8fafc;
+  --foreground: #0f172a;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -21,6 +26,67 @@ body {
   font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   overflow: hidden;
   height: 100dvh;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Light Mode Comprehensive Theme Rules */
+html.light body {
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+}
+
+html.light .bg-\[\#080911\] {
+  background-color: #f8fafc !important;
+}
+
+html.light .bg-\[\#0d0e1d\] {
+  background-color: #ffffff !important;
+}
+
+html.light .bg-zinc-950,
+html.light .bg-zinc-950\/40,
+html.light .bg-zinc-950\/60,
+html.light .bg-zinc-950\/80,
+html.light .bg-zinc-950\/90 {
+  background-color: #ffffff !important;
+}
+
+html.light .bg-zinc-900,
+html.light .bg-zinc-900\/30,
+html.light .bg-zinc-900\/50,
+html.light .bg-zinc-900\/60,
+html.light .bg-zinc-900\/80,
+html.light .bg-zinc-900\/90 {
+  background-color: #f1f5f9 !important;
+}
+
+html.light .border-zinc-900,
+html.light .border-zinc-800,
+html.light .border-zinc-850,
+html.light .border-zinc-700 {
+  border-color: #e2e8f0 !important;
+}
+
+html.light .text-white {
+  color: #0f172a !important;
+}
+
+html.light .text-neutral-100 {
+  color: #1e293b !important;
+}
+
+html.light .text-neutral-200,
+html.light .text-neutral-300 {
+  color: #334155 !important;
+}
+
+html.light .text-neutral-400,
+html.light .text-neutral-500 {
+  color: #64748b !important;
+}
+
+html.light .text-\[\#ffe5a9\] {
+  color: #92400e !important;
 }
 
 /* Infinite Marquee Animations for Vercel/Linear Style Landing Page */

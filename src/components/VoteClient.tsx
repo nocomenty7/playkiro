@@ -210,13 +210,6 @@ export default function VoteClient({
         setNoMoreQuestions(true);
       }
     }
-
-    try {
-      // @ts-ignore
-      (window.adsbygoogle = window.adsbygoogle || []).push({});
-    } catch (e) {
-      // Ads fail gracefully
-    }
   }, [question, allQuestions, selectedCategories]);
 
   const handleOnboardingComplete = (data: { gender: string; age_group: string }) => {
@@ -413,19 +406,6 @@ export default function VoteClient({
           </div>
           <p className="text-[9px] text-neutral-600">© 2026 기로. All rights reserved.</p>
         </footer>
-
-        {/* Bottom Ad */}
-        <div className="adsense-slot adsense-bottom flex justify-center bg-zinc-900/20 border-t border-zinc-900/50 shrink-0" style={{ minHeight: '100px', width: '100%' }}>
-          <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3522634980237009" crossOrigin="anonymous"></script>
-          <ins className="adsbygoogle"
-               style={{ display: 'block' }}
-               data-ad-client="ca-pub-3522634980237009"
-               data-ad-slot="7310226958"
-               data-ad-format="auto"
-               data-full-width-responsive="true"></ins>
-        </div>
-
-
       </div>
     );
   }
@@ -672,17 +652,6 @@ export default function VoteClient({
         </div>
         <p className="text-[9px] text-neutral-650">© 2026 기로. All rights reserved.</p>
       </footer>
-
-      {/* 4. AdSense Bottom Slot */}
-      <div className="adsense-slot adsense-bottom flex justify-center bg-zinc-900/20 border-t border-zinc-900/50 shrink-0" style={{ minHeight: '100px', width: '100%' }}>
-        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3522634980237009" crossOrigin="anonymous"></script>
-        <ins className="adsbygoogle"
-             style={{ display: 'block' }}
-             data-ad-client="ca-pub-3522634980237009"
-             data-ad-slot="7310226958"
-             data-ad-format="auto"
-             data-full-width-responsive="true"></ins>
-      </div>
 
 
 

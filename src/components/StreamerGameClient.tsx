@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Users, Lock, Play, ArrowRight, Copy, Check, Sparkles, LogOut, Home, BarChart3, Loader2 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import StatsBottomSheet from './StatsBottomSheet';
+import ThemeToggle from './ThemeToggle';
 
 interface StreamerGameClientProps {
   pin: string;
@@ -637,7 +638,7 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
             className="h-10 w-auto object-contain pt-[2px]"
           />
         </Link>
-        <div />
+        <ThemeToggle />
       </header>
 
       {/* Sub-Header Live Bar */}
@@ -1108,16 +1109,6 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
         </div>
       )}
 
-      {/* AdSense Bottom Slot */}
-      <div className="adsense-slot adsense-bottom flex justify-center bg-zinc-900/20 border-t border-zinc-900/50 shrink-0 mt-6" style={{ minHeight: '100px', width: '100%' }}>
-        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3522634980237009" crossOrigin="anonymous"></script>
-        <ins className="adsbygoogle"
-             style={{ display: 'block' }}
-             data-ad-client="ca-pub-3522634980237009"
-             data-ad-slot="7310226958"
-             data-ad-format="auto"
-             data-full-width-responsive="true"></ins>
-      </div>
     </div>
   );
 }

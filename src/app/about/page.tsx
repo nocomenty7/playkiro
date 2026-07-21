@@ -4,6 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { ChevronLeft, Compass, Users, Sparkles, CheckCircle2 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import ThemeToggle from '@/components/ThemeToggle';
 
 export default function AboutPage() {
   const containerVariants = {
@@ -37,7 +38,7 @@ export default function AboutPage() {
           <ChevronLeft className="h-5 w-5" />
         </Link>
         <h1 className="text-sm font-black tracking-wider text-neutral-300">기로 소개</h1>
-        <div className="w-9 h-9" /> {/* Spacer */}
+        <ThemeToggle />
       </header>
 
       {/* Main Content Area */}

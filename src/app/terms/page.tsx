@@ -1,19 +1,23 @@
 import React from 'react';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
+import ThemeToggle from '@/components/ThemeToggle';
 
 export default function TermsPage() {
   return (
     <div className="h-[100dvh] overflow-y-auto bg-zinc-950 text-neutral-100 font-sans p-6 md:p-12 max-w-2xl mx-auto flex flex-col justify-between">
       <div className="space-y-6">
-        <header className="flex items-center gap-3 py-4 border-b border-zinc-900">
-          <Link
-            href="/"
-            className="flex items-center justify-center p-2 rounded-xl bg-zinc-900 border border-zinc-800 text-neutral-400 hover:text-white transition"
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </Link>
-          <h1 className="text-xl font-extrabold tracking-tight">이용약관</h1>
+        <header className="flex items-center justify-between py-4 border-b border-zinc-900">
+          <div className="flex items-center gap-3">
+            <Link
+              href="/"
+              className="flex items-center justify-center p-2 rounded-xl bg-zinc-900 border border-zinc-800 text-neutral-400 hover:text-white transition"
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </Link>
+            <h1 className="text-xl font-extrabold tracking-tight">이용약관</h1>
+          </div>
+          <ThemeToggle />
         </header>
 
         <main className="space-y-6 text-sm text-neutral-400 leading-relaxed font-normal">
@@ -44,22 +48,14 @@ export default function TermsPage() {
           <section className="space-y-2">
             <h2 className="text-base font-bold text-neutral-200">4. 이용약관의 개정</h2>
             <p>
-              본 약관은 운영상 필요한 경우 개정될 수 있으며, 개정 시 서비스 화면 하단 링크를 통해 상시 열람할 수 있도록 게시됩니다.
+              본 서비스는 사정에 따라 약관을 변경할 수 있으며, 변경된 약관은 공지사항 또는 웹사이트 화면을 통해 안내합니다.
             </p>
           </section>
         </main>
       </div>
 
-      {/* Global Trust Footer */}
-      <footer className="w-full py-6 shrink-0 border-t border-zinc-900/40 text-center flex flex-col items-center gap-2.5 mt-10">
-        <div className="flex items-center gap-3 text-xs text-neutral-500 font-extrabold">
-          <Link href="/privacy" className="hover:text-neutral-300 transition-all">개인정보처리방침</Link>
-          <span className="text-zinc-800">|</span>
-          <Link href="/terms" className="hover:text-neutral-300 transition-all">이용약관</Link>
-          <span className="text-zinc-800">|</span>
-          <a href="mailto:nocomenty7@gmail.com" className="hover:text-neutral-300 transition-all">문의하기</a>
-        </div>
-        <p className="text-[10px] text-neutral-600">© 2026 기로. All rights reserved.</p>
+      <footer className="pt-8 border-t border-zinc-900 text-center text-xs text-neutral-500">
+        <p>© 2026 기로. All rights reserved.</p>
       </footer>
     </div>
   );

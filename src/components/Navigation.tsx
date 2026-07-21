@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Menu, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '../lib/supabase';
+import ThemeToggle from './ThemeToggle';
 
 interface NavigationProps {
   selectedCategories: string[];
@@ -84,13 +85,16 @@ export default function Navigation({
             className="h-10 w-auto object-contain pt-[2px]"
           />
         </Link>
-        <button
-          onClick={() => setShowDrawer(true)}
-          className="p-2.5 rounded-xl text-neutral-400 hover:text-white hover:bg-zinc-900 transition-all cursor-pointer"
-          title="메뉴"
-        >
-          <Menu className="h-6 w-6" />
-        </button>
+        <div className="flex items-center gap-2">
+          <ThemeToggle />
+          <button
+            onClick={() => setShowDrawer(true)}
+            className="p-2.5 rounded-xl text-neutral-400 hover:text-white hover:bg-zinc-900 transition-all cursor-pointer"
+            title="메뉴"
+          >
+            <Menu className="h-6 w-6" />
+          </button>
+        </div>
       </header>
 
       {/* 2. Unified Sidebar Drawer Menu */}

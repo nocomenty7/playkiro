@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Script from "next/script";
 import GoogleAnalyticsTracker from "@/components/GoogleAnalyticsTracker";
+import { ThemeProvider } from "@/components/ThemeProvider";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -64,12 +65,6 @@ export default function RootLayout({
           href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
         />
 
-        {/* Google AdSense Verification Script */}
-        <script
-          async
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3522634980237009"
-          crossOrigin="anonymous"
-        />
         {/* Kakao JavaScript SDK */}
         <script
           src="https://t1.kakaocdn.net/kakao_js_sdk/2.8.1/kakao.min.js"
@@ -93,7 +88,9 @@ export default function RootLayout({
           `}
         </Script>
         <GoogleAnalyticsTracker gaId="G-PKN41V9Q68" />
-        {children}
+        <ThemeProvider>
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   );
