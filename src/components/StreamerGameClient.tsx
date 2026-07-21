@@ -749,13 +749,22 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
         <main className="w-full max-w-md mx-auto p-4 flex-1 flex flex-col justify-center space-y-6 my-auto">
           <div className="bg-zinc-950/40 border border-zinc-900 rounded-3xl p-5 md:p-7 backdrop-blur-xl shadow-2xl space-y-5">
             
+            {/* Header Line: [Question Index] [Category] ------- [Viewer Score (Viewers Only)] */}
             <div className="flex items-center justify-between text-xs md:text-sm px-1">
-              <span className="font-extrabold text-neutral-300 bg-zinc-900 px-3.5 py-1.5 rounded-full border border-zinc-800">
-                {currentQuestion?.category || '밸런스게임'}
-              </span>
-              <span className="font-black text-neutral-300 bg-zinc-900 px-3 py-1.5 rounded-xl border border-zinc-800 text-xs md:text-sm">
-                Q {room.current_question_index + 1} / {room.total_questions}
-              </span>
+              <div className="flex items-center gap-2">
+                <span className="font-black text-neutral-300 bg-zinc-900 px-3 py-1.5 rounded-xl border border-zinc-800 text-xs md:text-sm">
+                  Q {room.current_question_index + 1} / {room.total_questions}
+                </span>
+                <span className="font-extrabold text-neutral-300 bg-zinc-900 px-3.5 py-1.5 rounded-full border border-zinc-800">
+                  {currentQuestion?.category || '밸런스게임'}
+                </span>
+              </div>
+
+              {!isHost && (
+                <div className="flex items-center gap-1 bg-amber-500/10 border border-amber-500/30 text-brand-yellow font-black px-3.5 py-1.5 rounded-xl shadow-sm">
+                  <span className="text-xs md:text-sm">{(participants.find((p) => p.id === myParticipantId)?.score) ?? 0}점</span>
+                </div>
+              )}
             </div>
 
             {currentQuestion && (
