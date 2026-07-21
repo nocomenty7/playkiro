@@ -204,7 +204,7 @@ export default function Navigation({
                     <span>개인정보처리방침</span>
                   </Link>
                   <a
-                    href="mailto:nocomenty7@gmail.com"
+                    href="mailto:auroranest.official@gmail.com"
                     onClick={() => setShowDrawer(false)}
                     className="flex items-center gap-3 rounded-2xl bg-zinc-900/50 hover:bg-zinc-900 border border-zinc-900 p-3 text-xs font-extrabold text-neutral-250 transition-all hover:border-zinc-800"
                   >

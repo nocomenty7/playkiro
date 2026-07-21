@@ -379,7 +379,7 @@ export default function VoteClient({
             <div className="flex flex-col gap-3 w-full">
               <motion.a
                 whileTap={{ scale: 0.98 }}
-                href="mailto:nocomenty7@gmail.com?subject=[기로] 새로운 선택지 제안합니다!"
+                href="mailto:auroranest.official@gmail.com?subject=[기로] 새로운 선택지 제안합니다!"
                 className="flex items-center justify-center gap-2 rounded-xl bg-white hover:bg-neutral-200 text-zinc-950 font-black px-6 h-12 text-sm shadow-lg w-full"
               >
                 💡 새로운 선택지 제안하기
@@ -402,7 +402,7 @@ export default function VoteClient({
             <span className="text-zinc-800">|</span>
             <Link href="/terms" className="hover:text-neutral-350 transition-all">이용약관</Link>
             <span className="text-zinc-800">|</span>
-            <a href="mailto:nocomenty7@gmail.com" className="hover:text-neutral-350 transition-all">문의하기</a>
+            <a href="mailto:auroranest.official@gmail.com" className="hover:text-neutral-350 transition-all">문의하기</a>
           </div>
           <p className="text-[9px] text-neutral-600">© 2026 기로. All rights reserved.</p>
         </footer>
@@ -648,7 +648,7 @@ export default function VoteClient({
           <span className="text-zinc-800">|</span>
           <Link href="/terms" className="hover:text-neutral-350 transition-all">이용약관</Link>
           <span className="text-zinc-800">|</span>
-          <a href="mailto:nocomenty7@gmail.com" className="hover:text-neutral-350 transition-all">문의하기</a>
+          <a href="mailto:auroranest.official@gmail.com" className="hover:text-neutral-350 transition-all">문의하기</a>
         </div>
         <p className="text-[9px] text-neutral-650">© 2026 기로. All rights reserved.</p>
       </footer>

@@ -299,7 +299,7 @@ function LandingClient() {
           <span className="text-zinc-800">|</span>
           <Link href="/terms" className="hover:text-neutral-300 transition-all">이용약관</Link>
           <span className="text-zinc-800">|</span>
-          <a href="mailto:nocomenty7@gmail.com" className="hover:text-neutral-300 transition-all">문의하기</a>
+          <a href="mailto:auroranest.official@gmail.com" className="hover:text-neutral-300 transition-all">문의하기</a>
         </div>
         <p className="text-[10px] text-neutral-600">© 2026 기로. All rights reserved.</p>
       </footer>
