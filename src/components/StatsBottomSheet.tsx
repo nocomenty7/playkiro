@@ -183,12 +183,12 @@ export default function StatsBottomSheet({ questionId, onClose }: StatsBottomShe
         {/* Fixed Header Indicator */}
         <div className="mx-auto mb-3 h-1.5 w-12 rounded-full bg-zinc-700 cursor-pointer shrink-0" onClick={onClose} />
 
-        {/* Fixed Title Header with Clear Service-Wide Label */}
-        <div className="mb-4 space-y-2 shrink-0 border-b border-zinc-850 pb-3">
+        {/* Fixed Title Header */}
+        <div className="mb-4 shrink-0 border-b border-zinc-850 pb-3">
           <div className="flex items-center justify-between">
             <h3 className="text-xl md:text-2xl font-black tracking-tight flex items-center gap-2 text-white">
               <Users className="h-6 w-6 text-amber-400" />
-              <span>📊 기로 서비스 전체 누적 통계</span>
+              <span>상세통계 보기</span>
             </h3>
             <button
               onClick={onClose}
@@ -197,27 +197,19 @@ export default function StatsBottomSheet({ questionId, onClose }: StatsBottomShe
               <X className="h-5 w-5" />
             </button>
           </div>
-          
-          <div className="flex items-start gap-1.5 bg-amber-500/10 border border-amber-500/30 p-2.5 rounded-xl text-amber-300 text-xs font-extrabold">
-            <Info className="w-4 h-4 shrink-0 mt-0.5" />
-            <p className="leading-snug">
-              기로(kiro) 전체 싱글 모드 유저들의 누적 선택 통계입니다.<br />
-              <span className="text-neutral-400 font-normal">(현재 방송방 시청자 픽 현황은 카드 결과에 노출됩니다.)</span>
-            </p>
-          </div>
         </div>
 
         {/* Scrollable Content Container with Touch-Pan-Y & Overscroll Contain */}
         {loading ? (
           <div className="flex flex-col items-center justify-center py-20 gap-3 flex-1">
             <span className="h-9 w-9 animate-spin rounded-full border-4 border-t-transparent border-amber-400" />
-            <p className="text-sm text-neutral-400 font-extrabold">전체 유저 통계 데이터를 불러오는 중...</p>
+            <p className="text-sm text-neutral-400 font-extrabold">통계 데이터를 불러오는 중...</p>
           </div>
         ) : stats ? (
           <div className="flex-1 overflow-y-auto overscroll-contain touch-pan-y space-y-6 pr-1 pb-6 min-h-0 text-white">
             {/* Stats Overview */}
             <div className="text-center bg-zinc-900/90 border border-zinc-800 rounded-2xl py-4 px-6 shadow-inner">
-              <span className="text-xs text-neutral-400 block mb-0.5 font-bold uppercase tracking-wider">서비스 전체 누적 참여자 수</span>
+              <span className="text-xs text-neutral-400 block mb-0.5 font-bold uppercase tracking-wider">해당 질문 누적 참여자 수</span>
               <span className="text-3xl font-black text-amber-400">{stats.totalVotes.toLocaleString()}</span>
               <span className="text-sm text-neutral-300 font-extrabold"> 명 투표 완료</span>
             </div>
