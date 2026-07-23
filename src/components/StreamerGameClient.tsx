@@ -798,7 +798,7 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
                 </span>
               </div>
 
-              {!isHost && (
+              {!isHost && !isOverlay && (
                 <div className="flex items-center gap-1 bg-amber-500/10 border border-amber-500/30 text-brand-yellow font-black px-3.5 py-1.5 rounded-xl shadow-sm">
                   <span className="text-xs md:text-sm">{(participants.find((p) => p.id === myParticipantId)?.score) ?? 0}점</span>
                 </div>
@@ -828,7 +828,7 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
                   </span>
                 </div>
 
-                {!isHost && (
+                {!isHost && !isOverlay && (
                   <div className="w-full bg-zinc-900/80 border border-zinc-800 rounded-2xl py-2.5 px-4 text-center text-neutral-300 text-xs md:text-sm font-extrabold backdrop-blur-sm shadow-inner">
                     <span className="inline-block animate-pulse mr-1.5 text-sm md:text-base">🎯</span>
                     <span className="text-brand-yellow font-black">{room.host_nickname}</span>님의 선택을 예상하여 픽해주세요.
@@ -839,7 +839,7 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
 
             {/* Dramatic Viewer Prediction Victory Banner (RESULT Status) */}
             <AnimatePresence>
-              {isPredictionMatched && (
+              {isPredictionMatched && !isOverlay && (
                 <motion.div
                   initial={{ scale: 0.6, y: -15, opacity: 0 }}
                   animate={{ scale: 1, y: 0, opacity: 1 }}
@@ -858,17 +858,17 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
               <div className="grid grid-cols-1 gap-4 pt-1">
                 {/* Option 1 (A) - Yellow / Amber */}
                 <button
-                  disabled={room.status !== 'VOTING' || isHost}
+                  disabled={room.status !== 'VOTING' || isHost || isOverlay}
                   onClick={() => handleVoteSubmit('A')}
                   className={`relative flex w-full min-h-[95px] flex-col items-center justify-center overflow-hidden rounded-2xl py-4 px-5 transition-all duration-300 text-left border ${
                     room.host_pick === 'A'
-                      ? myVote === 'A'
+                      ? myVote === 'A' && !isOverlay
                         ? 'bg-gradient-to-br from-amber-500/30 via-zinc-900 to-amber-950/40 border-4 border-amber-400 shadow-[0_0_40px_rgba(245,158,11,0.7)] ring-4 ring-yellow-300/40 scale-[1.03]'
                         : 'bg-gradient-to-br from-amber-500/25 via-zinc-900 to-amber-950/40 border-4 border-amber-400 shadow-[0_0_35px_rgba(245,158,11,0.6)] ring-4 ring-amber-400/20 scale-[1.02]'
-                      : myVote === 'A'
+                      : myVote === 'A' && !isOverlay
                       ? 'bg-zinc-900/90 border-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.25)]'
                       : 'bg-zinc-900/50 border-zinc-800/80 hover:bg-zinc-900/80 hover:border-zinc-700'
-                  } ${room.status !== 'VOTING' ? 'opacity-95' : 'cursor-pointer'}`}
+                  } ${(room.status !== 'VOTING' || isOverlay) ? 'opacity-95 cursor-default' : 'cursor-pointer'}`}
                 >
                   {/* Card Fill Animation Revealed AFTER Streamer Pick (RESULT status) */}
                   {room.status === 'RESULT' && (
@@ -882,10 +882,10 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
                   )}
 
                   <div className="relative z-10 flex flex-col items-center justify-center gap-1.5 w-full text-center my-auto">
-                    {(myVote === 'A' || room.host_pick === 'A') && (
+                    {((myVote === 'A' && !isOverlay) || room.host_pick === 'A') && (
                       <div className="flex items-center justify-center gap-2 flex-wrap mb-1">
                         {/* Item 2: Rollbacked back to clean '✓ 내 예상' badge */}
-                        {myVote === 'A' && (
+                        {myVote === 'A' && !isOverlay && (
                           <span className="rounded-full bg-black text-white border border-zinc-700 px-2.5 py-0.5 text-xs font-black shadow-md">
                             ✓ 내 예상
                           </span>
@@ -935,17 +935,17 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
 
                 {/* Option 2 (B) - Mint / Emerald / Highlighted */}
                 <button
-                  disabled={room.status !== 'VOTING' || isHost}
+                  disabled={room.status !== 'VOTING' || isHost || isOverlay}
                   onClick={() => handleVoteSubmit('B')}
                   className={`relative flex w-full min-h-[95px] flex-col items-center justify-center overflow-hidden rounded-2xl py-4 px-5 transition-all duration-300 text-left border ${
                     room.host_pick === 'B'
-                      ? myVote === 'B'
+                      ? myVote === 'B' && !isOverlay
                         ? 'bg-gradient-to-br from-amber-500/30 via-zinc-900 to-amber-950/40 border-4 border-amber-400 shadow-[0_0_40px_rgba(245,158,11,0.7)] ring-4 ring-yellow-300/40 scale-[1.03]'
                         : 'bg-gradient-to-br from-amber-500/25 via-zinc-900 to-amber-950/40 border-4 border-amber-400 shadow-[0_0_35px_rgba(245,158,11,0.6)] ring-4 ring-amber-400/20 scale-[1.02]'
-                      : myVote === 'B'
+                      : myVote === 'B' && !isOverlay
                       ? 'bg-zinc-900/90 border-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.25)]'
                       : 'bg-zinc-900/50 border-zinc-800/80 hover:bg-zinc-900/80 hover:border-zinc-700'
-                  } ${room.status !== 'VOTING' ? 'opacity-95' : 'cursor-pointer'}`}
+                  } ${(room.status !== 'VOTING' || isOverlay) ? 'opacity-95 cursor-default' : 'cursor-pointer'}`}
                 >
                   {/* Card Fill Animation Revealed AFTER Streamer Pick (RESULT status) */}
                   {room.status === 'RESULT' && (
@@ -959,10 +959,10 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
                   )}
 
                   <div className="relative z-10 flex flex-col items-center justify-center gap-1.5 w-full text-center my-auto">
-                    {(myVote === 'B' || room.host_pick === 'B') && (
+                    {((myVote === 'B' && !isOverlay) || room.host_pick === 'B') && (
                       <div className="flex items-center justify-center gap-2 flex-wrap mb-1">
                         {/* Item 2: Rollbacked back to clean '✓ 내 예상' badge */}
-                        {myVote === 'B' && (
+                        {myVote === 'B' && !isOverlay && (
                           <span className="rounded-full bg-black text-white border border-zinc-700 px-2.5 py-0.5 text-xs font-black shadow-md">
                             ✓ 내 예상
                           </span>
