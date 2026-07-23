@@ -42,6 +42,7 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
   const [errorMsg, setErrorMsg] = useState('');
   const [copied, setCopied] = useState(false);
   const [copiedOverlay, setCopiedOverlay] = useState(false);
+  const [toastMessage, setToastMessage] = useState('📋 PIN 코드가 클립보드에 복사되었습니다.');
   const [showToast, setShowToast] = useState(false);
   const [submittingPick, setSubmittingPick] = useState(false);
   const [submittingPass, setSubmittingPass] = useState(false);
@@ -531,6 +532,7 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
 
   const handleCopyPin = () => {
     navigator.clipboard.writeText(pin);
+    setToastMessage('📋 PIN 코드가 클립보드에 복사되었습니다.');
     setCopied(true);
     setShowToast(true);
     setTimeout(() => {
@@ -543,9 +545,12 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
     if (typeof window === 'undefined') return;
     const url = `${window.location.origin}/streamer/${pin}?overlay=true`;
     navigator.clipboard.writeText(url);
+    setToastMessage('📋 OBS 오버레이 URL이 클립보드에 복사되었습니다.');
     setCopiedOverlay(true);
+    setShowToast(true);
     setTimeout(() => {
       setCopiedOverlay(false);
+      setShowToast(false);
     }, 2000);
   };
 
@@ -589,7 +594,7 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
             exit={{ opacity: 0, scale: 0.95 }}
             className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[100] bg-zinc-900/95 border border-brand-yellow/40 text-brand-yellow px-6 py-3.5 rounded-2xl shadow-2xl text-sm font-black flex items-center gap-2 backdrop-blur-md"
           >
-            <span>📋 PIN 코드가 클립보드에 복사되었습니다.</span>
+            <span>{toastMessage}</span>
           </motion.div>
         )}
       </AnimatePresence>
@@ -1088,26 +1093,17 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
             {/* OBS Overlay URL Copy Widget */}
             <div className="bg-purple-950/20 border border-purple-500/30 rounded-xl p-3.5 space-y-2 text-xs">
               <div className="flex items-center justify-between">
-                <span className="font-extrabold text-purple-300">🎥 OBS / 프릭샷 오버레이 URL</span>
-                <span className="text-[10px] text-purple-400 bg-purple-500/10 px-2 py-0.5 rounded-full border border-purple-500/20">방송 화면 연동</span>
+                <span className="font-extrabold text-purple-300">🎥 OBS / 프릭샷 오버레이 연동</span>
+                <span className="text-[10px] text-purple-400 bg-purple-500/10 px-2 py-0.5 rounded-full border border-purple-500/20">방송 화면용</span>
               </div>
-              <p className="text-[11px] text-neutral-400 leading-relaxed">송출 프로그램 브라우저 소스에 아래 주소를 복사해 넣으세요 (배경 투명화 완료)</p>
-              <div className="flex items-center gap-2">
-                <input
-                  type="text"
-                  readOnly
-                  value={typeof window !== 'undefined' ? `${window.location.origin}/streamer/${pin}?overlay=true` : ''}
-                  className="flex-1 bg-zinc-900 border border-zinc-800 rounded-lg py-1.5 px-2.5 text-[11px] text-neutral-300 select-all font-mono outline-none"
-                  onClick={(e) => (e.target as HTMLInputElement).select()}
-                />
-                <button
-                  onClick={handleCopyOverlayUrl}
-                  className="py-1.5 px-3 rounded-lg bg-purple-600 hover:bg-purple-500 text-white font-black text-xs transition cursor-pointer flex items-center gap-1 shrink-0"
-                >
-                  {copiedOverlay ? <Check className="w-3.5 h-3.5 text-emerald-300" /> : <Copy className="w-3.5 h-3.5" />}
-                  <span>{copiedOverlay ? '복사됨' : '복사'}</span>
-                </button>
-              </div>
+              <p className="text-[11px] text-neutral-400 leading-relaxed">송출 프로그램 브라우저 소스용 주소를 복사합니다. (배경 투명화 완료)</p>
+              <button
+                onClick={handleCopyOverlayUrl}
+                className="w-full py-2.5 rounded-lg bg-purple-600 hover:bg-purple-500 text-white font-black text-xs transition cursor-pointer flex items-center justify-center gap-1.5"
+              >
+                {copiedOverlay ? <Check className="w-4 h-4 text-emerald-300" /> : <Copy className="w-4 h-4" />}
+                <span>{copiedOverlay ? '오버레이 URL 복사 완료!' : 'OBS 오버레이 URL 복사하기'}</span>
+              </button>
             </div>
 
             {/* Lock Votes Button with Instant Spinner */}
