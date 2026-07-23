@@ -12,6 +12,7 @@ import ThemeToggle from './ThemeToggle';
 interface StreamerGameClientProps {
   pin: string;
   viewerNickname?: string;
+  isOverlay?: boolean;
 }
 
 // Standard Competition Ranking Calculation (1등, 1등 -> 3등)
@@ -25,7 +26,7 @@ const calculateViewerRanks = (sortedViewers: any[]) => {
   });
 };
 
-export default function StreamerGameClient({ pin, viewerNickname }: StreamerGameClientProps) {
+export default function StreamerGameClient({ pin, viewerNickname, isOverlay = false }: StreamerGameClientProps) {
   const router = useRouter();
 
   // State
@@ -51,6 +52,28 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
   // Host Onboarding Guide Modal State
   const [showHostGuide, setShowHostGuide] = useState(false);
 
+  // Active Question ID & Reference to prevent Stale Closures in Realtime
+  const activeQId = room?.question_ids?.[room?.current_question_index];
+  const activeQIdRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    activeQIdRef.current = activeQId || null;
+  }, [activeQId]);
+
+  // Unconditional next question synchronization for viewers
+  useEffect(() => {
+    if (!room?.id || !activeQId) return;
+    const syncNext = async () => {
+      setMyVote(null);
+      setVotesA(0);
+      setVotesB(0);
+      setShowStatsModal(false);
+      await fetchQuestionForIndex(activeQId);
+      await fetchRoomVotes(room.id, activeQId);
+    };
+    syncNext();
+  }, [activeQId, room?.id]);
+
   // Performance Optimization - Channel & Throttle Refs
   const channelRef = useRef<any>(null);
   const fetchThrottleRef = useRef<NodeJS.Timeout | null>(null);
@@ -64,6 +87,18 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
     }
     setMySessionId(sid);
   }, []);
+
+  // OBS Overlay Mode Transparent Background & Scroll Lock Effect
+  useEffect(() => {
+    if (isOverlay) {
+      document.body.style.backgroundColor = 'transparent';
+      document.body.style.overflow = 'hidden';
+    }
+    return () => {
+      document.body.style.backgroundColor = '';
+      document.body.style.overflow = '';
+    };
+  }, [isOverlay]);
 
   // 1. Initial Room & Participant Sync
   useEffect(() => {
@@ -232,17 +267,7 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
 
           setRoom(updatedRoom);
 
-          const newQId = updatedRoom?.question_ids?.[updatedRoom?.current_question_index];
-          
-          // Whenever status is reset to VOTING or question index changes, reset viewer states cleanly!
-          if (updatedRoom.status === 'VOTING' && newQId) {
-            setMyVote(null);
-            setVotesA(0);
-            setVotesB(0);
-            setShowStatsModal(false);
-            await fetchQuestionForIndex(newQId);
-            await fetchRoomVotes(updatedRoom.id, newQId);
-          } else if (['RESULT', 'FINISHED'].includes(updatedRoom.status)) {
+          if (['RESULT', 'FINISHED'].includes(updatedRoom.status)) {
             await fetchParticipants(updatedRoom.id);
           }
         }
@@ -251,8 +276,8 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
         'postgres_changes',
         { event: '*', schema: 'public', table: 'room_votes', filter: `room_id=eq.${room.id}` },
         () => {
-          if (room) {
-            const currentQId = room.question_ids[room.current_question_index];
+          const currentQId = activeQIdRef.current;
+          if (room && currentQId) {
             throttledFetchRoomVotes(room.id, currentQId);
           }
         }
@@ -541,7 +566,7 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
   }
 
   return (
-    <div className="min-h-screen min-h-[100dvh] overflow-y-auto overscroll-y-contain touch-pan-y bg-[#080911] text-white flex flex-col justify-between antialiased pb-12 relative">
+    <div className={`min-h-screen min-h-[100dvh] ${isOverlay ? 'overflow-hidden bg-transparent pb-0' : 'overflow-y-auto overscroll-y-contain touch-pan-y bg-[#080911] pb-12'} text-white flex flex-col justify-between antialiased relative`}>
       {/* Toast Notification */}
       <AnimatePresence>
         {showToast && (
@@ -630,45 +655,49 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
       </AnimatePresence>
 
       {/* Unified Header & Logo */}
-      <header className="w-full h-16 shrink-0 flex items-center justify-between px-6 border-b border-zinc-900 bg-[#080911]/85 backdrop-blur-md sticky top-0 z-40">
-        <Link href="/" className="relative h-11 w-32 flex items-center">
-          <img
-            src="/logo.png?v=2"
-            alt="기로 로고"
-            className="h-10 w-auto object-contain pt-[2px]"
-          />
-        </Link>
-        <ThemeToggle />
-      </header>
+      {!isOverlay && (
+        <header className="w-full h-16 shrink-0 flex items-center justify-between px-6 border-b border-zinc-900 bg-[#080911]/85 backdrop-blur-md sticky top-0 z-40">
+          <Link href="/" className="relative h-11 w-32 flex items-center">
+            <img
+              src="/logo.png?v=2"
+              alt="기로 로고"
+              className="h-10 w-auto object-contain pt-[2px]"
+            />
+          </Link>
+          <ThemeToggle />
+        </header>
+      )}
 
       {/* Sub-Header Live Bar */}
-      <div className="w-full border-b border-zinc-900/80 bg-zinc-950/60 backdrop-blur-sm shrink-0">
-        <div className="max-w-md mx-auto px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            {/* LIVE Badge */}
-            <div className="flex items-center gap-1.5 bg-rose-500/10 border border-rose-500/30 px-3 py-1.5 rounded-xl">
-              <span className="w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse" />
-              <span className="text-xs md:text-sm font-black text-rose-500 tracking-wider">LIVE</span>
+      {!isOverlay && (
+        <div className="w-full border-b border-zinc-900/80 bg-zinc-950/60 backdrop-blur-sm shrink-0">
+          <div className="max-w-md mx-auto px-4 py-3 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              {/* LIVE Badge */}
+              <div className="flex items-center gap-1.5 bg-rose-500/10 border border-rose-500/30 px-3 py-1.5 rounded-xl">
+                <span className="w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse" />
+                <span className="text-xs md:text-sm font-black text-rose-500 tracking-wider">LIVE</span>
+              </div>
+
+              {/* PIN Code Button */}
+              <button
+                onClick={handleCopyPin}
+                className="flex items-center gap-2 text-xs md:text-sm font-black text-brand-yellow bg-brand-yellow/10 border border-brand-yellow/30 px-3 py-1.5 rounded-xl hover:bg-brand-yellow/20 transition cursor-pointer"
+                title="PIN 번호 복사"
+              >
+                <span>PIN: {pin}</span>
+                {copied ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
+              </button>
             </div>
 
-            {/* PIN Code Button */}
-            <button
-              onClick={handleCopyPin}
-              className="flex items-center gap-2 text-xs md:text-sm font-black text-brand-yellow bg-brand-yellow/10 border border-brand-yellow/30 px-3 py-1.5 rounded-xl hover:bg-brand-yellow/20 transition cursor-pointer"
-              title="PIN 번호 복사"
-            >
-              <span>PIN: {pin}</span>
-              {copied ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
-            </button>
-          </div>
-
-          {/* Viewer Count */}
-          <div className="flex items-center gap-2 text-xs md:text-sm text-neutral-300 font-black bg-zinc-900 border border-zinc-800 px-3 py-1.5 rounded-xl">
-            <Users className="w-4.5 h-4.5 text-amber-400" />
-            <span>{viewerCount}</span>
+            {/* Viewer Count */}
+            <div className="flex items-center gap-2 text-xs md:text-sm text-neutral-300 font-black bg-zinc-900 border border-zinc-800 px-3 py-1.5 rounded-xl">
+              <Users className="w-4.5 h-4.5 text-amber-400" />
+              <span>{viewerCount}</span>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* FINISHED STATE VIEW */}
       {room.status === 'FINISHED' ? (
@@ -727,23 +756,25 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
           </div>
 
           {/* Action Buttons: Single Mode & Main Navigation */}
-          <div className="pt-2 space-y-3">
-            <Link
-              href="/play"
-              className="w-full py-4 rounded-2xl bg-gradient-to-r from-brand-yellow via-amber-400 to-yellow-500 text-zinc-950 font-black text-base md:text-lg shadow-2xl hover:brightness-110 transition-all flex items-center justify-center gap-2 cursor-pointer border border-yellow-300"
-            >
-              <span>👤 혼자 플레이하기 (싱글 모드)</span>
-              <ArrowRight className="w-5 h-5" />
-            </Link>
+          {!isOverlay && (
+            <div className="pt-2 space-y-3">
+              <Link
+                href="/play"
+                className="w-full py-4 rounded-2xl bg-gradient-to-r from-brand-yellow via-amber-400 to-yellow-500 text-zinc-950 font-black text-base md:text-lg shadow-2xl hover:brightness-110 transition-all flex items-center justify-center gap-2 cursor-pointer border border-yellow-300"
+              >
+                <span>👤 혼자 플레이하기 (싱글 모드)</span>
+                <ArrowRight className="w-5 h-5" />
+              </Link>
 
-            <Link
-              href="/"
-              className="w-full py-3.5 rounded-2xl bg-zinc-900 border border-zinc-800 text-neutral-300 hover:text-white hover:bg-zinc-850 font-black text-sm md:text-base transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md"
-            >
-              <Home className="w-4 h-4 text-neutral-400" />
-              <span>메인화면으로 돌아가기</span>
-            </Link>
-          </div>
+              <Link
+                href="/"
+                className="w-full py-3.5 rounded-2xl bg-zinc-900 border border-zinc-800 text-neutral-300 hover:text-white hover:bg-zinc-850 font-black text-sm md:text-base transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md"
+              >
+                <Home className="w-4 h-4 text-neutral-400" />
+                <span>메인화면으로 돌아가기</span>
+              </Link>
+            </div>
+          )}
         </div>
       ) : (
         /* ACTIVE GAMEPLAY SCREEN */
@@ -839,7 +870,7 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
                       initial={{ scaleX: 0 }}
                       animate={{ scaleX: 1 }}
                       transition={{ duration: 0.6, ease: 'easeOut' }}
-                      className={`absolute inset-0 z-0 opacity-20 ${room.host_pick === 'A' ? 'bg-amber-400' : 'bg-amber-500'}`}
+                      className="absolute inset-0 z-0 opacity-20 bg-amber-500"
                       style={{ width: `${percentA}%`, transformOrigin: 'left' }}
                     />
                   )}
@@ -887,7 +918,7 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
                         transition={{ type: 'spring', damping: 15 }}
                         className="flex items-baseline justify-center gap-1.5 mt-1"
                       >
-                        <span className={`text-2xl md:text-3xl font-black ${room.host_pick === 'A' ? 'text-amber-300 drop-shadow-[0_0_8px_rgba(245,158,11,0.7)]' : 'text-amber-400'}`}>
+                        <span className="text-2xl md:text-3xl font-black text-amber-400">
                           {percentA.toFixed(1)}%
                         </span>
                         <span className="text-xs text-neutral-400 font-extrabold">({votesA}명)</span>
@@ -916,7 +947,7 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
                       initial={{ scaleX: 0 }}
                       animate={{ scaleX: 1 }}
                       transition={{ duration: 0.6, ease: 'easeOut' }}
-                      className={`absolute inset-0 z-0 opacity-20 ${room.host_pick === 'B' ? 'bg-amber-400' : 'bg-emerald-500'}`}
+                      className="absolute inset-0 z-0 opacity-20 bg-emerald-500"
                       style={{ width: `${percentB}%`, transformOrigin: 'left' }}
                     />
                   )}
@@ -964,7 +995,7 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
                         transition={{ type: 'spring', damping: 15 }}
                         className="flex items-baseline justify-center gap-1.5 mt-1"
                       >
-                        <span className={`text-2xl md:text-3xl font-black ${room.host_pick === 'B' ? 'text-amber-300 drop-shadow-[0_0_8px_rgba(245,158,11,0.7)]' : 'text-emerald-400'}`}>
+                        <span className="text-2xl md:text-3xl font-black text-emerald-400">
                           {percentB.toFixed(1)}%
                         </span>
                         <span className="text-xs text-neutral-400 font-extrabold">({votesB}명)</span>
@@ -976,7 +1007,7 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
             )}
 
             {/* Detailed Stats Button Revealed AFTER Streamer Pick (RESULT status) */}
-            {room.status === 'RESULT' && (
+            {!isOverlay && room.status === 'RESULT' && (
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -996,7 +1027,7 @@ export default function StreamerGameClient({ pin, viewerNickname }: StreamerGame
       )}
 
       {/* Streamer Host Control Panel with Optimistic Feedback & Loading Spinners */}
-      {isHost && room.status !== 'FINISHED' && (
+      {!isOverlay && isHost && room.status !== 'FINISHED' && (
         <div className="w-full max-w-md mx-auto p-4 shrink-0">
           <div className="w-full bg-zinc-950 border border-zinc-800 rounded-2xl p-4 md:p-5 space-y-4 shadow-2xl">
             <div className="flex items-center justify-between text-sm md:text-base font-black text-neutral-300 border-b border-zinc-900 pb-2.5">

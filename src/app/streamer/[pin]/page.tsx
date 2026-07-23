@@ -7,6 +7,7 @@ interface PageProps {
   }>;
   searchParams: Promise<{
     nickname?: string;
+    overlay?: string;
   }>;
 }
 
@@ -18,6 +19,7 @@ export default async function StreamerRoomPage({ params, searchParams }: PagePro
     <StreamerGameClient
       pin={resolvedParams.pin}
       viewerNickname={resolvedSearchParams.nickname}
+      isOverlay={resolvedSearchParams.overlay === 'true'}
     />
   );
 }
