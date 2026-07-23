@@ -121,7 +121,7 @@ function LandingClient() {
           >
             <span className="flex items-center gap-1">⚡️ 가입없이 0초 실행</span>
             <span className="flex items-center gap-1">🔒 100% 익명 통계</span>
-            <span className="flex items-center gap-1">🔥 200+ 양자택일 선택지</span>
+            <span className="flex items-center gap-1">🔥 300+ 양자택일 선택지</span>
           </motion.div>
 
           {/* Dynamic Infinite Marquee Section (Moved Up to create Marquee -> CTA order) */}
@@ -188,7 +188,7 @@ function LandingClient() {
             transition={{ delay: 0.25 }}
             className="text-xs md:text-sm text-neutral-400 max-w-lg mx-auto leading-relaxed pt-2"
           >
-            200개가 넘는 기상천외한 질문들로 당신의 무의식을 들여다보세요.{"\n"}
+            300개가 넘는 기상천외한 질문들로 당신의 무의식을 들여다보세요.{"\n"}
             성별, 연령대별 실시간 통계 분석을 통해 타인과의 가치관 싱크율을 체크합니다.
           </motion.p>
 
@@ -267,7 +267,7 @@ function LandingClient() {
         {/* Informative Blog Content Block */}
         <section className="border-t border-zinc-900/60 pt-16 max-w-xl mx-auto space-y-8 text-neutral-350 leading-relaxed text-sm md:text-base">
           <p className="indent-4 leading-loose">
-            현대인들은 매일 수많은 선택의 기로에 놓입니다. 오늘 점심은 무엇을 먹을지, 주말에는 어떤 여가를 즐길지, 혹은 인간관계에서 어떤 태도를 취해야 할지 끊임없이 고민합니다. <strong className="text-neutral-100 font-extrabold">'기로'</strong>는 이러한 일상적인 고민부터, 상상조차 하기 싫은 극한의 딜레마까지 200개가 넘는 다양한 밸런스 게임을 통해 여러분의 숨겨진 심리와 취향을 탐구하는 종합 엔터테인먼트 플랫폼입니다.
+            현대인들은 매일 수많은 선택의 기로에 놓입니다. 오늘 점심은 무엇을 먹을지, 주말에는 어떤 여가를 즐길지, 혹은 인간관계에서 어떤 태도를 취해야 할지 끊임없이 고민합니다. <strong className="text-neutral-100 font-extrabold">'기로'</strong>는 이러한 일상적인 고민부터, 상상조차 하기 싫은 극한의 딜레마까지 300개가 넘는 다양한 밸런스 게임을 통해 여러분의 숨겨진 심리와 취향을 탐구하는 종합 엔터테인먼트 플랫폼입니다.
           </p>
 
           <div className="rounded-2xl border border-zinc-900 bg-zinc-900/20 p-6 space-y-3">
