@@ -136,31 +136,33 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
           }
         }
 
-        // Register / Find participant
-        const { data: existingP } = await supabase
-          .from('room_participants')
-          .select('*')
-          .eq('room_id', roomData.id)
-          .eq('session_id', mySessionId)
-          .maybeSingle();
-
-        if (existingP) {
-          setMyParticipantId(existingP.id);
-        } else {
-          const { data: newP } = await supabase
+        if (!isOverlay) {
+          // Register / Find participant
+          const { data: existingP } = await supabase
             .from('room_participants')
-            .insert([
-              {
-                room_id: roomData.id,
-                session_id: mySessionId,
-                nickname: nicknameToUse,
-                score: 0,
-              },
-            ])
             .select('*')
-            .single();
+            .eq('room_id', roomData.id)
+            .eq('session_id', mySessionId)
+            .maybeSingle();
 
-          if (newP) setMyParticipantId(newP.id);
+          if (existingP) {
+            setMyParticipantId(existingP.id);
+          } else {
+            const { data: newP } = await supabase
+              .from('room_participants')
+              .insert([
+                {
+                  room_id: roomData.id,
+                  session_id: mySessionId,
+                  nickname: nicknameToUse,
+                  score: 0,
+                },
+              ])
+              .select('*')
+              .single();
+
+            if (newP) setMyParticipantId(newP.id);
+          }
         }
 
         // Load Question Data for current_question_index
