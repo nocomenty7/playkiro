@@ -749,7 +749,7 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
 
       {/* FINISHED STATE VIEW */}
       {room.status === 'FINISHED' ? (
-        <div className="w-full max-w-md mx-auto p-4 space-y-6 pt-6 pb-12">
+        <main className="w-full max-w-md mx-auto p-4 flex-1 flex flex-col justify-center space-y-6 my-auto">
           <div className="space-y-6">
             <div className="text-center space-y-2">
               <h1 className="text-3xl md:text-4xl lg:text-5xl font-black tracking-tight text-white">🏆 최종 결과</h1>
@@ -823,7 +823,7 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
               </Link>
             </div>
           )}
-        </div>
+        </main>
       ) : (
         /* ACTIVE GAMEPLAY SCREEN */
         <main className="w-full max-w-md mx-auto p-4 flex-1 flex flex-col justify-center space-y-6 my-auto">
@@ -1222,7 +1222,9 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
                   </>
                 ) : (
                   <>
-                    <Play className="w-4.5 h-4.5" />
+                    {room.current_question_index + 1 < room.total_questions && (
+                      <Play className="w-4.5 h-4.5" />
+                    )}
                     <span>{room.current_question_index + 1 >= room.total_questions ? '🏆 최종 결과 발표' : '다음 문제 진행하기'}</span>
                   </>
                 )}
