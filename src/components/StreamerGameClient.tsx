@@ -41,6 +41,7 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState('');
   const [copied, setCopied] = useState(false);
+  const [copiedOverlay, setCopiedOverlay] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [submittingPick, setSubmittingPick] = useState(false);
   const [submittingPass, setSubmittingPass] = useState(false);
@@ -538,6 +539,16 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
     }, 2000);
   };
 
+  const handleCopyOverlayUrl = () => {
+    if (typeof window === 'undefined') return;
+    const url = `${window.location.origin}/streamer/${pin}?overlay=true`;
+    navigator.clipboard.writeText(url);
+    setCopiedOverlay(true);
+    setTimeout(() => {
+      setCopiedOverlay(false);
+    }, 2000);
+  };
+
   const dismissHostGuide = () => {
     if (room?.id) {
       sessionStorage.setItem(`kiro_guide_dismissed_${room.id}`, 'true');
@@ -623,13 +634,22 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
               <div className="bg-zinc-950 border border-brand-yellow/30 rounded-2xl p-4 text-center space-y-2">
                 <span className="text-xs font-extrabold text-neutral-400 block">초대 PIN 코드</span>
                 <span className="text-3xl font-black tracking-widest text-brand-yellow block">{pin}</span>
-                <button
-                  onClick={handleCopyPin}
-                  className="inline-flex items-center gap-1.5 py-2 px-4 rounded-xl bg-brand-yellow/10 border border-brand-yellow/40 text-brand-yellow text-xs font-black hover:bg-brand-yellow/20 transition cursor-pointer"
-                >
-                  <Copy className="w-3.5 h-3.5" />
-                  <span>PIN 코드 복사하기</span>
-                </button>
+                <div className="flex flex-col sm:flex-row gap-2 justify-center pt-1">
+                  <button
+                    onClick={handleCopyPin}
+                    className="inline-flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-brand-yellow/10 border border-brand-yellow/40 text-brand-yellow text-xs font-black hover:bg-brand-yellow/20 transition cursor-pointer flex-1"
+                  >
+                    {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                    <span>PIN 복사</span>
+                  </button>
+                  <button
+                    onClick={handleCopyOverlayUrl}
+                    className="inline-flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-purple-500/10 border border-purple-500/40 text-purple-400 text-xs font-black hover:bg-purple-500/20 transition cursor-pointer flex-1"
+                  >
+                    {copiedOverlay ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                    <span>OBS 오버레이 URL 복사</span>
+                  </button>
+                </div>
               </div>
 
               <div className="space-y-2.5 bg-zinc-900/60 p-4 rounded-2xl border border-zinc-800 text-xs">
@@ -1061,6 +1081,31 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
                 >
                   <LogOut className="w-4 h-4" />
                   <span>방 종료</span>
+                </button>
+              </div>
+            </div>
+
+            {/* OBS Overlay URL Copy Widget */}
+            <div className="bg-purple-950/20 border border-purple-500/30 rounded-xl p-3.5 space-y-2 text-xs">
+              <div className="flex items-center justify-between">
+                <span className="font-extrabold text-purple-300">🎥 OBS / 프릭샷 오버레이 URL</span>
+                <span className="text-[10px] text-purple-400 bg-purple-500/10 px-2 py-0.5 rounded-full border border-purple-500/20">방송 화면 연동</span>
+              </div>
+              <p className="text-[11px] text-neutral-400 leading-relaxed">송출 프로그램 브라우저 소스에 아래 주소를 복사해 넣으세요 (배경 투명화 완료)</p>
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  readOnly
+                  value={typeof window !== 'undefined' ? `${window.location.origin}/streamer/${pin}?overlay=true` : ''}
+                  className="flex-1 bg-zinc-900 border border-zinc-800 rounded-lg py-1.5 px-2.5 text-[11px] text-neutral-300 select-all font-mono outline-none"
+                  onClick={(e) => (e.target as HTMLInputElement).select()}
+                />
+                <button
+                  onClick={handleCopyOverlayUrl}
+                  className="py-1.5 px-3 rounded-lg bg-purple-600 hover:bg-purple-500 text-white font-black text-xs transition cursor-pointer flex items-center gap-1 shrink-0"
+                >
+                  {copiedOverlay ? <Check className="w-3.5 h-3.5 text-emerald-300" /> : <Copy className="w-3.5 h-3.5" />}
+                  <span>{copiedOverlay ? '복사됨' : '복사'}</span>
                 </button>
               </div>
             </div>
