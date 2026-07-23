@@ -613,7 +613,11 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
                   <Sparkles className="w-6 h-6" />
                 </div>
                 <h2 className="text-xl font-black text-white">🎉 방 생성이 완료되었습니다!</h2>
-                <p className="text-xs text-neutral-400">시청자들에게 6자리 PIN 코드를 공유해 주세요</p>
+                <p className="text-xs text-neutral-400 leading-relaxed">
+                  시청자들에게 6자리 PIN 코드를 공유해 주세요.
+                  <br />
+                  ('시작하기'를 눌러도 상단에서 PIN 번호 확인이 가능합니다.)
+                </p>
               </div>
 
               <div className="bg-zinc-950 border border-brand-yellow/30 rounded-2xl p-4 text-center space-y-2">
