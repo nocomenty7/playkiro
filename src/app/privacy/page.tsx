@@ -1,20 +1,44 @@
+'use client';
+
 import React from 'react';
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { ArrowLeft } from 'lucide-react';
 import ThemeToggle from '@/components/ThemeToggle';
 
 export default function PrivacyPage() {
+  const router = useRouter();
+
+  const handleBack = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (typeof window !== 'undefined') {
+      // 이전 히스토리가 존재하는 경우 뒤로 가기 실행
+      if (window.history.length > 1) {
+        router.back();
+      } else {
+        // 새 탭으로 열려 히스토리가 없는 경우 창 닫기 시도, 실패 시 메인 페이지 이동
+        try {
+          window.close();
+          setTimeout(() => {
+            router.push('/');
+          }, 100);
+        } catch (err) {
+          router.push('/');
+        }
+      }
+    }
+  };
+
   return (
     <div className="h-[100dvh] overflow-y-auto bg-zinc-950 text-neutral-100 font-sans p-6 md:p-12 max-w-2xl mx-auto flex flex-col justify-between">
       <div className="space-y-6">
         <header className="flex items-center justify-between py-4 border-b border-zinc-900">
           <div className="flex items-center gap-3">
-            <Link
-              href="/"
-              className="flex items-center justify-center p-2 rounded-xl bg-zinc-900 border border-zinc-800 text-neutral-400 hover:text-white transition"
+            <button
+              onClick={handleBack}
+              className="flex items-center justify-center p-2 rounded-xl bg-zinc-900 border border-zinc-800 text-neutral-400 hover:text-white transition cursor-pointer"
             >
               <ArrowLeft className="h-5 w-5" />
-            </Link>
+            </button>
             <h1 className="text-xl font-extrabold tracking-tight">개인정보처리방침</h1>
           </div>
           <ThemeToggle />
