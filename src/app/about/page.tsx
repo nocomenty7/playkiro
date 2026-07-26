@@ -64,7 +64,7 @@ export default function AboutPage() {
           {/* Tagline */}
           <motion.div variants={itemVariants} className="space-y-2 mb-10">
             <span className="inline-block rounded-full bg-indigo-500/10 px-3.5 py-1 text-xs font-bold text-indigo-400 border border-indigo-500/20">
-              💡 당신의 선택은?
+              💡 선택의 기로, 당신의 선택은?
             </span>
             <p className="text-sm text-zinc-400 leading-relaxed max-w-xs mx-auto">
               사소한 고민부터 기상천외한 취향 분석까지,{"\n"}
