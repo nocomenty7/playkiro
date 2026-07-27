@@ -712,7 +712,7 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
                     </summary>
                     <div className="mt-2 space-y-1.5 text-[11px] md:text-xs text-neutral-400 leading-relaxed pl-2 cursor-default">
                       <p>• **브라우저 소스** 추가 후 복사한 오버레이 URL 입력</p>
-                      <p>• 권장 크기: **너비 450px / 높이 600px**</p>
+                      <p>• 권장 크기: **3:4 비율** (예시: 450x600, 600x800 등)</p>
                       <p>• 투명 배경: 커스텀 CSS 칸에 <code className="bg-zinc-900 px-1 py-0.5 rounded text-[10px] font-mono">{"body { background: transparent !important; }"}</code>를 기입하세요.</p>
                     </div>
                   </details>
@@ -1170,7 +1170,7 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
                   </div>
                   <div className="flex gap-1.5">
                     <span className="font-black text-purple-400">2.</span>
-                    <p>크기를 **너비 450**, **높이 600**으로 지정하세요.</p>
+                    <p>크기를 **3:4 비율** (예시: 450x600, 600x800 등)로 지정하세요.</p>
                   </div>
                   <div className="flex gap-1.5">
                     <span className="font-black text-purple-400">3.</span>
