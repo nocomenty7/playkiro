@@ -57,6 +57,9 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
   // OBS Setup Help toggle state
   const [showObsHelp, setShowObsHelp] = useState(false);
 
+  // Polling Fallback State (Activated when Supabase Realtime socket fails or hits 200 limit)
+  const [isPollingFallback, setIsPollingFallback] = useState(false);
+
   // Active Question ID & Reference to prevent Stale Closures in Realtime
   const activeQId = room?.question_ids?.[room?.current_question_index];
   const activeQIdRef = useRef<string | null>(null);
@@ -296,7 +299,14 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
           if (room) await fetchParticipants(room.id);
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        if (status === 'SUBSCRIBED') {
+          setIsPollingFallback(false);
+        } else if (['CHANNEL_ERROR', 'TIMED_OUT', 'CLOSED'].includes(status)) {
+          console.warn(`[Realtime Sync] Socket status "${status}" - Activating Polling Fallback!`);
+          setIsPollingFallback(true);
+        }
+      });
 
     channelRef.current = roomChannel;
 
@@ -309,6 +319,38 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
       }
     };
   }, [room?.id]);
+
+  // Automatic Polling Fallback (Triggers when Supabase 200 Realtime limit is reached or connection fails)
+  useEffect(() => {
+    if (!isPollingFallback || !room?.id || room.status === 'FINISHED') return;
+
+    const interval = setInterval(async () => {
+      try {
+        const { data: updatedRoom } = await supabase
+          .from('rooms')
+          .select('*')
+          .eq('id', room.id)
+          .single();
+
+        if (updatedRoom) {
+          setRoom(updatedRoom);
+
+          const currentQId = updatedRoom.question_ids?.[updatedRoom.current_question_index];
+          if (currentQId) {
+            throttledFetchRoomVotes(updatedRoom.id, currentQId);
+          }
+
+          if (['RESULT', 'FINISHED'].includes(updatedRoom.status)) {
+            await fetchParticipants(updatedRoom.id);
+          }
+        }
+      } catch (err) {
+        console.warn('[Polling Fallback Warning]:', err);
+      }
+    }, 4000);
+
+    return () => clearInterval(interval);
+  }, [isPollingFallback, room?.id, room?.status]);
 
   // Actions
   const isHost = room?.host_id === mySessionId;
