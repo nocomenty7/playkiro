@@ -323,8 +323,8 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
   let percentA = 0;
   let percentB = 0;
   if (totalVotesCount > 0) {
-    percentA = Math.round((votesA / totalVotesCount) * 100);
-    percentB = 100 - percentA;
+    percentA = Number(((votesA / totalVotesCount) * 100).toFixed(1));
+    percentB = Number((100 - percentA).toFixed(1));
   }
 
   // Check Prediction Victory (Viewer's prediction matches Streamer Pick)
@@ -333,21 +333,43 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
   const handleVoteSubmit = async (voteOption: 'A' | 'B') => {
     if (!room || room.status !== 'VOTING' || !myParticipantId) return;
 
+    // 네트워크 딜레이(레이스 컨디션)로 인한 마감 후 투표 차단을 위해 DB에서 최신 방 상태 조회
+    const { data: latestRoom, error } = await supabase
+      .from('rooms')
+      .select('status')
+      .eq('id', room.id)
+      .single();
+
+    if (error || !latestRoom || latestRoom.status !== 'VOTING') {
+      alert('이미 투표가 마감되었습니다.');
+      if (latestRoom) {
+        setRoom((prev: any) => ({ ...prev, status: latestRoom.status }));
+      }
+      return;
+    }
+
     setMyVote(voteOption);
     const currentQId = room.question_ids[room.current_question_index];
 
-    await supabase.from('room_votes').upsert(
-      [
-        {
-          room_id: room.id,
-          question_id: currentQId,
-          question_index: room.current_question_index,
-          participant_id: myParticipantId,
-          vote: voteOption,
-        },
-      ],
-      { onConflict: 'room_id,question_id,participant_id' }
-    );
+    try {
+      const { error: upsertError } = await supabase.from('room_votes').upsert(
+        [
+          {
+            room_id: room.id,
+            question_id: currentQId,
+            question_index: room.current_question_index,
+            participant_id: myParticipantId,
+            vote: voteOption,
+          },
+        ],
+        { onConflict: 'room_id,question_id,participant_id' }
+      );
+      if (upsertError) throw upsertError;
+    } catch (err) {
+      console.error('Vote submission failed:', err);
+      // 투표 트랜잭션 실패 시 선택 복구
+      setMyVote(null);
+    }
   };
 
   // Optimistic UI Update + Loading Spinner for Host Lock Votes
@@ -664,15 +686,22 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
                 <span className="font-extrabold text-neutral-300 block mb-1 text-sm">💡 간단 진행 가이드</span>
                 <div className="flex items-start gap-2 text-neutral-300">
                   <span className="font-black text-amber-400 shrink-0">1.</span>
-                  <p>시청자들에게 **PIN 코드**를 알려주고 입장을 기다립니다.</p>
+                  <div className="space-y-0.5">
+                    <p>시청자들에게 기로 웹사이트 주소(<span className="text-amber-400 font-semibold underline">https://playkiro.kr</span>)와 **PIN 코드**를 알려주고 입장을 기다립니다.</p>
+                    <p className="text-[10px] text-neutral-450 font-medium leading-relaxed">* 모바일, PC 모두 입장 가능하며, 게임 도중에도 입장 가능합니다.</p>
+                  </div>
                 </div>
                 <div className="flex items-start gap-2 text-neutral-300">
                   <span className="font-black text-amber-400 shrink-0">2.</span>
-                  <p>투표가 끝나면 하단의 **[시청자 투표 마감하기]** 버튼을 누릅니다.</p>
+                  <p>시청자가 스트리머의 픽을 예상하여 먼저 투표를 진행합니다.</p>
                 </div>
                 <div className="flex items-start gap-2 text-neutral-300">
                   <span className="font-black text-amber-400 shrink-0">3.</span>
-                  <p>스트리머 본인의 **진짜 취향 선택지**를 누르면 정답 시청자들에게 점수가 정산됩니다!</p>
+                  <p>투표를 마감하고 싶을때, 스트리머는 하단의 **[시청자 투표 마감하기]** 버튼을 누릅니다.</p>
+                </div>
+                <div className="flex items-start gap-2 text-neutral-300">
+                  <span className="font-black text-amber-400 shrink-0">4.</span>
+                  <p>스트리머 본인의 **진짜 취향 선택지**를 누르면 정답이 공개되고, 점수가 정산됩니다!</p>
                 </div>
 
                 {/* Collapsible OBS tip inside Guide Modal */}
