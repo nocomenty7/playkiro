@@ -701,7 +701,7 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
                 </div>
                 <div className="flex items-start gap-2 text-neutral-300">
                   <span className="font-black text-amber-400 shrink-0">4.</span>
-                  <p>스트리머 본인의 **진짜 취향 선택지**를 누르면 정답이 공개되고, 점수가 정산됩니다!</p>
+                  <p>스트리머 본인의 **진짜 취향 선택지**를 누르면 시청자의 선택지별 선택율과 정답이 공개되고, 점수가 정산됩니다!</p>
                 </div>
 
                 {/* Collapsible OBS tip inside Guide Modal */}
