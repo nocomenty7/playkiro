@@ -682,13 +682,13 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
                 </div>
               </div>
 
-              <div className="space-y-2.5 bg-zinc-900/60 p-4 rounded-2xl border border-zinc-800 text-xs">
-                <span className="font-extrabold text-neutral-300 block mb-1 text-sm">💡 간단 진행 가이드</span>
+              <div className="space-y-2.5 bg-zinc-900/60 p-4 rounded-2xl border border-zinc-800 text-[13px] md:text-sm">
+                <span className="font-extrabold text-neutral-300 block mb-3 text-[15px]">💡 간단 진행 가이드</span>
                 <div className="flex items-start gap-2 text-neutral-300">
                   <span className="font-black text-amber-400 shrink-0">1.</span>
                   <div className="space-y-0.5">
                     <p>시청자들에게 기로 웹사이트 주소(<span className="text-amber-400 font-semibold underline">https://playkiro.kr</span>)와 **PIN 코드**를 알려주고 입장을 기다립니다.</p>
-                    <p className="text-[10px] text-neutral-450 font-medium leading-relaxed">* 모바일, PC 모두 입장 가능하며, 게임 도중에도 입장 가능합니다.</p>
+                    <p className="text-[11px] md:text-xs text-neutral-450 font-medium leading-relaxed">* 모바일, PC 모두 입장 가능하며, 게임 도중에도 입장 가능합니다.</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-2 text-neutral-300">
@@ -707,13 +707,13 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
                 {/* Collapsible OBS tip inside Guide Modal */}
                 <div className="border-t border-zinc-800/80 pt-2.5 mt-1">
                   <details className="group cursor-pointer">
-                    <summary className="text-[11px] text-purple-400 font-extrabold select-none list-none no-scrollbar flex items-center gap-1.5">
+                    <summary className="text-xs md:text-[13px] text-purple-400 font-extrabold select-none list-none no-scrollbar flex items-center gap-1.5">
                       <span className="transition-transform group-open:rotate-90">👉</span> OBS / 프릭샷 등 방송에 투표창 띄우는 방법
                     </summary>
-                    <div className="mt-2 space-y-1.5 text-[10px] text-neutral-400 leading-relaxed pl-2 cursor-default">
+                    <div className="mt-2 space-y-1.5 text-[11px] md:text-xs text-neutral-400 leading-relaxed pl-2 cursor-default">
                       <p>• **브라우저 소스** 추가 후 복사한 오버레이 URL 입력</p>
                       <p>• 권장 크기: **너비 450px / 높이 600px**</p>
-                      <p>• 투명 배경: 커스텀 CSS 칸에 <code className="bg-zinc-900 px-1 py-0.5 rounded text-[9px] font-mono">{"body { background: transparent !important; }"}</code>를 기입하세요.</p>
+                      <p>• 투명 배경: 커스텀 CSS 칸에 <code className="bg-zinc-900 px-1 py-0.5 rounded text-[10px] font-mono">{"body { background: transparent !important; }"}</code>를 기입하세요.</p>
                     </div>
                   </details>
                 </div>
