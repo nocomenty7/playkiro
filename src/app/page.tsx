@@ -301,7 +301,7 @@ function LandingClient() {
           <span className="text-zinc-800">|</span>
           <a href="mailto:auroranest.official@gmail.com" className="hover:text-neutral-300 transition-all">문의하기</a>
         </div>
-        <p className="text-[10px] text-neutral-600">© 2026 기로. All rights reserved.</p>
+        <p className="text-[10px] text-neutral-600">Copyright © 2026 AuroraNest. All rights reserved.</p>
       </footer>
 
       {/* Fullscreen Loading Overlay for instant feedback */}

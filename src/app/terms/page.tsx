@@ -79,7 +79,7 @@ export default function TermsPage() {
       </div>
 
       <footer className="pt-8 border-t border-zinc-900 text-center text-xs text-neutral-500">
-        <p>© 2026 기로. All rights reserved.</p>
+        <p>Copyright © 2026 AuroraNest. All rights reserved.</p>
       </footer>
     </div>
   );

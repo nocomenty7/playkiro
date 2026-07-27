@@ -144,7 +144,7 @@ export default function AboutPage() {
 
       {/* Copyright Footer */}
       <footer className="text-[10px] text-center text-zinc-650 py-4 shrink-0 border-t border-zinc-900/20">
-        © 2026 기로. All rights reserved.
+        Copyright © 2026 AuroraNest. All rights reserved.
       </footer>
       
     </div>

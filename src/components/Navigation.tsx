@@ -215,7 +215,7 @@ export default function Navigation({
 
               {/* Footer inside Drawer */}
               <div className="text-[10px] text-neutral-600 leading-normal text-center border-t border-zinc-900/40 pt-4">
-                <p>© 2026 기로. All rights reserved.</p>
+                <p>Copyright © 2026 AuroraNest. All rights reserved.</p>
               </div>
             </motion.div>
           </div>

@@ -404,7 +404,7 @@ export default function VoteClient({
             <span className="text-zinc-800">|</span>
             <a href="mailto:auroranest.official@gmail.com" className="hover:text-neutral-350 transition-all">문의하기</a>
           </div>
-          <p className="text-[9px] text-neutral-600">© 2026 기로. All rights reserved.</p>
+          <p className="text-[9px] text-neutral-600">Copyright © 2026 AuroraNest. All rights reserved.</p>
         </footer>
       </div>
     );
@@ -650,7 +650,7 @@ export default function VoteClient({
           <span className="text-zinc-800">|</span>
           <a href="mailto:auroranest.official@gmail.com" className="hover:text-neutral-350 transition-all">문의하기</a>
         </div>
-        <p className="text-[9px] text-neutral-650">© 2026 기로. All rights reserved.</p>
+        <p className="text-[9px] text-neutral-650">Copyright © 2026 AuroraNest. All rights reserved.</p>
       </footer>
 
 
