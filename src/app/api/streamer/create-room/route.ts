@@ -17,10 +17,13 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Host session ID가 필요합니다.' }, { status: 400 });
     }
 
-    // Auto-cleanup: Delete finished rooms created more than 2 hours ago to keep DB lightweight
+    // Auto-cleanup: Delete finished/old rooms created more than 2 hours ago to keep DB lightweight
     try {
       const twoHoursAgo = new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString();
-      await supabase.from('rooms').delete().lt('created_at', twoHoursAgo);
+      const { error: cleanError } = await supabase.from('rooms').delete().lt('created_at', twoHoursAgo);
+      if (cleanError) {
+        console.warn('Background room cleanup RLS warning:', cleanError.message);
+      }
     } catch (cleanErr) {
       console.warn('Background cleanup warning:', cleanErr);
     }
