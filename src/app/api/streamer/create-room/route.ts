@@ -46,7 +46,13 @@ export async function POST(request: Request) {
       targetPool = questions;
     }
 
-    const shuffled = [...targetPool].sort(() => 0.5 - Math.random());
+    // True Unbiased Fisher-Yates (Knuth) Shuffle Algorithm
+    const shuffled = [...targetPool];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+
     const selectedQuestionIds = shuffled.slice(0, Math.min(totalQuestions, shuffled.length)).map((q) => q.id);
 
     // 2. Generate unique 6-digit numeric PIN
