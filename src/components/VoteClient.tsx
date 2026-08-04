@@ -274,19 +274,19 @@ export default function VoteClient({
     else if (ageGroup === '50대') ageKey = '50s';
     else if (ageGroup === '60대' || ageGroup === '60대 이상' || ageGroup === '70대 이상') ageKey = '60s';
 
-    const optionKey = option.toLowerCase();
-    const statKey = `${genderKey}_${ageKey}_${optionKey}`;
-
-    supabase
-      .rpc('increment_vote_stat', {
-        q_id: question.id,
-        stat_key: statKey
-      })
-      .then(({ error }) => {
-        if (error) {
-          console.error('Background vote increment failed:', error);
-        }
-      });
+    // Background API call with IP rate limiting & security check (0ms UI latency)
+    fetch('/api/play/vote', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        questionId: question.id,
+        gender,
+        ageGroup,
+        option,
+      }),
+    }).catch((err) => {
+      console.warn('Background vote API error:', err);
+    });
   };
 
   // 3. Next.js router.replace client-side navigation with Prefetching for instant transitions
