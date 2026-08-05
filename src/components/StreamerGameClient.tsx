@@ -1141,6 +1141,19 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
                 </button>
               </motion.div>
             )}
+
+            {/* Subtle, friendly eco-sync mode indicator for 196+ polling fallback viewers */}
+            {isPollingFallback && !isOverlay && (
+              <div className="flex items-center justify-center pt-2">
+                <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-zinc-900/90 border border-zinc-800/80 text-[11px] text-neutral-400 select-none shadow-sm">
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
+                  </span>
+                  <span>⚡ 절전 동기화 모드 가동 중 (화면이 주기적으로 자동 갱신됩니다)</span>
+                </div>
+              </div>
+            )}
           </div>
         </main>
       )}
