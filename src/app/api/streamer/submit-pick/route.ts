@@ -4,7 +4,7 @@ import { supabase } from '@/lib/supabase';
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { roomId, hostSessionId, hostPick, questionId, gender = 'male', ageGroup = '20s' } = body;
+    const { roomId, hostSessionId, hostPick, questionId, gender = 'male', ageGroup = '20s', winnerParticipantIds: clientWinners = [] } = body;
 
     if (!roomId || !hostPick || !['A', 'B'].includes(hostPick)) {
       return NextResponse.json({ error: 'Invalid parameters' }, { status: 400 });
@@ -37,17 +37,22 @@ export async function POST(request: Request) {
 
     // 3. Score calculation: Award +100 points to participants whose vote matched hostPick
     const currentQId = questionId || room.question_ids[room.current_question_index];
+    let winnerParticipantIds: string[] = clientWinners;
 
-    const { data: matchingVotes } = await supabase
-      .from('room_votes')
-      .select('participant_id')
-      .eq('room_id', roomId)
-      .eq('question_id', currentQId)
-      .eq('vote', hostPick);
+    if (winnerParticipantIds.length === 0) {
+      const { data: matchingVotes } = await supabase
+        .from('room_votes')
+        .select('participant_id')
+        .eq('room_id', roomId)
+        .eq('question_id', currentQId)
+        .eq('vote', hostPick);
 
-    if (matchingVotes && matchingVotes.length > 0) {
-      const winnerParticipantIds = matchingVotes.map((v) => v.participant_id);
-      
+      if (matchingVotes) {
+        winnerParticipantIds = matchingVotes.map((v) => v.participant_id);
+      }
+    }
+
+    if (winnerParticipantIds && winnerParticipantIds.length > 0) {
       // Parallelized batch score update (60x faster performance under heavy viewer load)
       const { data: winnerParticipants } = await supabase
         .from('room_participants')
@@ -93,7 +98,7 @@ export async function POST(request: Request) {
     return NextResponse.json({
       success: true,
       hostPick,
-      winnersCount: matchingVotes ? matchingVotes.length : 0,
+      winnersCount: winnerParticipantIds ? winnerParticipantIds.length : 0,
     });
   } catch (error: any) {
     console.error('Submit host pick API exception:', error);

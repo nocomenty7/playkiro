@@ -60,6 +60,10 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
   // Polling Fallback State (Activated when Supabase Realtime socket fails or hits 200 limit)
   const [isPollingFallback, setIsPollingFallback] = useState(false);
 
+  // Live Votes Map for Zero-DB Realtime Broadcast Voting
+  const [liveVotesMap, setLiveVotesMap] = useState<Record<string, 'A' | 'B'>>({});
+  const liveVotesMapRef = useRef<Record<string, 'A' | 'B'>>({});
+
   // Active Question ID & Reference to prevent Stale Closures in Realtime
   const activeQId = room?.question_ids?.[room?.current_question_index];
   const activeQIdRef = useRef<string | null>(null);
@@ -72,12 +76,26 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
   useEffect(() => {
     if (!room?.id || !activeQId) return;
     const syncNext = async () => {
-      setMyVote(null);
+      liveVotesMapRef.current = {};
+      setLiveVotesMap({});
+
+      // Restore saved vote for this question if exists
+      try {
+        const storedKey = `kiro_vote_${room.id}_${activeQId}`;
+        const savedVote = localStorage.getItem(storedKey);
+        if (savedVote === 'A' || savedVote === 'B') {
+          setMyVote(savedVote);
+        } else {
+          setMyVote(null);
+        }
+      } catch (e) {
+        setMyVote(null);
+      }
+
       setVotesA(0);
       setVotesB(0);
       setShowStatsModal(false);
       await fetchQuestionForIndex(activeQId);
-      await fetchRoomVotes(room.id, activeQId);
     };
     syncNext();
   }, [activeQId, room?.id]);
@@ -267,7 +285,11 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
     }
 
     const roomChannel = supabase
-      .channel(`room_${room.id}`)
+      .channel(`room_${room.id}`, {
+        config: {
+          broadcast: { self: true },
+        },
+      })
       .on(
         'postgres_changes',
         { event: 'UPDATE', schema: 'public', table: 'rooms', filter: `id=eq.${room.id}` },
@@ -284,21 +306,45 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
       )
       .on(
         'postgres_changes',
-        { event: '*', schema: 'public', table: 'room_votes', filter: `room_id=eq.${room.id}` },
-        () => {
-          const currentQId = activeQIdRef.current;
-          if (room && currentQId) {
-            throttledFetchRoomVotes(room.id, currentQId);
-          }
-        }
-      )
-      .on(
-        'postgres_changes',
         { event: '*', schema: 'public', table: 'room_participants', filter: `room_id=eq.${room.id}` },
         async () => {
           if (room) await fetchParticipants(room.id);
         }
       )
+      .on('broadcast', { event: 'VOTE_SUBMIT' }, (payload) => {
+        const { participantId, vote, questionId } = payload.payload || {};
+        const currentQId = activeQIdRef.current;
+        if (questionId === currentQId && participantId && (vote === 'A' || vote === 'B')) {
+          liveVotesMapRef.current = { ...liveVotesMapRef.current, [participantId]: vote };
+          setLiveVotesMap(liveVotesMapRef.current);
+
+          let a = 0;
+          let b = 0;
+          Object.values(liveVotesMapRef.current).forEach((v) => {
+            if (v === 'A') a++;
+            else if (v === 'B') b++;
+          });
+          setVotesA(a);
+          setVotesB(b);
+        }
+      })
+      .on('broadcast', { event: 'SYNC_VOTES' }, (payload) => {
+        const { votesMap, questionId } = payload.payload || {};
+        const currentQId = activeQIdRef.current;
+        if (questionId === currentQId && votesMap) {
+          liveVotesMapRef.current = { ...liveVotesMapRef.current, ...votesMap };
+          setLiveVotesMap(liveVotesMapRef.current);
+
+          let a = 0;
+          let b = 0;
+          Object.values(liveVotesMapRef.current).forEach((v) => {
+            if (v === 'A') a++;
+            else if (v === 'B') b++;
+          });
+          setVotesA(a);
+          setVotesB(b);
+        }
+      })
       .subscribe((status) => {
         if (status === 'SUBSCRIBED') {
           setIsPollingFallback(false);
@@ -372,45 +418,63 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
   // Check Prediction Victory (Viewer's prediction matches Streamer Pick)
   const isPredictionMatched = !isHost && room?.status === 'RESULT' && myVote && room?.host_pick && myVote === room?.host_pick;
 
+  // Streamer (Host) periodic vote map broadcast to keep all viewers & late-joiners in sync with 0 DB load
+  useEffect(() => {
+    if (!isHost || !room || room.status !== 'VOTING' || !activeQId) return;
+
+    const interval = setInterval(() => {
+      if (channelRef.current && Object.keys(liveVotesMapRef.current).length > 0) {
+        channelRef.current.send({
+          type: 'broadcast',
+          event: 'SYNC_VOTES',
+          payload: {
+            questionId: activeQId,
+            votesMap: liveVotesMapRef.current,
+          },
+        });
+      }
+    }, 2500);
+
+    return () => clearInterval(interval);
+  }, [isHost, room?.id, room?.status, activeQId]);
+
   const handleVoteSubmit = async (voteOption: 'A' | 'B') => {
     if (!room || room.status !== 'VOTING' || !myParticipantId) return;
-
-    // 네트워크 딜레이(레이스 컨디션)로 인한 마감 후 투표 차단을 위해 DB에서 최신 방 상태 조회
-    const { data: latestRoom, error } = await supabase
-      .from('rooms')
-      .select('status')
-      .eq('id', room.id)
-      .single();
-
-    if (error || !latestRoom || latestRoom.status !== 'VOTING') {
-      alert('이미 투표가 마감되었습니다.');
-      if (latestRoom) {
-        setRoom((prev: any) => ({ ...prev, status: latestRoom.status }));
-      }
-      return;
-    }
 
     setMyVote(voteOption);
     const currentQId = room.question_ids[room.current_question_index];
 
+    // Local live votes map update
+    liveVotesMapRef.current = { ...liveVotesMapRef.current, [myParticipantId]: voteOption };
+    setLiveVotesMap(liveVotesMapRef.current);
+
+    let a = 0;
+    let b = 0;
+    Object.values(liveVotesMapRef.current).forEach((v) => {
+      if (v === 'A') a++;
+      else if (v === 'B') b++;
+    });
+    setVotesA(a);
+    setVotesB(b);
+
+    // Broadcast vote instantly via WebSocket (0ms latency, ZERO DB overhead)
+    if (channelRef.current) {
+      channelRef.current.send({
+        type: 'broadcast',
+        event: 'VOTE_SUBMIT',
+        payload: {
+          participantId: myParticipantId,
+          vote: voteOption,
+          questionId: currentQId,
+        },
+      });
+    }
+
     try {
-      const { error: upsertError } = await supabase.from('room_votes').upsert(
-        [
-          {
-            room_id: room.id,
-            question_id: currentQId,
-            question_index: room.current_question_index,
-            participant_id: myParticipantId,
-            vote: voteOption,
-          },
-        ],
-        { onConflict: 'room_id,question_id,participant_id' }
-      );
-      if (upsertError) throw upsertError;
-    } catch (err) {
-      console.error('Vote submission failed:', err);
-      // 투표 트랜잭션 실패 시 선택 복구
-      setMyVote(null);
+      const storedKey = `kiro_vote_${room.id}_${currentQId}`;
+      localStorage.setItem(storedKey, voteOption);
+    } catch (e) {
+      // ignore
     }
   };
 
@@ -444,6 +508,10 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
 
     try {
       const currentQId = room.question_ids[room.current_question_index];
+      const winnerParticipantIds = Object.entries(liveVotesMapRef.current)
+        .filter(([_, vote]) => vote === hostPick)
+        .map(([pId, _]) => pId);
+
       await fetch('/api/streamer/submit-pick', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -454,6 +522,7 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
           questionId: currentQId,
           gender: room.host_gender,
           ageGroup: room.host_age_group,
+          winnerParticipantIds,
         }),
       });
     } catch (e) {
