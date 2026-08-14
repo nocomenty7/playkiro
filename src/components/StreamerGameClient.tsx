@@ -304,13 +304,6 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
           }
         }
       )
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'room_participants', filter: `room_id=eq.${room.id}` },
-        async () => {
-          if (room) await fetchParticipants(room.id);
-        }
-      )
       .on('broadcast', { event: 'VOTE_SUBMIT' }, (payload) => {
         const { participantId, vote, questionId } = payload.payload || {};
         const currentQId = activeQIdRef.current;
