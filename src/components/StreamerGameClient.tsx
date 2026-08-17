@@ -829,8 +829,8 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
                 <div className="flex items-start gap-2 text-neutral-300">
                   <span className="font-black text-amber-400 shrink-0">1.</span>
                   <div className="space-y-0.5">
-                    <p>시청자들에게 기로 웹사이트 주소(<span className="text-amber-400 font-semibold underline">https://playkiro.kr</span>)와 <strong className="font-extrabold text-white">PIN 코드</strong>를 알려주고 입장을 기다립니다.</p>
-                    <p className="text-[11px] md:text-xs text-neutral-450 font-medium leading-relaxed">* 시청자는 모바일, PC 모두 입장 가능하며, 게임 도중에도 입장 가능합니다.</p>
+                    <p><strong className="font-extrabold text-indigo-400">[스트리머]</strong> 시청자들에게 기로 웹사이트 주소(<span className="text-amber-400 font-semibold underline">https://playkiro.kr</span>)와 <strong className="font-extrabold text-white">PIN 코드</strong>를 알려주고 입장을 기다립니다.</p>
+                    <p className="text-[11px] md:text-xs text-neutral-450 font-medium leading-relaxed">* 시청자는 모바일, PC 모두 가능하며, 게임 도중에도 입장 가능합니다.</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-2 text-neutral-300">
@@ -843,7 +843,7 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
                 </div>
                 <div className="flex items-start gap-2 text-neutral-300">
                   <span className="font-black text-amber-400 shrink-0">4.</span>
-                  <p><strong className="font-extrabold text-indigo-400">[스트리머]</strong> 마감 이후, 본인의 <strong className="font-extrabold text-amber-400">[진짜 취향 선택지]</strong>를 누르면 시청자의 선택지별 선택률이 실시간 공개됩니다.</p>
+                  <p><strong className="font-extrabold text-indigo-400">[스트리머]</strong> 마감 이후, 본인의 <strong className="font-extrabold text-white">[진짜 취향 선택지]</strong>를 누르면 시청자의 선택지별 선택률이 실시간 공개됩니다.</p>
                 </div>
 
                 {/* Collapsible OBS tip inside Guide Modal */}
@@ -1313,12 +1313,14 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
         </main>
       )}
 
-      {/* Streamer Host Control Panel with Optimistic Feedback & Loading Spinners */}
+      {/* Streamer Host Control Panel with High-Visibility Golden Highlight & Loading Spinners */}
       {!isOverlay && isHost && room.status !== 'FINISHED' && (
         <div className="w-full max-w-md mx-auto p-4 shrink-0">
-          <div className="w-full bg-zinc-950 border border-zinc-800 rounded-2xl p-4 md:p-5 space-y-4 shadow-2xl">
-            <div className="flex items-center justify-between text-sm md:text-base font-black text-neutral-300 border-b border-zinc-900 pb-2.5">
-              <span>👑 스트리머 컨트롤 영역</span>
+          <div className="w-full bg-gradient-to-b from-amber-500/15 via-zinc-950 to-zinc-950 border-2 border-amber-400/60 shadow-[0_0_35px_rgba(245,158,11,0.25)] rounded-3xl p-5 space-y-4">
+            <div className="flex items-center justify-between text-sm md:text-base font-black text-neutral-300 border-b border-amber-500/20 pb-3">
+              <span className="flex items-center gap-1.5 font-black text-amber-300 text-xs md:text-sm tracking-wide bg-amber-500/10 px-3 py-1 rounded-xl border border-amber-500/30">
+                👑 스트리머 조작 패널
+              </span>
               
               {/* Question Pass & Room Finish Actions */}
               <div className="flex items-center gap-3">
@@ -1347,9 +1349,11 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
             </div>
 
             {/* OBS Overlay URL Copy Widget */}
-            <div className="bg-purple-950/20 border border-purple-500/30 rounded-xl p-3.5 space-y-2.5 text-xs">
+            <div className="bg-purple-950/25 border border-purple-500/30 rounded-2xl p-3.5 space-y-2.5 text-xs">
               <div className="flex items-center justify-between">
-                <span className="font-extrabold text-purple-300">🎥 OBS / 프릭샷 오버레이</span>
+                <span className="font-extrabold text-purple-300 flex items-center gap-1">
+                  🎥 OBS / 프릭샷 오버레이
+                </span>
                 <div className="flex items-center gap-1.5 shrink-0">
                   <button
                     onClick={() => setShowObsHelp(!showObsHelp)}
@@ -1395,21 +1399,21 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
               <button
                 disabled={totalVotesCount === 0 || !!actionLoading}
                 onClick={handleHostLockVotes}
-                className={`w-full py-3.5 rounded-xl text-sm md:text-base font-black transition-all shadow-lg flex items-center justify-center gap-2 border ${
+                className={`w-full py-4 rounded-2xl text-sm md:text-base font-black transition-all shadow-xl flex items-center justify-center gap-2 border ${
                   totalVotesCount === 0
                     ? 'bg-zinc-900 border-zinc-800 text-neutral-500 cursor-not-allowed opacity-60'
-                    : 'bg-amber-500 hover:bg-amber-400 text-zinc-950 border-amber-400 cursor-pointer'
+                    : 'bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 hover:brightness-110 text-zinc-950 border-amber-300 shadow-[0_0_20px_rgba(245,158,11,0.4)] cursor-pointer'
                 }`}
               >
                 {actionLoading === 'locking' ? (
                   <>
-                    <Loader2 className="w-4.5 h-4.5 animate-spin" />
+                    <Loader2 className="w-5 h-5 animate-spin" />
                     <span>투표 마감 처리 중...</span>
                   </>
                 ) : (
                   <>
-                    <Lock className="w-4.5 h-4.5" />
-                    <span>{totalVotesCount === 0 ? '시청자 투표 참여 대기 중... (0명)' : '시청자 투표 마감하기'}</span>
+                    <Lock className="w-5 h-5" />
+                    <span>{totalVotesCount === 0 ? '시청자 투표 참여 대기 중... (0명)' : '🔒 시청자 투표 마감하기'}</span>
                   </>
                 )}
               </button>
@@ -1418,8 +1422,8 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
             {/* Host Pick Buttons with Instant Spinner & Immediate Visual Response */}
             {room.status === 'LOCKED' && (
               <div className="space-y-2.5">
-                <span className="text-xs md:text-sm text-neutral-300 font-extrabold block text-center">
-                  [스트리머 본인의 취향 픽을 선택해 주세요]
+                <span className="text-xs md:text-sm text-amber-300 font-black block text-center bg-amber-500/10 py-1.5 px-3 rounded-xl border border-amber-500/30 animate-pulse">
+                  👉 스트리머 본인의 진짜 취향 픽을 선택해 주세요!
                 </span>
                 <div className="grid grid-cols-2 gap-2.5">
                   <button
@@ -1447,24 +1451,24 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
               </div>
             )}
 
-            {/* Next Question / Finish Button with Instant Spinner */}
+            {/* Next Question / Finish Button with High-Visibility Glowing Pulse Effect */}
             {room.status === 'RESULT' && (
               <button
                 disabled={!!actionLoading}
                 onClick={handleNextQuestion}
-                className="w-full py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-sm md:text-base transition-all shadow-lg flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                className="w-full py-4.5 rounded-2xl bg-gradient-to-r from-emerald-400 via-teal-300 to-emerald-400 hover:brightness-110 text-zinc-950 font-black text-base md:text-lg transition-all shadow-[0_0_35px_rgba(52,211,153,0.6)] ring-4 ring-emerald-300/40 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 border-2 border-emerald-200 animate-pulse my-1"
               >
                 {actionLoading === 'next' ? (
                   <>
-                    <Loader2 className="w-4.5 h-4.5 animate-spin" />
+                    <Loader2 className="w-5 h-5 animate-spin" />
                     <span>다음 문제 로딩 중...</span>
                   </>
                 ) : (
                   <>
                     {room.current_question_index + 1 < room.total_questions && (
-                      <Play className="w-4.5 h-4.5" />
+                      <Play className="w-5 h-5 fill-current" />
                     )}
-                    <span>{room.current_question_index + 1 >= room.total_questions ? '🏆 최종 결과 발표' : '다음 문제 진행하기'}</span>
+                    <span>{room.current_question_index + 1 >= room.total_questions ? '🏆 최종 결과 발표 보러가기' : '▶️ 다음 문제 진행하기 (클릭)'}</span>
                   </>
                 )}
               </button>
