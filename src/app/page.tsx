@@ -248,7 +248,7 @@ function LandingClient() {
             </div>
             <h3 className="text-xl font-extrabold text-neutral-100">함께 플레이하기 (스트리머 모드)</h3>
             <p className="text-sm text-neutral-450 leading-relaxed">
-              스트리머와 시청자가 6자리 PIN 코드로 함께 접속하는 다중 참여 모드입니다. 시청자가 스트리머의 진짜 취향과 선택을 예측하는 동안, 스트리머는 OBS 등 방송 오버레이 화면을 띄워 시청자들과 다양한 썰을 풀며 즐거운 소통의 시간을 보낼 수 있습니다.
+              스트리머가 방을 만들고, 시청자가 6자리 PIN 코드로 접속하는 시참 모드입니다. 시청자가 스트리머의 진짜 취향과 선택을 예측하는 동안, 스트리머는 청자들과 다양한 썰을 풀며 즐거운 소통의 시간을 보낼 수 있습니다. (OBS 오버레이 제공(선택사항))
             </p>
           </div>
 
