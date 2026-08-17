@@ -794,20 +794,20 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
                   <span className="font-black text-amber-400 shrink-0">1.</span>
                   <div className="space-y-0.5">
                     <p>시청자들에게 기로 웹사이트 주소(<span className="text-amber-400 font-semibold underline">https://playkiro.kr</span>)와 **PIN 코드**를 알려주고 입장을 기다립니다.</p>
-                    <p className="text-[11px] md:text-xs text-neutral-450 font-medium leading-relaxed">* 모바일, PC 모두 입장 가능하며, 게임 도중에도 입장 가능합니다.</p>
+                    <p className="text-[11px] md:text-xs text-neutral-450 font-medium leading-relaxed">* 시청자는 모바일, PC 모두 입장 가능하며, 게임 도중에도 입장 가능합니다.</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-2 text-neutral-300">
                   <span className="font-black text-amber-400 shrink-0">2.</span>
-                  <p>시청자가 스트리머의 픽을 예상하여 먼저 투표를 진행합니다.</p>
+                  <p>**[시청자]** 스트리머의 픽을 예상하여 투표합니다.</p>
                 </div>
                 <div className="flex items-start gap-2 text-neutral-300">
                   <span className="font-black text-amber-400 shrink-0">3.</span>
-                  <p>투표를 마감하고 싶을때, 스트리머는 하단의 **[시청자 투표 마감하기]** 버튼을 누릅니다.</p>
+                  <p>**[스트리머]** 투표를 마감하고 싶을때, 하단의 **[시청자 투표 마감하기]** 버튼을 누릅니다.</p>
                 </div>
                 <div className="flex items-start gap-2 text-neutral-300">
                   <span className="font-black text-amber-400 shrink-0">4.</span>
-                  <p>스트리머 본인의 **진짜 취향 선택지**를 누르면 시청자의 선택지별 선택률과 정답이 공개되고, 점수가 정산됩니다!</p>
+                  <p>**[스트리머]** 마감 이후, 본인의 **[진짜 취향 선택지]**를 누르면 시청자의 선택지별 선택률이 실시간 공개됩니다.</p>
                 </div>
 
                 {/* Collapsible OBS tip inside Guide Modal */}
