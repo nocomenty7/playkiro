@@ -57,6 +57,10 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
   // OBS Setup Help toggle state
   const [showObsHelp, setShowObsHelp] = useState(false);
 
+  // Direct Link Viewer Nickname Setup Modal State
+  const [showViewerNicknameModal, setShowViewerNicknameModal] = useState(false);
+  const [customViewerNickname, setCustomViewerNickname] = useState('');
+
   // Polling Fallback State (Activated when Supabase Realtime socket fails or hits 200 limit)
   const [isPollingFallback, setIsPollingFallback] = useState(false);
 
@@ -154,6 +158,12 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
         
         // Read nickname from sessionStorage first (clean URL without ?nickname=), with fallback to prop
         const storedNickname = typeof window !== 'undefined' ? sessionStorage.getItem(`kiro_viewer_nickname_${pin}`) : null;
+        
+        // Trigger nickname setup modal for viewers entering via direct URL without pre-set nickname
+        if (!isHost && !storedNickname && !viewerNickname && !isOverlay) {
+          setShowViewerNicknameModal(true);
+        }
+
         const nicknameToUse = storedNickname || viewerNickname || (isHost ? `${roomData.host_nickname} (👑)` : '시청자_' + Math.floor(Math.random() * 1000));
 
         // Show Host Onboarding Guide when host first enters room
@@ -228,6 +238,32 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
     if (!qId) return;
     const { data } = await supabase.from('questions').select('*').eq('id', qId).single();
     if (data) setCurrentQuestion(data);
+  };
+
+  // Save Custom Nickname for Direct Link Viewers
+  const handleSaveViewerNickname = async () => {
+    const trimmed = customViewerNickname.trim();
+    if (!trimmed) {
+      alert('닉네임을 입력해 주세요.');
+      return;
+    }
+
+    try {
+      sessionStorage.setItem(`kiro_viewer_nickname_${pin}`, trimmed);
+    } catch (e) {}
+
+    if (myParticipantId) {
+      await supabase
+        .from('room_participants')
+        .update({ nickname: trimmed })
+        .eq('id', myParticipantId);
+    }
+
+    if (room?.id) {
+      await fetchParticipants(room.id);
+    }
+
+    setShowViewerNicknameModal(false);
   };
 
   // Fetch Participants
@@ -832,6 +868,50 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
                 <span>시작하기</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Direct Link Viewer Nickname Setup Modal */}
+      <AnimatePresence>
+        {showViewerNicknameModal && !isOverlay && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              className="w-full max-w-sm rounded-3xl bg-zinc-950 border border-zinc-800 p-6 md:p-7 space-y-5 shadow-2xl text-left"
+            >
+              <div className="text-center space-y-1.5">
+                <div className="text-3xl mb-1">👋</div>
+                <h3 className="text-xl font-extrabold text-white">닉네임을 입력해 주세요</h3>
+                <p className="text-xs text-neutral-400 leading-relaxed">
+                  스트리머 방에 참여하기 위해 사용할 닉네임을 설정합니다.
+                </p>
+              </div>
+
+              <div className="space-y-3 pt-1">
+                <input
+                  type="text"
+                  maxLength={12}
+                  value={customViewerNickname}
+                  onChange={(e) => setCustomViewerNickname(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') handleSaveViewerNickname();
+                  }}
+                  placeholder="예: 쾌걸조로, 치킨마니아"
+                  className="w-full bg-zinc-900 border border-zinc-800 rounded-2xl px-4 py-3.5 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-amber-400 transition"
+                  autoFocus
+                />
+                <button
+                  onClick={handleSaveViewerNickname}
+                  className="w-full py-4 rounded-2xl bg-brand-yellow hover:bg-[#e0b240] text-zinc-950 font-black text-base transition-all shadow-lg flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  <span>게임 참여하기</span>
+                  <ArrowRight className="w-4.5 h-4.5" />
+                </button>
+              </div>
             </motion.div>
           </div>
         )}
