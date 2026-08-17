@@ -156,10 +156,10 @@ export default function ShareSheet({ onClose, shareUrl, questionTitle }: ShareSh
                   <span>인스타그램 스토리 공유 팁</span>
                 </div>
                 <p>
-                  1. 게임 링크가 클립보드에 **자동으로 복사**되었습니다.
+                  1. 게임 링크가 클립보드에 <strong className="font-bold text-neutral-200">자동으로 복사</strong>되었습니다.
                 </p>
                 <p>
-                  2. 인스타그램 스토리에 원하시는 꾸미기 이미지나 사진을 올리고 **'링크' 스티커** 기능을 사용해 복사된 링크를 붙여넣어 함께 공유해 보세요!
+                  2. 인스타그램 스토리에 원하시는 꾸미기 이미지나 사진을 올리고 <strong className="font-bold text-neutral-200">'링크' 스티커</strong> 기능을 사용해 복사된 링크를 붙여넣어 함께 공유해 보세요!
                 </p>
                 <button
                   onClick={() => setShowInstaGuide(false)}
