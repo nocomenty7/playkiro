@@ -17,12 +17,12 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Host session ID가 필요합니다.' }, { status: 400 });
     }
 
-    // Auto-cleanup: Delete finished/old rooms created more than 2 hours ago to keep DB lightweight
+    // Auto-cleanup: Delete room_participants created more than 2 hours ago to keep DB lightweight, while keeping rooms permanently
     try {
       const twoHoursAgo = new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString();
-      const { error: cleanError } = await supabase.from('rooms').delete().lt('created_at', twoHoursAgo);
+      const { error: cleanError } = await supabase.from('room_participants').delete().lt('created_at', twoHoursAgo);
       if (cleanError) {
-        console.warn('Background room cleanup RLS warning:', cleanError.message);
+        console.warn('Background room_participants cleanup RLS warning:', cleanError.message);
       }
     } catch (cleanErr) {
       console.warn('Background cleanup warning:', cleanErr);
@@ -66,7 +66,7 @@ export async function POST(request: Request) {
     while (!isUnique && attempts < 10) {
       attempts++;
       pin = Math.floor(100000 + Math.random() * 900000).toString();
-      const { data: existing } = await supabase.from('rooms').select('id').eq('pin', pin).maybeSingle();
+      const { data: existing } = await supabase.from('rooms').select('id').eq('pin', pin).neq('status', 'FINISHED').maybeSingle();
       if (!existing) {
         isUnique = true;
       }

@@ -138,7 +138,9 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
           .from('rooms')
           .select('*')
           .eq('pin', pin)
-          .single();
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .maybeSingle();
 
         if (roomErr || !roomData) {
           setErrorMsg('존재하지 않거나 이미 종료된 방입니다.');
