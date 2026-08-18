@@ -72,6 +72,42 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
   const activeQId = room?.question_ids?.[room?.current_question_index];
   const activeQIdRef = useRef<string | null>(null);
 
+  // 300ms Debounced Broadcast Throttling Refs & Helper
+  const lastBroadcastTimeRef = useRef<number>(0);
+  const pendingBroadcastTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  const sendDebouncedVoteBroadcast = (participantId: string, voteOption: 'A' | 'B', questionId: string) => {
+    const now = Date.now();
+    const timeSinceLast = now - lastBroadcastTimeRef.current;
+
+    if (pendingBroadcastTimerRef.current) {
+      clearTimeout(pendingBroadcastTimerRef.current);
+      pendingBroadcastTimerRef.current = null;
+    }
+
+    const dispatch = () => {
+      if (channelRef.current) {
+        channelRef.current.send({
+          type: 'broadcast',
+          event: 'VOTE_SUBMIT',
+          payload: {
+            participantId,
+            vote: voteOption,
+            questionId,
+          },
+        });
+        lastBroadcastTimeRef.current = Date.now();
+      }
+    };
+
+    if (timeSinceLast >= 300) {
+      dispatch();
+    } else {
+      const remainingMs = 300 - timeSinceLast;
+      pendingBroadcastTimerRef.current = setTimeout(dispatch, remainingMs);
+    }
+  };
+
   useEffect(() => {
     activeQIdRef.current = activeQId || null;
   }, [activeQId]);
@@ -488,18 +524,8 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
     setVotesA(a);
     setVotesB(b);
 
-    // Broadcast vote instantly via WebSocket (0ms latency, ZERO DB overhead)
-    if (channelRef.current) {
-      channelRef.current.send({
-        type: 'broadcast',
-        event: 'VOTE_SUBMIT',
-        payload: {
-          participantId: myParticipantId,
-          vote: voteOption,
-          questionId: currentQId,
-        },
-      });
-    }
+    // Broadcast vote with 300ms debounced throttling (0ms local UI response, caps burst packets)
+    sendDebouncedVoteBroadcast(myParticipantId, voteOption, currentQId);
 
     try {
       const storedKey = `kiro_vote_${room.id}_${currentQId}`;
