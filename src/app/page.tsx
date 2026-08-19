@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, Trophy, Users, ShieldAlert, BrainCircuit, BarChart3, Loader2, Tv } from 'lucide-react';
 import Navigation from '../components/Navigation';
 import StreamerModal from '../components/StreamerModal';
+import NoticePopup from '../components/NoticePopup';
 
 function LandingClient() {
   const searchParams = useSearchParams();
@@ -325,6 +326,8 @@ function LandingClient() {
         onClose={() => setShowStreamerModal(false)}
       />
 
+      {/* Main page notice popup */}
+      <NoticePopup />
     </div>
   );
 }
