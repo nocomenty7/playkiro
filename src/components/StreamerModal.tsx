@@ -227,7 +227,7 @@ export default function StreamerModal({ isOpen, onClose }: StreamerModalProps) {
             </div>
             <div>
               <h2 className="text-xl font-black text-white tracking-tight">함께 플레이하기 (스트리머 모드)</h2>
-              <p className="text-xs text-neutral-400">실시간으로 취향을 확인하는 다중 접속 모드</p>
+              <p className="text-xs text-neutral-400">실시간으로 스트리머의 취향을 예측해보세요!</p>
             </div>
           </div>
 

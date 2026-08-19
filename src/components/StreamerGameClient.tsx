@@ -71,6 +71,15 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
   // Active Question ID & Reference to prevent Stale Closures in Realtime
   const activeQId = room?.question_ids?.[room?.current_question_index];
   const activeQIdRef = useRef<string | null>(null);
+  const roomStatusRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    activeQIdRef.current = activeQId || null;
+  }, [activeQId]);
+
+  useEffect(() => {
+    roomStatusRef.current = room?.status || null;
+  }, [room?.status]);
 
   // 300ms Debounced Broadcast Throttling Refs & Helper
   const lastBroadcastTimeRef = useRef<number>(0);
@@ -381,6 +390,11 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
       .on('broadcast', { event: 'VOTE_SUBMIT' }, (payload) => {
         const { participantId, vote, questionId } = payload.payload || {};
         const currentQId = activeQIdRef.current;
+        const currentStatus = roomStatusRef.current;
+
+        // 마감 이후(LOCKED, RESULT) 쏟아지는 지각 투표나 변심 투표 원천 차단 (그래프 흔들림 방지)
+        if (currentStatus !== 'VOTING') return;
+
         if (questionId === currentQId && participantId && (vote === 'A' || vote === 'B')) {
           liveVotesMapRef.current = { ...liveVotesMapRef.current, [participantId]: vote };
           setLiveVotesMap(liveVotesMapRef.current);
@@ -677,7 +691,15 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
       }
 
       // Filter out existing question IDs
-      const unusedCandidates = pool.filter((q: any) => !room.question_ids.includes(q.id));
+      let unusedCandidates = pool.filter((q: any) => !room.question_ids.includes(q.id));
+
+      if (unusedCandidates.length === 0) {
+        // 선택한 카테고리의 남은 문제가 고갈되었다면, 전체 카테고리에서 안 푼 문제를 무작위 징발하여 중복(반복) 출제 방지
+        const { data: allQ } = await supabase.from('questions').select('id, category');
+        pool = allQ || [];
+        unusedCandidates = pool.filter((q: any) => !room.question_ids.includes(q.id));
+      }
+
       const replacementPool = unusedCandidates.length > 0 ? unusedCandidates : pool;
       const newQuestion = replacementPool[Math.floor(Math.random() * replacementPool.length)];
 
