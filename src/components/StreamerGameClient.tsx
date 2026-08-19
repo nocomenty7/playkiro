@@ -416,8 +416,12 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
         if (status === 'SUBSCRIBED') {
           setIsPollingFallback(false);
         } else if (['CHANNEL_ERROR', 'TIMED_OUT', 'CLOSED'].includes(status)) {
-          console.warn(`[Realtime Sync] Socket status "${status}" - Activating Polling Fallback!`);
-          setIsPollingFallback(true);
+          console.warn(`[Realtime Sync] Socket status "${status}"`);
+          // 방장(Host)은 시청자들의 Broadcast(투표)를 받아야 하므로, 절대 절전 모드(DB 읽기)로 도망가지 않고 재연결을 대기합니다.
+          if (!isHost) {
+            console.warn(`Activating Polling Fallback for viewer!`);
+            setIsPollingFallback(true);
+          }
         }
       });
 
@@ -432,6 +436,15 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
       }
     };
   }, [room?.id]);
+
+  // Zombie Socket Cleanup Effect: 방이 종료되면 모든 좀비 웹소켓을 해제하여 메모리와 커넥션 한도를 반환합니다.
+  useEffect(() => {
+    if (room?.status === 'FINISHED' && channelRef.current) {
+      console.log('Game finished! Destroying realtime channel to prevent zombie leaks.');
+      supabase.removeChannel(channelRef.current);
+      channelRef.current = null;
+    }
+  }, [room?.status]);
 
   // Automatic Polling Fallback (Triggers when Supabase 200 Realtime limit is reached or connection fails)
   useEffect(() => {
@@ -598,7 +611,12 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
     const nextIndex = room.current_question_index + 1;
 
     try {
-      if (nextIndex >= room.total_questions) {
+      // 카테고리 문제 고갈 시, 목표 문제 수(total_questions)를 채우지 못했더라도 종료
+      if (nextIndex >= room.question_ids.length) {
+        if (nextIndex < room.total_questions) {
+          const categoryName = room.categories.includes('전체') ? '전체' : room.categories.join(', ');
+          alert(`[${categoryName}] 카테고리에 준비된 모든 문제를 다 푸셨습니다!\n\n아직 풀어야 할 문제가 남았지만, 더 이상 진행할 문제가 없어 확인 버튼을 누르시면 최종 결과 페이지로 이동합니다.`);
+        }
         setRoom((prev: any) => ({ ...prev, status: 'FINISHED' }));
         await supabase.from('rooms').update({ status: 'FINISHED' }).eq('id', room.id);
       } else {

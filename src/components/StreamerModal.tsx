@@ -359,6 +359,9 @@ export default function StreamerModal({ isOpen, onClose }: StreamerModalProps) {
                   </select>
                 </div>
               </div>
+              <p className="text-[10px] text-zinc-500 font-medium tracking-tight mt-1">
+                * 해당 정보는 단순 통계 저장용도로 사용됩니다.
+              </p>
 
               <div>
                 <label className="block text-xs font-extrabold text-neutral-300 mb-1.5">총 문제 수</label>

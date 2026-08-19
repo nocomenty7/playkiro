@@ -87,7 +87,7 @@ export async function POST(request: Request) {
           host_gender: hostGender,
           host_age_group: hostAgeGroup,
           categories,
-          total_questions: selectedQuestionIds.length,
+          total_questions: totalQuestions, // Maintain requested goal for UI (e.g. 50), even if actual db pool is smaller
           question_ids: selectedQuestionIds,
           current_question_index: 0,
           status: 'VOTING',
