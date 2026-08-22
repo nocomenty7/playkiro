@@ -26,19 +26,17 @@ export default function AdsenseBanner() {
   }, [pathname]);
 
   return (
-    <div className="w-full flex justify-center py-4 bg-transparent overflow-hidden">
+    <div className="w-full flex justify-center py-2 bg-transparent">
       {/* 
-        최소 높이를 설정하지 않으면 구글 애드센스가 공간을 잡기 전까지
-        레이아웃이 덜컥거리는(Layout Shift) 현상이 발생합니다. (기본 높이 90px 보장)
+        최대 높이를 90px로 고정하고 overflow-hidden을 걸어
+        애드센스가 모바일에서 제멋대로 280px짜리 거대 배너를 띄우지 못하도록 완벽 차단합니다.
       */}
-      <div className="min-h-[90px] w-full max-w-[1200px]">
+      <div className="h-[90px] w-full max-w-[1200px] flex items-center justify-center overflow-hidden">
         <ins
           className="adsbygoogle"
-          style={{ display: 'block', textAlign: 'center', width: '100%' }}
+          style={{ display: 'inline-block', width: '100%', height: '90px' }}
           data-ad-client="ca-pub-3522634980237009"
           data-ad-slot="8250690336"
-          data-ad-format="horizontal"
-          data-full-width-responsive="true"
         />
       </div>
     </div>
