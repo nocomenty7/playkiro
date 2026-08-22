@@ -313,15 +313,16 @@ export default function StatsBottomSheet({ questionId, onClose }: StatsBottomShe
                 ))}
               </div>
             </div>
-
-            {/* Google AdSense Banner (Stats Result Bottom Sheet) */}
-            <div className="pt-2">
-              <AdsenseBanner />
-            </div>
-
           </div>
         ) : (
           <div className="text-center py-10 text-neutral-500 font-bold flex-1">통계 데이터를 불러올 수 없습니다.</div>
+        )}
+
+        {/* Google AdSense Banner (Stats Result Bottom Sheet - Fixed at Bottom) */}
+        {(stats || !loading) && (
+          <div className="w-full pt-2 pb-4 shrink-0 bg-[#080911]">
+            <AdsenseBanner />
+          </div>
         )}
       </motion.div>
     </div>

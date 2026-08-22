@@ -818,7 +818,7 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
   }
 
   return (
-    <div className={`min-h-screen min-h-[100dvh] ${isOverlay ? 'overflow-hidden bg-transparent pb-0' : 'overflow-y-auto overscroll-y-contain touch-pan-y bg-[#080911] pb-12'} text-white flex flex-col justify-between antialiased relative`}>
+    <div className={`h-screen h-[100dvh] ${isOverlay ? 'overflow-hidden bg-transparent pb-0' : 'overflow-y-auto overscroll-y-contain touch-pan-y bg-[#080911] pb-12'} text-white flex flex-col justify-between antialiased relative`}>
       {/* Toast Notification */}
       <AnimatePresence>
         {showToast && (
