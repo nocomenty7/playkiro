@@ -643,7 +643,7 @@ export default function VoteClient({
       </main>
 
       {/* Global Trust Footer */}
-      <footer className="w-full pt-6 pb-2 shrink-0 border-t border-zinc-900/40 text-center flex flex-col items-center gap-1 mt-8">
+      <footer className="w-full pt-2 pb-2 shrink-0 text-center flex flex-col items-center gap-1 mt-0">
         <div className="flex items-center justify-center gap-3 text-[10px] text-neutral-500 font-extrabold">
           <Link href="/privacy" target="_blank" rel="noopener noreferrer" className="hover:text-neutral-350 transition-all">개인정보처리방침</Link>
           <span className="text-zinc-800">|</span>
@@ -654,7 +654,7 @@ export default function VoteClient({
         <p className="text-[9px] text-neutral-650">Copyright © 2026 AuroraNest. All rights reserved.</p>
         
         {/* Google AdSense Banner (Single Mode - Very Bottom) */}
-        <div className="w-full max-w-xl mx-auto px-4 mt-4 mb-2">
+        <div className="w-full max-w-xl mx-auto px-4 mt-1 mb-0">
           <AdsenseBanner />
         </div>
       </footer>
