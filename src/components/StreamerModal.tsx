@@ -385,7 +385,9 @@ export default function StreamerModal({ isOpen, onClose }: StreamerModalProps) {
 
               {/* Category Filter Chips */}
               <div className="border-t border-zinc-900/80 pt-3">
-                <label className="block text-xs font-extrabold text-neutral-300 mb-2">카테고리 필터</label>
+                <label className="flex items-center gap-1.5 text-xs font-extrabold text-neutral-300 mb-2">
+                  카테고리 필터 <span className="text-neutral-500 text-[10px]">(복수 선택 가능)</span>
+                </label>
 
                 <div className="mb-2.5">
                   {categoriesConfig.filter(c => c.name === '전체').map((cat) => {

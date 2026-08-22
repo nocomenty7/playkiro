@@ -10,10 +10,10 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Invalid parameters' }, { status: 400 });
     }
 
-    // 1. Verify host permission
+    // 1. Verify host permission & Prevent double execution (Race condition check)
     const { data: room, error: roomError } = await supabase
       .from('rooms')
-      .select('id, host_id, question_ids, current_question_index')
+      .select('id, host_id, question_ids, current_question_index, status')
       .eq('id', roomId)
       .single();
 
@@ -23,6 +23,10 @@ export async function POST(request: Request) {
 
     if (room.host_id !== hostSessionId) {
       return NextResponse.json({ error: 'Unauthorized host action' }, { status: 403 });
+    }
+
+    if (room.status === 'RESULT') {
+      return NextResponse.json({ error: 'Score already calculated for this question' }, { status: 400 });
     }
 
     // 2. Update room with host pick and set status to RESULT
@@ -37,19 +41,18 @@ export async function POST(request: Request) {
 
     // 3. Score calculation: Award +100 points to participants whose vote matched hostPick
     const currentQId = questionId || room.question_ids[room.current_question_index];
-    let winnerParticipantIds: string[] = clientWinners;
+    
+    // ALWAYS fetch from DB to prevent client-side desync, missed updates, or duplicate scoring (clientWinners is untrusted)
+    let winnerParticipantIds: string[] = [];
+    const { data: matchingVotes } = await supabase
+      .from('room_votes')
+      .select('participant_id')
+      .eq('room_id', roomId)
+      .eq('question_id', currentQId)
+      .eq('vote', hostPick);
 
-    if (winnerParticipantIds.length === 0) {
-      const { data: matchingVotes } = await supabase
-        .from('room_votes')
-        .select('participant_id')
-        .eq('room_id', roomId)
-        .eq('question_id', currentQId)
-        .eq('vote', hostPick);
-
-      if (matchingVotes) {
-        winnerParticipantIds = matchingVotes.map((v) => v.participant_id);
-      }
+    if (matchingVotes) {
+      winnerParticipantIds = matchingVotes.map((v) => v.participant_id);
     }
 
     if (winnerParticipantIds && winnerParticipantIds.length > 0) {
