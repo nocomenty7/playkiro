@@ -9,6 +9,7 @@ import { supabase } from '@/lib/supabase';
 import OnboardingModal from './OnboardingModal';
 import StatsBottomSheet from './StatsBottomSheet';
 import ShareSheet from './ShareSheet';
+import AdsenseBanner from './AdsenseBanner';
 import Navigation from './Navigation';
 
 interface Question {
@@ -640,6 +641,11 @@ export default function VoteClient({
         )}
 
       </main>
+
+      {/* Google AdSense Banner (Single Mode) */}
+      <div className="w-full max-w-xl mx-auto px-4 mt-6">
+        <AdsenseBanner />
+      </div>
 
       {/* Global Trust Footer */}
       <footer className="w-full pt-6 pb-2 shrink-0 border-t border-zinc-900/40 text-center flex flex-col items-center gap-1 mt-8">

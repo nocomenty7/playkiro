@@ -8,6 +8,7 @@ import { Users, Lock, Play, ArrowRight, Copy, Check, Sparkles, LogOut, Home, Bar
 import { supabase } from '@/lib/supabase';
 import StatsBottomSheet from './StatsBottomSheet';
 import ThemeToggle from './ThemeToggle';
+import AdsenseBanner from './AdsenseBanner';
 
 interface StreamerGameClientProps {
   pin: string;
@@ -1539,6 +1540,11 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
                 )}
               </button>
             )}
+          </div>
+
+          {/* Google AdSense Banner (Streamer Mode - Host & Viewer) */}
+          <div className="w-full max-w-xl mx-auto mt-6">
+            <AdsenseBanner />
           </div>
         </div>
       )}

@@ -65,6 +65,13 @@ export default function RootLayout({
           href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
         />
 
+        {/* Google AdSense */}
+        <script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3522634980237009"
+          crossOrigin="anonymous"
+        ></script>
+
         {/* Kakao JavaScript SDK */}
         <script
           src="https://t1.kakaocdn.net/kakao_js_sdk/2.8.1/kakao.min.js"

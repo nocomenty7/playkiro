@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { X, Users, PieChart, BarChart, Info } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
+import AdsenseBanner from './AdsenseBanner';
 
 interface StatsBottomSheetProps {
   questionId: string;
@@ -311,6 +312,11 @@ export default function StatsBottomSheet({ questionId, onClose }: StatsBottomShe
                   </div>
                 ))}
               </div>
+            </div>
+
+            {/* Google AdSense Banner (Stats Result Bottom Sheet) */}
+            <div className="pt-2">
+              <AdsenseBanner />
             </div>
 
           </div>
