@@ -37,7 +37,7 @@ export default function AdsenseBanner() {
           style={{ display: 'block', textAlign: 'center', width: '100%' }}
           data-ad-client="ca-pub-3522634980237009"
           data-ad-slot="8250690336"
-          data-ad-format="auto"
+          data-ad-format="horizontal"
           data-full-width-responsive="true"
         />
       </div>

@@ -642,11 +642,6 @@ export default function VoteClient({
 
       </main>
 
-      {/* Google AdSense Banner (Single Mode) */}
-      <div className="w-full max-w-xl mx-auto px-4 mt-6">
-        <AdsenseBanner />
-      </div>
-
       {/* Global Trust Footer */}
       <footer className="w-full pt-6 pb-2 shrink-0 border-t border-zinc-900/40 text-center flex flex-col items-center gap-1 mt-8">
         <div className="flex items-center justify-center gap-3 text-[10px] text-neutral-500 font-extrabold">
@@ -657,6 +652,11 @@ export default function VoteClient({
           <a href="mailto:auroranest.official@gmail.com" className="hover:text-neutral-350 transition-all">문의하기</a>
         </div>
         <p className="text-[9px] text-neutral-650">Copyright © 2026 AuroraNest. All rights reserved.</p>
+        
+        {/* Google AdSense Banner (Single Mode - Very Bottom) */}
+        <div className="w-full max-w-xl mx-auto px-4 mt-4 mb-2">
+          <AdsenseBanner />
+        </div>
       </footer>
 
 

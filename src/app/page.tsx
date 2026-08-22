@@ -8,6 +8,7 @@ import { Sparkles, Trophy, Users, ShieldAlert, BrainCircuit, BarChart3, Loader2,
 import Navigation from '../components/Navigation';
 import StreamerModal from '../components/StreamerModal';
 import NoticePopup from '../components/NoticePopup';
+import AdsenseBanner from '../components/AdsenseBanner';
 
 function LandingClient() {
   const searchParams = useSearchParams();
@@ -303,6 +304,11 @@ function LandingClient() {
           <a href="mailto:auroranest.official@gmail.com" className="hover:text-neutral-300 transition-all">문의하기</a>
         </div>
         <p className="text-[10px] text-neutral-600">Copyright © 2026 AuroraNest. All rights reserved.</p>
+        
+        {/* Google AdSense Banner (Main Page - Very Bottom) */}
+        <div className="w-full max-w-xl mx-auto px-4 mt-6 mb-2">
+          <AdsenseBanner />
+        </div>
       </footer>
 
       {/* Fullscreen Loading Overlay for instant feedback */}
