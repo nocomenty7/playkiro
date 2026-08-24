@@ -8,8 +8,8 @@ export default function NoticePopup() {
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
-    // 로컬 스토리지에서 'hideNoticeUntil' 값을 확인하여 팝업 표시 여부 결정
-    const hideUntil = localStorage.getItem('hideNoticeUntil');
+    // 로컬 스토리지에서 'hideNoticeUntil_260824' 값을 확인하여 팝업 표시 여부 결정
+    const hideUntil = localStorage.getItem('hideNoticeUntil_260824');
     if (hideUntil) {
       const hideUntilDate = new Date(hideUntil);
       if (new Date() < hideUntilDate) {
@@ -27,7 +27,7 @@ export default function NoticePopup() {
   const handleDoNotShowToday = () => {
     const tomorrow = new Date();
     tomorrow.setHours(24, 0, 0, 0); // 오늘 자정으로 설정
-    localStorage.setItem('hideNoticeUntil', tomorrow.toISOString());
+    localStorage.setItem('hideNoticeUntil_260824', tomorrow.toISOString());
     setIsOpen(false); // 체크 즉시 창 닫기
   };
 
@@ -49,7 +49,7 @@ export default function NoticePopup() {
         {/* 공지사항 이미지 (비율은 원본에 맞게 object-contain 지원) */}
         <div className="relative w-full aspect-[4/5] bg-zinc-950 flex items-center justify-center">
           <Image
-            src="/260819.png"
+            src="/260824.png"
             alt="공지사항"
             fill
             className="object-contain"
