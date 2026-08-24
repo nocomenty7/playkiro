@@ -10,6 +10,7 @@ interface StatsBottomSheetProps {
   questionId: string;
   onClose: () => void;
   isOpen?: boolean;
+  currentTotalVotes?: number;
 }
 
 interface VoteStats {
@@ -36,7 +37,7 @@ interface VoteStats {
 
 const formatVoteCount = (count: number) => count.toLocaleString();
 
-export default function StatsBottomSheet({ questionId, onClose, isOpen }: StatsBottomSheetProps) {
+export default function StatsBottomSheet({ questionId, onClose, isOpen, currentTotalVotes }: StatsBottomSheetProps) {
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState<VoteStats | null>(null);
   const [questionData, setQuestionData] = useState<any>(null);
@@ -54,6 +55,7 @@ export default function StatsBottomSheet({ questionId, onClose, isOpen }: StatsB
         }
 
         const fallbackTotal = qData ? (Number(qData.votes_a || 0) + Number(qData.votes_b || 0)) : 0;
+        const baselineTotal = Math.max(fallbackTotal, currentTotalVotes || 0);
 
         // 2. Fetch Vote Stats
         const { data: statsData, error } = await supabase
@@ -80,7 +82,7 @@ export default function StatsBottomSheet({ questionId, onClose, isOpen }: StatsB
               femaleA: 0, femaleB: 0, femaleAPercent: 50.0, femaleBPercent: 50.0
             },
             ageGroups: defaultAgeGroups,
-            totalVotes: fallbackTotal > 0 ? fallbackTotal : 1 // Prevents "0명" if user just voted
+            totalVotes: baselineTotal > 0 ? baselineTotal : 1
           });
           setLoading(false);
           return;
@@ -165,8 +167,8 @@ export default function StatsBottomSheet({ questionId, onClose, isOpen }: StatsB
           };
         });
 
-        // Fallback to the main card's total if vote_stats is somehow out of sync (e.g. newly created)
-        const finalTotalVotes = Math.max(totalVotes, fallbackTotal, 1);
+        // Always prioritize the largest real-time vote total (prevents 1-vote lag when modal is opened immediately)
+        const finalTotalVotes = Math.max(totalVotes, fallbackTotal, currentTotalVotes || 0, 1);
 
         setStats({
           gender: {

@@ -669,6 +669,7 @@ export default function VoteClient({
           <StatsBottomSheet
             questionId={question.id}
             isOpen={showStats}
+            currentTotalVotes={votesA + votesB}
             onClose={() => setShowStats(false)}
           />
         )}
