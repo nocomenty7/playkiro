@@ -460,14 +460,7 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
     };
   }, [room?.id]);
 
-  // Zombie Socket Cleanup Effect: 방이 종료되면 모든 좀비 웹소켓을 해제하여 메모리와 커넥션 한도를 반환합니다.
-  useEffect(() => {
-    if (room?.status === 'FINISHED' && channelRef.current) {
-      console.log('Game finished! Destroying realtime channel to prevent zombie leaks.');
-      supabase.removeChannel(channelRef.current);
-      channelRef.current = null;
-    }
-  }, [room?.status]);
+  // (Removed premature socket cleanup effect that caused the host to miss the final score sync)
 
   // Automatic Polling Fallback (Triggers when Supabase 200 Realtime limit is reached or connection fails)
   useEffect(() => {

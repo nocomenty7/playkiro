@@ -29,17 +29,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Score already calculated for this question' }, { status: 400 });
     }
 
-    // 2. Update room with host pick and set status to RESULT
-    await supabase
-      .from('rooms')
-      .update({
-        host_pick: hostPick,
-        status: 'RESULT',
-        updated_at: new Date().toISOString(),
-      })
-      .eq('id', roomId);
-
-    // 3. Score calculation: Award +100 points to participants whose vote matched hostPick
+    // 2. Score calculation: Award +100 points to participants whose vote matched hostPick
     // Zero-DB Architecture: Rely on Host's aggregated liveVotesMap (clientWinners) to bypass DB write bottlenecks.
     const currentQId = questionId || room.question_ids[room.current_question_index];
     let winnerParticipantIds: string[] = clientWinners || [];
@@ -66,6 +56,7 @@ export async function POST(request: Request) {
         .in('id', winnerParticipantIds);
 
       if (winnerParticipants && winnerParticipants.length > 0) {
+        // MUST AWAIT SCORE UPDATES COMPLETELY before changing room status!
         await Promise.all(
           winnerParticipants.map((p) =>
             supabase
@@ -76,6 +67,17 @@ export async function POST(request: Request) {
         );
       }
     }
+
+    // 3. Update room with host pick and set status to RESULT
+    // This MUST happen after score updates so that when clients fetch participants on RESULT, they get the updated scores!
+    await supabase
+      .from('rooms')
+      .update({
+        host_pick: hostPick,
+        status: 'RESULT',
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', roomId);
 
     // 4. Single Player DB Sync: Streamer's pick ONLY is recorded into main stats
     const genderKey = gender === '여성' || gender === 'female' ? 'female' : 'male';
