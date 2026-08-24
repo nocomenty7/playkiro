@@ -215,8 +215,8 @@ export default function StatsBottomSheet({ questionId, onClose, isOpen, currentT
                 </button>
               </div>
               <h2 className="text-xl md:text-2xl font-black text-white drop-shadow-sm">본 질문지 상세 통계</h2>
-              <p className="text-base md:text-lg text-brand-yellow font-black mt-2">
-                해당 질문 누적 참여자 수 : {formatVoteCount(stats?.totalVotes || 0)}명 투표완료
+              <p className="text-lg md:text-xl text-brand-yellow font-black mt-4 mb-1">
+                해당 질문 누적 참여자 수 : {formatVoteCount(stats?.totalVotes || 0)}명
               </p>
               
               {questionData && (
