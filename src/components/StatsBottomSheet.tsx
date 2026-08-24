@@ -208,12 +208,12 @@ export default function StatsBottomSheet({ questionId, onClose, isOpen }: StatsB
                 </button>
               </div>
               <h2 className="text-xl md:text-2xl font-black text-white drop-shadow-sm">본 질문지 상세 통계</h2>
+              <p className="text-sm md:text-base text-brand-yellow font-black mt-2">
+                해당 질문 누적 참여자 수 : {formatVoteCount(stats?.totalVotes || 0)}명 투표완료
+              </p>
               
               {questionData && (
-                <div className="mt-4 bg-zinc-900/60 border border-zinc-800 rounded-2xl p-4 text-center space-y-3 mx-2">
-                  <p className="text-sm md:text-base font-bold text-neutral-200 break-keep leading-snug">
-                    Q. {questionData.question_text}
-                  </p>
+                <div className="mt-4 bg-zinc-900/60 border border-zinc-800 rounded-2xl p-4 text-center mx-2">
                   <div className="flex flex-col gap-1.5 text-xs md:text-sm font-black">
                     <div className="text-amber-400 bg-amber-500/10 py-1.5 rounded-lg border border-amber-500/20">
                       {questionData.emoji_a} {questionData.option_a}
@@ -224,8 +224,6 @@ export default function StatsBottomSheet({ questionId, onClose, isOpen }: StatsB
                   </div>
                 </div>
               )}
-
-              <p className="text-xs md:text-sm text-amber-400 font-extrabold mt-3">해당 질문 누적 참여자 수 : {formatVoteCount(stats?.totalVotes || 0)}명 투표완료</p>
             </div>
 
             <div className="space-y-4">
