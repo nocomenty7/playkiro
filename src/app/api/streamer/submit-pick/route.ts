@@ -91,17 +91,58 @@ export async function POST(request: Request) {
 
     const statKey = `${genderKey}_${ageKey}_${hostPick.toLowerCase()}`;
 
-    // Call background RPC for streamer pick stats
-    supabase
-      .rpc('increment_vote_stat', {
-        q_id: currentQId,
-        stat_key: statKey,
-      })
-      .then(({ error }) => {
-        if (error) {
-          console.warn('Streamer vote stat sync notice:', error.message || error);
+    // Background Execution: Guaranteed UPSERT for streamer pick
+    (async () => {
+      try {
+        // A. Update questions table (votes_a or votes_b)
+        const { data: qData } = await supabase
+          .from('questions')
+          .select('votes_a, votes_b')
+          .eq('id', currentQId)
+          .maybeSingle();
+
+        if (qData) {
+          const updateObj = hostPick === 'A'
+            ? { votes_a: (Number(qData.votes_a) || 0) + 1 }
+            : { votes_b: (Number(qData.votes_b) || 0) + 1 };
+          await supabase.from('questions').update(updateObj).eq('id', currentQId);
         }
-      });
+
+        // B. Try RPC first for vote_stats
+        await supabase.rpc('increment_vote_stat', {
+          q_id: currentQId,
+          stat_key: statKey,
+        });
+
+        // C. Direct UPSERT check for vote_stats
+        const { data: existingRow } = await supabase
+          .from('vote_stats')
+          .select('id, stats')
+          .eq('question_id', currentQId)
+          .maybeSingle();
+
+        if (existingRow) {
+          const currentStats = (existingRow.stats as Record<string, number>) || {};
+          const currentCount = Number(currentStats[statKey] || 0);
+          const updatedStats = { ...currentStats, [statKey]: currentCount + 1 };
+
+          await supabase
+            .from('vote_stats')
+            .update({ stats: updatedStats, updated_at: new Date().toISOString() })
+            .eq('id', existingRow.id);
+        } else {
+          // Create brand new vote_stats row for this question
+          await supabase.from('vote_stats').insert({
+            question_id: currentQId,
+            stats: { [statKey]: 1 },
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          });
+        }
+      } catch (err) {
+        console.error('Streamer vote stat sync error:', err);
+      }
+    })();
 
     return NextResponse.json({
       success: true,

@@ -70,28 +70,57 @@ export async function POST(request: Request) {
     }
 
     // 3. Fire-and-forget background execution (0ms blocking time)
-    // First, try the RPC which updates vote_stats
-    supabase
-      .rpc('increment_vote_stat', {
-        q_id: questionId,
-        stat_key: statKey,
-      })
-      .then(async ({ error }) => {
-        if (error) {
-          console.warn('Background vote increment error:', error.message || error);
-        }
+    (async () => {
+      try {
+        // A. Update questions table (votes_a or votes_b)
+        const { data: qData } = await supabase
+          .from('questions')
+          .select('votes_a, votes_b')
+          .eq('id', questionId)
+          .maybeSingle();
 
-        // Second, explicitly fallback update the main questions table to guarantee card numbers match
-        // Fetch current to increment manually (safe fallback)
-        const { data: qData } = await supabase.from('questions').select('votes_a, votes_b').eq('id', questionId).single();
         if (qData) {
-          const updateObj = option === 'A' 
-            ? { votes_a: (qData.votes_a || 0) + 1 }
-            : { votes_b: (qData.votes_b || 0) + 1 };
-          
+          const updateObj = option === 'A'
+            ? { votes_a: (Number(qData.votes_a) || 0) + 1 }
+            : { votes_b: (Number(qData.votes_b) || 0) + 1 };
           await supabase.from('questions').update(updateObj).eq('id', questionId);
         }
-      });
+
+        // B. Try RPC first for vote_stats
+        await supabase.rpc('increment_vote_stat', {
+          q_id: questionId,
+          stat_key: statKey,
+        });
+
+        // C. Direct UPSERT check for vote_stats (guarantees row exists & stats are recorded for every question)
+        const { data: existingRow } = await supabase
+          .from('vote_stats')
+          .select('id, stats')
+          .eq('question_id', questionId)
+          .maybeSingle();
+
+        if (existingRow) {
+          const currentStats = (existingRow.stats as Record<string, number>) || {};
+          const currentCount = Number(currentStats[statKey] || 0);
+          const updatedStats = { ...currentStats, [statKey]: currentCount + 1 };
+
+          await supabase
+            .from('vote_stats')
+            .update({ stats: updatedStats, updated_at: new Date().toISOString() })
+            .eq('id', existingRow.id);
+        } else {
+          // Create brand new vote_stats row for this question
+          await supabase.from('vote_stats').insert({
+            question_id: questionId,
+            stats: { [statKey]: 1 },
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          });
+        }
+      } catch (err) {
+        console.error('Background vote processing error:', err);
+      }
+    })();
 
     return NextResponse.json({ success: true });
   } catch (error: any) {

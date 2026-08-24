@@ -52,6 +52,10 @@ export default async function PlayPage({ searchParams }: PageProps) {
       } else if (fetchedQuestion) {
         question = fetchedQuestion;
 
+        // Baseline initial votes from the questions table
+        initialVotesA = Number(fetchedQuestion.votes_a) || 0;
+        initialVotesB = Number(fetchedQuestion.votes_b) || 0;
+
         // Fetch pre-aggregated vote statistics from vote_stats
         const { data: statsData, error: statsError } = await supabase
           .from('vote_stats')
@@ -62,15 +66,20 @@ export default async function PlayPage({ searchParams }: PageProps) {
         if (statsError) {
           console.error('Error fetching vote stats:', statsError);
         } else if (statsData && statsData.stats) {
+          let statsA = 0;
+          let statsB = 0;
           const stats = statsData.stats as Record<string, number>;
           Object.keys(stats).forEach((key) => {
             const val = Number(stats[key]) || 0;
             if (key.endsWith('_a')) {
-              initialVotesA += val;
+              statsA += val;
             } else if (key.endsWith('_b')) {
-              initialVotesB += val;
+              statsB += val;
             }
           });
+
+          initialVotesA = Math.max(initialVotesA, statsA);
+          initialVotesB = Math.max(initialVotesB, statsB);
         }
       }
     }
