@@ -23,29 +23,6 @@ const VALID_STAT_KEYS = new Set([
 
 export async function POST(request: Request) {
   try {
-    // 1. IP Rate Limiting (Prevent Macro & Bot Loop Spammers)
-    const forwardedFor = request.headers.get('x-forwarded-for');
-    const ip = forwardedFor ? forwardedFor.split(',')[0].trim() : 'anonymous_client';
-
-    const now = Date.now();
-    const lastVoteTime = ipRateLimitMap.get(ip) || 0;
-
-    if (now - lastVoteTime < RATE_LIMIT_WINDOW_MS) {
-      // Reject spam requests silently without database load
-      return NextResponse.json({ success: false, reason: 'rate_limited' }, { status: 429 });
-    }
-
-    ipRateLimitMap.set(ip, now);
-
-    // Periodically clean up old IP rate limit entries (keep memory small)
-    if (ipRateLimitMap.size > 5000) {
-      for (const [key, timestamp] of ipRateLimitMap.entries()) {
-        if (now - timestamp > 60000) {
-          ipRateLimitMap.delete(key);
-        }
-      }
-    }
-
     const body = await request.json();
     const { questionId, gender = 'male', ageGroup = '20s', option } = body;
 

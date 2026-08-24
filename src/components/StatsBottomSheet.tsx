@@ -53,6 +53,8 @@ export default function StatsBottomSheet({ questionId, onClose, isOpen }: StatsB
           setQuestionData(qData);
         }
 
+        const fallbackTotal = qData ? (Number(qData.votes_a || 0) + Number(qData.votes_b || 0)) : 0;
+
         // 2. Fetch Vote Stats
         const { data: statsData, error } = await supabase
           .from('vote_stats')
@@ -78,7 +80,7 @@ export default function StatsBottomSheet({ questionId, onClose, isOpen }: StatsB
               femaleA: 0, femaleB: 0, femaleAPercent: 50.0, femaleBPercent: 50.0
             },
             ageGroups: defaultAgeGroups,
-            totalVotes: 0
+            totalVotes: fallbackTotal > 0 ? fallbackTotal : 1 // Prevents "0명" if user just voted
           });
           setLoading(false);
           return;
@@ -163,13 +165,16 @@ export default function StatsBottomSheet({ questionId, onClose, isOpen }: StatsB
           };
         });
 
+        // Fallback to the main card's total if vote_stats is somehow out of sync (e.g. newly created)
+        const finalTotalVotes = Math.max(totalVotes, fallbackTotal, 1);
+
         setStats({
           gender: {
             maleA, maleB, maleAPercent, maleBPercent,
             femaleA, femaleB, femaleAPercent, femaleBPercent
           },
           ageGroups,
-          totalVotes
+          totalVotes: finalTotalVotes
         });
       } catch (err) {
         console.error('Error fetching statistics:', err);
@@ -208,7 +213,7 @@ export default function StatsBottomSheet({ questionId, onClose, isOpen }: StatsB
                 </button>
               </div>
               <h2 className="text-xl md:text-2xl font-black text-white drop-shadow-sm">본 질문지 상세 통계</h2>
-              <p className="text-sm md:text-base text-brand-yellow font-black mt-2">
+              <p className="text-base md:text-lg text-brand-yellow font-black mt-2">
                 해당 질문 누적 참여자 수 : {formatVoteCount(stats?.totalVotes || 0)}명 투표완료
               </p>
               
