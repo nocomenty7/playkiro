@@ -40,19 +40,22 @@ export async function POST(request: Request) {
       .eq('id', roomId);
 
     // 3. Score calculation: Award +100 points to participants whose vote matched hostPick
+    // Zero-DB Architecture: Rely on Host's aggregated liveVotesMap (clientWinners) to bypass DB write bottlenecks.
     const currentQId = questionId || room.question_ids[room.current_question_index];
-    
-    // ALWAYS fetch from DB to prevent client-side desync, missed updates, or duplicate scoring (clientWinners is untrusted)
-    let winnerParticipantIds: string[] = [];
-    const { data: matchingVotes } = await supabase
-      .from('room_votes')
-      .select('participant_id')
-      .eq('room_id', roomId)
-      .eq('question_id', currentQId)
-      .eq('vote', hostPick);
+    let winnerParticipantIds: string[] = clientWinners || [];
 
-    if (matchingVotes) {
-      winnerParticipantIds = matchingVotes.map((v) => v.participant_id);
+    // Fallback just in case old versions insert into room_votes
+    if (winnerParticipantIds.length === 0) {
+      const { data: matchingVotes } = await supabase
+        .from('room_votes')
+        .select('participant_id')
+        .eq('room_id', roomId)
+        .eq('question_id', currentQId)
+        .eq('vote', hostPick);
+
+      if (matchingVotes) {
+        winnerParticipantIds = matchingVotes.map((v) => v.participant_id);
+      }
     }
 
     if (winnerParticipantIds && winnerParticipantIds.length > 0) {

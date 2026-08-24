@@ -388,6 +388,14 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
           }
         }
       )
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'room_participants', filter: `room_id=eq.${room.id}` },
+        async () => {
+          // 실시간으로 접속자 입장 감지하여 방장 화면의 접속자 수 갱신
+          await fetchParticipants(room.id);
+        }
+      )
       .on('broadcast', { event: 'VOTE_SUBMIT' }, (payload) => {
         const { participantId, vote, questionId } = payload.payload || {};
         const currentQId = activeQIdRef.current;
@@ -1031,11 +1039,13 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
               )}
             </div>
 
-            {/* Viewer Count */}
-            <div className="flex items-center gap-2 text-xs md:text-sm text-neutral-300 font-black bg-zinc-900 border border-zinc-800 px-3 py-1.5 rounded-xl">
-              <Users className="w-4.5 h-4.5 text-amber-400" />
-              <span>{viewerCount}</span>
-            </div>
+            {/* Viewer Count - Only Visible to Host */}
+            {mySessionId === room.host_id && (
+              <div className="flex items-center gap-2 text-xs md:text-sm text-neutral-300 font-black bg-zinc-900 border border-zinc-800 px-3 py-1.5 rounded-xl">
+                <Users className="w-4.5 h-4.5 text-amber-400" />
+                <span>{viewerCount}</span>
+              </div>
+            )}
           </div>
         </div>
       )}
