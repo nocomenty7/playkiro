@@ -23,6 +23,29 @@ const VALID_STAT_KEYS = new Set([
 
 export async function POST(request: Request) {
   try {
+    // 1. Smart IP Rate Limiting (Prevent Macro & Bot Loop Spammers)
+    const forwardedFor = request.headers.get('x-forwarded-for');
+    const ip = forwardedFor ? forwardedFor.split(',')[0].trim() : null;
+    const now = Date.now();
+
+    if (ip) {
+      const lastVoteTime = ipRateLimitMap.get(ip) || 0;
+      if (now - lastVoteTime < RATE_LIMIT_WINDOW_MS) {
+        // Reject spam requests silently without database load
+        return NextResponse.json({ success: false, reason: 'rate_limited' }, { status: 429 });
+      }
+      ipRateLimitMap.set(ip, now);
+
+      // Periodically clean up old IP rate limit entries
+      if (ipRateLimitMap.size > 5000) {
+        for (const [key, timestamp] of ipRateLimitMap.entries()) {
+          if (now - timestamp > 60000) {
+            ipRateLimitMap.delete(key);
+          }
+        }
+      }
+    }
+
     const body = await request.json();
     const { questionId, gender = 'male', ageGroup = '20s', option } = body;
 
@@ -46,15 +69,27 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Invalid stat key' }, { status: 400 });
     }
 
-    // 3. Fire-and-forget background execution to RPC (0ms blocking time)
+    // 3. Fire-and-forget background execution (0ms blocking time)
+    // First, try the RPC which updates vote_stats
     supabase
       .rpc('increment_vote_stat', {
         q_id: questionId,
         stat_key: statKey,
       })
-      .then(({ error }) => {
+      .then(async ({ error }) => {
         if (error) {
           console.warn('Background vote increment error:', error.message || error);
+        }
+
+        // Second, explicitly fallback update the main questions table to guarantee card numbers match
+        // Fetch current to increment manually (safe fallback)
+        const { data: qData } = await supabase.from('questions').select('votes_a, votes_b').eq('id', questionId).single();
+        if (qData) {
+          const updateObj = option === 'A' 
+            ? { votes_a: (qData.votes_a || 0) + 1 }
+            : { votes_b: (qData.votes_b || 0) + 1 };
+          
+          await supabase.from('questions').update(updateObj).eq('id', questionId);
         }
       });
 
