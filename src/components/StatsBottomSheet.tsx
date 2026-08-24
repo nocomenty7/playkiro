@@ -9,6 +9,7 @@ import AdsenseBanner from './AdsenseBanner';
 interface StatsBottomSheetProps {
   questionId: string;
   onClose: () => void;
+  isOpen?: boolean;
 }
 
 interface VoteStats {
@@ -33,13 +34,26 @@ interface VoteStats {
   totalVotes: number;
 }
 
-export default function StatsBottomSheet({ questionId, onClose }: StatsBottomSheetProps) {
+const formatVoteCount = (count: number) => count.toLocaleString();
+
+export default function StatsBottomSheet({ questionId, onClose, isOpen }: StatsBottomSheetProps) {
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState<VoteStats | null>(null);
+  const [questionData, setQuestionData] = useState<any>(null);
 
   useEffect(() => {
+    if (!isOpen || !questionId) return;
+
     async function fetchStats() {
+      setLoading(true);
       try {
+        // 1. Fetch Question Data for UI context
+        const { data: qData } = await supabase.from('questions').select('*').eq('id', questionId).single();
+        if (qData) {
+          setQuestionData(qData);
+        }
+
+        // 2. Fetch Vote Stats
         const { data: statsData, error } = await supabase
           .from('vote_stats')
           .select('stats')
@@ -124,7 +138,6 @@ export default function StatsBottomSheet({ questionId, onClose }: StatsBottomShe
           });
         }
 
-        // Compute percentages inside Male / Female demographics
         const maleTotal = maleA + maleB;
         const maleAPercent = maleTotal > 0 ? Number(((maleA / maleTotal) * 100).toFixed(1)) : 50.0;
         const maleBPercent = maleTotal > 0 ? Number((100 - maleAPercent).toFixed(1)) : 50.0;
@@ -133,7 +146,6 @@ export default function StatsBottomSheet({ questionId, onClose }: StatsBottomShe
         const femaleAPercent = femaleTotal > 0 ? Number(((femaleA / femaleTotal) * 100).toFixed(1)) : 50.0;
         const femaleBPercent = femaleTotal > 0 ? Number((100 - femaleAPercent).toFixed(1)) : 50.0;
 
-        // Compute percentages per age group
         const ageGroups = Object.keys(ageMap).map((key) => {
           const a = ageMap[key].A;
           const b = ageMap[key].B;
@@ -167,11 +179,10 @@ export default function StatsBottomSheet({ questionId, onClose }: StatsBottomShe
     }
 
     fetchStats();
-  }, [questionId]);
+  }, [questionId, isOpen]);
 
   return (
     <div className="fixed inset-0 z-[120] flex items-end justify-center bg-black/70 backdrop-blur-sm">
-      {/* Backdrop Click to Close */}
       <div className="absolute inset-0" onClick={onClose} />
 
       <motion.div
@@ -181,26 +192,8 @@ export default function StatsBottomSheet({ questionId, onClose }: StatsBottomShe
         transition={{ type: 'spring', damping: 25, stiffness: 220 }}
         className="relative z-10 w-full max-w-md rounded-t-3xl bg-[#0d0e1d] border-t border-zinc-800 p-6 text-white shadow-2xl backdrop-blur-xl flex flex-col max-h-[85vh] h-[85vh] overflow-hidden"
       >
-        {/* Fixed Header Indicator */}
         <div className="mx-auto mb-3 h-1.5 w-12 rounded-full bg-zinc-700 cursor-pointer shrink-0" onClick={onClose} />
 
-        {/* Fixed Title Header */}
-        <div className="mb-4 shrink-0 border-b border-zinc-850 pb-3">
-          <div className="flex items-center justify-between">
-            <h3 className="text-xl md:text-2xl font-black tracking-tight flex items-center gap-2 text-white">
-              <Users className="h-6 w-6 text-amber-400" />
-              <span>상세통계 보기</span>
-            </h3>
-            <button
-              onClick={onClose}
-              className="rounded-full bg-zinc-800 p-2 text-neutral-400 hover:bg-zinc-700 hover:text-white transition cursor-pointer"
-            >
-              <X className="h-5 w-5" />
-            </button>
-          </div>
-        </div>
-
-        {/* Scrollable Content Container with Touch-Pan-Y & Overscroll Contain */}
         {loading ? (
           <div className="flex flex-col items-center justify-center py-20 gap-3 flex-1">
             <span className="h-9 w-9 animate-spin rounded-full border-4 border-t-transparent border-amber-400" />
@@ -208,14 +201,33 @@ export default function StatsBottomSheet({ questionId, onClose }: StatsBottomShe
           </div>
         ) : stats ? (
           <div className="flex-1 overflow-y-auto overscroll-contain touch-pan-y space-y-6 pr-1 pb-6 min-h-0 text-white">
-            {/* Stats Overview */}
-            <div className="text-center bg-zinc-900/90 border border-zinc-800 rounded-2xl py-4 px-6 shadow-inner">
-              <span className="text-xs text-neutral-400 block mb-0.5 font-bold uppercase tracking-wider">해당 질문 누적 참여자 수</span>
-              <span className="text-3xl font-black text-amber-400">{stats.totalVotes.toLocaleString()}</span>
-              <span className="text-sm text-neutral-300 font-extrabold"> 명 투표 완료</span>
+            <div className="text-center pt-2 pb-5 space-y-1 relative">
+              <div className="absolute left-0 top-1">
+                <button onClick={onClose} className="p-2 bg-zinc-900 rounded-full text-neutral-400 hover:text-white transition-colors">
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              <h2 className="text-xl md:text-2xl font-black text-white drop-shadow-sm">본 질문지 상세 통계</h2>
+              
+              {questionData && (
+                <div className="mt-4 bg-zinc-900/60 border border-zinc-800 rounded-2xl p-4 text-center space-y-3 mx-2">
+                  <p className="text-sm md:text-base font-bold text-neutral-200 break-keep leading-snug">
+                    Q. {questionData.question_text}
+                  </p>
+                  <div className="flex flex-col gap-1.5 text-xs md:text-sm font-black">
+                    <div className="text-amber-400 bg-amber-500/10 py-1.5 rounded-lg border border-amber-500/20">
+                      {questionData.emoji_a} {questionData.option_a}
+                    </div>
+                    <div className="text-emerald-400 bg-emerald-500/10 py-1.5 rounded-lg border border-emerald-500/20">
+                      {questionData.emoji_b} {questionData.option_b}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <p className="text-xs md:text-sm text-amber-400 font-extrabold mt-3">해당 질문 누적 참여자 수 : {formatVoteCount(stats?.totalVotes || 0)}명 투표완료</p>
             </div>
 
-            {/* Gender Breakdown (Option A vs Option B ratio per gender) */}
             <div className="space-y-4">
               <h4 className="text-base font-extrabold text-neutral-200 flex items-center gap-2">
                 <PieChart className="h-5 w-5 text-amber-400" /> 성별 선택 비율 (전체 유저)
