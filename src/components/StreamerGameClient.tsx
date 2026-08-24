@@ -838,6 +838,7 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
       {showStatsModal && currentQuestion?.id && (
         <StatsBottomSheet
           questionId={currentQuestion.id}
+          isOpen={showStatsModal}
           onClose={() => setShowStatsModal(false)}
         />
       )}
