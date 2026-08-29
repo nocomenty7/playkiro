@@ -339,7 +339,7 @@ export default function ChatStreamerGameClient() {
         ws.onopen = () => {
           const handshake = {
             ver: '2',
-            cmd: 10100,
+            cmd: 100,
             svcid: 'game',
             cid: chzzkChatChannelId,
             bdy: {
