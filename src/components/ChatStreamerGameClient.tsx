@@ -402,9 +402,18 @@ export default function ChatStreamerGameClient() {
           parseChatVote('soop', userId, nickname, chatText);
         });
 
-        soopChat.connect().catch((e: any) => console.error('SOOP connection error:', e));
-      } catch (e) {
+        soopChat.on('error', (e: any) => {
+          console.error('SOOP WS Error:', e);
+          triggerToast(`SOOP 연결 에러: ${e?.message || e}`);
+        });
+
+        soopChat.connect().catch((e: any) => {
+          console.error('SOOP connection error:', e);
+          triggerToast(`SOOP 연결 실패: ${e?.message || e}`);
+        });
+      } catch (e: any) {
         console.error('SOOP init error:', e);
+        triggerToast(`SOOP 초기화 에러: ${e?.message || e}`);
       }
     }
 
