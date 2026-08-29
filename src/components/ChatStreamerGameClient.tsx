@@ -34,8 +34,6 @@ interface ChatRoomConfig {
   pin?: string;
   roomId?: string;
   nickname: string;
-  hostGender?: string;
-  hostAgeGroup?: string;
   platforms: ('chzzk' | 'soop')[];
   chzzk?: any;
   soop?: any;
@@ -99,10 +97,15 @@ export default function ChatStreamerGameClient() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const channelRef = useRef<any>(null);
   const liveVotesRef = useRef(liveVotes);
+  const scoresRef = useRef(scores);
 
   useEffect(() => {
     liveVotesRef.current = liveVotes;
   }, [liveVotes]);
+
+  useEffect(() => {
+    scoresRef.current = scores;
+  }, [scores]);
 
   // Transparent background for OBS Overlay Mode
   useEffect(() => {
@@ -165,8 +168,6 @@ export default function ChatStreamerGameClient() {
           pin: roomData.pin,
           roomId: roomData.id,
           nickname: roomData.host_nickname || searchParams.get('nickname') || rawConfig?.nickname || '스트리머',
-          hostGender: roomData.host_gender || 'male',
-          hostAgeGroup: roomData.host_age_group || '20s',
           platforms,
           chzzkChannelId: chId || '',
           soopBjId: soopId || '',
@@ -228,7 +229,7 @@ export default function ChatStreamerGameClient() {
     initRoomData();
   }, [urlPin, isOverlay, router]);
 
-  // 2. Realtime Room Subscription + Live Votes Broadcast for OBS
+  // 2. Realtime Room Subscription + Live Votes & Score Leaderboard Broadcast for OBS (Request 3 Fix)
   useEffect(() => {
     if (!room?.id) return;
 
@@ -273,14 +274,25 @@ export default function ChatStreamerGameClient() {
           setLiveVotes(payload.payload.liveVotes);
         }
       })
+      .on('broadcast', { event: 'SCORE_UPDATE' }, (payload: any) => {
+        if (payload.payload?.scores) {
+          setScores(payload.payload.scores);
+        }
+      })
       .subscribe((statusStr: string) => {
         if (statusStr === 'SUBSCRIBED' && !isOverlay) {
-          // Send initial sync broadcast if host has existing votes
           if (Object.keys(liveVotesRef.current).length > 0) {
             channel.send({
               type: 'broadcast',
               event: 'VOTE_UPDATE',
               payload: { liveVotes: liveVotesRef.current },
+            });
+          }
+          if (Object.keys(scoresRef.current).length > 0) {
+            channel.send({
+              type: 'broadcast',
+              event: 'SCORE_UPDATE',
+              payload: { scores: scoresRef.current },
             });
           }
         }
@@ -373,7 +385,7 @@ export default function ChatStreamerGameClient() {
     };
   }, [config, status]);
 
-  // Vote Parser Handler (Revoting & 1-vote deduplication support + Broadcast to OBS)
+  // Vote Parser Handler (Revoting & 1-vote deduplication support + Broadcast to OBS + Record multi vote stat)
   const parseChatVote = (platform: 'chzzk' | 'soop', userId: string, nickname: string, text: string) => {
     if (status !== 'VOTING') return;
 
@@ -406,6 +418,19 @@ export default function ChatStreamerGameClient() {
 
         return nextVotes;
       });
+
+      // Record viewer vote in vote_stats multi category (Request 6)
+      if (currentQuestion?.id) {
+        fetch('/api/play/vote', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            questionId: currentQuestion.id,
+            option: choice,
+            isMulti: true,
+          }),
+        }).catch(() => {});
+      }
     }
   };
 
@@ -440,19 +465,17 @@ export default function ChatStreamerGameClient() {
         .eq('id', room.id);
     }
 
-    // Record vote stats in background
-    if (currentQuestion) {
+    // Record streamer pick vote in vote_stats multi category (Request 6)
+    if (currentQuestion?.id) {
       try {
-        const genderKey = config?.hostGender === 'female' ? 'female' : 'male';
-        const ageKey = config?.hostAgeGroup || '20s';
-        fetch('/api/play/vote', {
+        fetch('/api/streamer/submit-pick', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
+            roomId: room?.id,
+            hostSessionId: localStorage.getItem('kiro_streamer_session_id'),
+            hostPick: choice,
             questionId: currentQuestion.id,
-            option: choice,
-            genderKey,
-            ageKey,
           }),
         }).catch(() => {});
       } catch (e) {}
@@ -469,6 +492,15 @@ export default function ChatStreamerGameClient() {
       }
     });
     setScores(newScores);
+
+    // Broadcast updated scores to OBS overlay (Request 3 Fix)
+    if (channelRef.current) {
+      channelRef.current.send({
+        type: 'broadcast',
+        event: 'SCORE_UPDATE',
+        payload: { scores: newScores },
+      });
+    }
   };
 
   // Lock Votes Action
@@ -480,13 +512,22 @@ export default function ChatStreamerGameClient() {
     }
   };
 
-  // Next Question Action
+  // Next Question Action (Request 1 Fix for last question button text)
   const handleNextQuestion = async () => {
     if (!room) return;
     const nextIdx = currentIndex + 1;
     if (nextIdx >= questions.length) {
       setStatus('FINISHED');
       await supabase.from('rooms').update({ status: 'FINISHED' }).eq('id', room.id);
+
+      // Broadcast final scores to OBS
+      if (channelRef.current) {
+        channelRef.current.send({
+          type: 'broadcast',
+          event: 'SCORE_UPDATE',
+          payload: { scores: scoresRef.current },
+        });
+      }
     } else {
       setCurrentIndex(nextIdx);
       setLiveVotes({});
@@ -543,10 +584,19 @@ export default function ChatStreamerGameClient() {
       if (room?.id) {
         await supabase.from('rooms').update({ status: 'FINISHED' }).eq('id', room.id);
       }
+
+      // Broadcast final scores to OBS
+      if (channelRef.current) {
+        channelRef.current.send({
+          type: 'broadcast',
+          event: 'SCORE_UPDATE',
+          payload: { scores: scoresRef.current },
+        });
+      }
     }
   };
 
-  // Copy OBS Overlay URL (Including Channel IDs & PIN)
+  // Copy OBS Overlay URL
   const handleCopyOverlayUrl = () => {
     if (typeof window === 'undefined' || !config) return;
 
@@ -748,7 +798,7 @@ export default function ChatStreamerGameClient() {
             <div className="text-center space-y-2">
               <h1 className="text-3xl md:text-4xl lg:text-5xl font-black tracking-tight text-white">🏆 최종 결과</h1>
               <p className="text-sm md:text-base text-neutral-300 font-bold">
-                스트리머 픽을 가장 잘 맞힌 시청자 순위입니다!
+                스트리머와 가장 잘 통하는 시청자 순위입니다!
               </p>
             </div>
 
@@ -991,7 +1041,7 @@ export default function ChatStreamerGameClient() {
                   className="w-full flex items-center justify-center gap-2 rounded-2xl border border-zinc-800 bg-zinc-900/80 hover:bg-zinc-850 px-5 py-3 text-sm font-black text-neutral-200 hover:text-white transition-all shadow-md cursor-pointer"
                 >
                   <BarChart3 className="h-4 w-4 text-amber-400" />
-                  <span>본 질문지의 싱글 모드 상세통계</span>
+                  <span>본 질문지의 누적 상세통계</span>
                 </button>
               </motion.div>
             )}
@@ -1065,18 +1115,18 @@ export default function ChatStreamerGameClient() {
               </div>
             )}
 
-            {/* Phase 3: Next Question */}
+            {/* Phase 3: Next Question / View Final Result (Request 1 Fix) */}
             {status === 'RESULT' && (
               <button
                 onClick={handleNextQuestion}
                 className="w-full py-4 rounded-2xl bg-gradient-to-r from-brand-yellow via-amber-400 to-yellow-500 text-zinc-950 font-black text-base md:text-lg shadow-2xl hover:brightness-110 transition-all flex items-center justify-center gap-2 cursor-pointer border border-yellow-300"
               >
-                <span>다음 라운드로 이동</span>
+                <span>{currentIndex + 1 >= questions.length ? '🏆 최종 결과 보기' : '다음 라운드로 이동'}</span>
                 <ChevronRight className="w-5 h-5" />
               </button>
             )}
 
-            {/* Test Simulator Toolbar (For Offline / Demo testing) */}
+            {/* Test Simulator Toolbar */}
             <div className="border-t border-zinc-900 pt-3 flex items-center justify-between text-xs">
               <span className="text-neutral-400 font-bold">오프라인 테스트용:</span>
               <div className="flex items-center gap-1.5">

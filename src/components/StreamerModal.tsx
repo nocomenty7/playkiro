@@ -368,38 +368,7 @@ export default function StreamerModal({ isOpen, onClose }: StreamerModalProps) {
                 />
               </div>
 
-              {/* Gender & Age */}
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-extrabold text-neutral-300 mb-1.5">성별</label>
-                  <select
-                    value={hostGender}
-                    onChange={(e) => setHostGender(e.target.value)}
-                    className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-3 py-2 text-xs font-bold text-white focus:outline-none"
-                  >
-                    <option value="male">남성</option>
-                    <option value="female">여성</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-xs font-extrabold text-neutral-300 mb-1.5">연령대</label>
-                  <select
-                    value={hostAgeGroup}
-                    onChange={(e) => setHostAgeGroup(e.target.value)}
-                    className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-3 py-2 text-xs font-bold text-white focus:outline-none"
-                  >
-                    <option value="10s">10대</option>
-                    <option value="20s">20대</option>
-                    <option value="30s">30대</option>
-                    <option value="40s">40대</option>
-                    <option value="50s">50대</option>
-                    <option value="60s">60대 이상</option>
-                  </select>
-                </div>
-              </div>
-              <p className="text-[10px] text-zinc-500 font-medium tracking-tight mt-1">
-                * 해당 정보는 단순 통계 저장용도로 사용됩니다.
-              </p>
+
 
               <div>
                 <label className="block text-xs font-extrabold text-neutral-300 mb-1.5">총 문제 수</label>

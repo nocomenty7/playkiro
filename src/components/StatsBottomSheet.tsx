@@ -4,7 +4,6 @@ import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { X, Users, PieChart, BarChart, Info } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
-import AdsenseBanner from './AdsenseBanner';
 
 interface StatsBottomSheetProps {
   questionId: string;
@@ -32,6 +31,11 @@ interface VoteStats {
     percentB: number;
     total: number;
   }[];
+  multiA: number;
+  multiB: number;
+  multiTotal: number;
+  multiAPercent: number;
+  multiBPercent: number;
   totalVotes: number;
 }
 
@@ -66,22 +70,27 @@ export default function StatsBottomSheet({ questionId, onClose, isOpen, currentT
 
         if (error) throw error;
 
-        if (!statsData || !statsData.stats) {
-          const defaultAgeGroups = ['10대', '20대', '30대', '40대', '50대', '60대 이상'].map((name) => ({
-            name,
-            countA: 0,
-            countB: 0,
-            percentA: 50.0,
-            percentB: 50.0,
-            total: 0
-          }));
+        const defaultAgeGroups = ['10대', '20대', '30대', '40대', '50대', '60대 이상'].map((name) => ({
+          name,
+          countA: 0,
+          countB: 0,
+          percentA: 50.0,
+          percentB: 50.0,
+          total: 0
+        }));
 
+        if (!statsData || !statsData.stats) {
           setStats({
             gender: {
               maleA: 0, maleB: 0, maleAPercent: 50.0, maleBPercent: 50.0,
               femaleA: 0, femaleB: 0, femaleAPercent: 50.0, femaleBPercent: 50.0
             },
             ageGroups: defaultAgeGroups,
+            multiA: 0,
+            multiB: 0,
+            multiTotal: 0,
+            multiAPercent: 50.0,
+            multiBPercent: 50.0,
             totalVotes: baselineTotal > 0 ? baselineTotal : 1
           });
           setLoading(false);
@@ -93,6 +102,8 @@ export default function StatsBottomSheet({ questionId, onClose, isOpen, currentT
         let maleB = 0;
         let femaleA = 0;
         let femaleB = 0;
+        let multiA = 0;
+        let multiB = 0;
 
         const ageMap: Record<string, { A: number; B: number }> = {
           '10대': { A: 0, B: 0 },
@@ -108,7 +119,20 @@ export default function StatsBottomSheet({ questionId, onClose, isOpen, currentT
           
           Object.keys(statsObj).forEach((key) => {
             const count = Number(statsObj[key]) || 0;
-            totalVotes += count;
+            if (key === 'multi_a' || key === 'multiA') {
+              multiA += count;
+              totalVotes += count;
+              return;
+            }
+            if (key === 'multi_b' || key === 'multiB') {
+              multiB += count;
+              totalVotes += count;
+              return;
+            }
+
+            if (key !== 'multi') {
+              totalVotes += count;
+            }
 
             const parts = key.split('_');
             if (parts.length === 3) {
@@ -167,7 +191,10 @@ export default function StatsBottomSheet({ questionId, onClose, isOpen, currentT
           };
         });
 
-        // Always prioritize the largest real-time vote total (prevents 1-vote lag when modal is opened immediately)
+        const multiTotal = multiA + multiB;
+        const multiAPercent = multiTotal > 0 ? Number(((multiA / multiTotal) * 100).toFixed(1)) : 50.0;
+        const multiBPercent = multiTotal > 0 ? Number((100 - multiAPercent).toFixed(1)) : 50.0;
+
         const finalTotalVotes = Math.max(totalVotes, fallbackTotal, currentTotalVotes || 0, 1);
 
         setStats({
@@ -176,6 +203,11 @@ export default function StatsBottomSheet({ questionId, onClose, isOpen, currentT
             femaleA, femaleB, femaleAPercent, femaleBPercent
           },
           ageGroups,
+          multiA,
+          multiB,
+          multiTotal,
+          multiAPercent,
+          multiBPercent,
           totalVotes: finalTotalVotes
         });
       } catch (err) {
@@ -186,7 +218,7 @@ export default function StatsBottomSheet({ questionId, onClose, isOpen, currentT
     }
 
     fetchStats();
-  }, [questionId, isOpen]);
+  }, [questionId, isOpen, currentTotalVotes]);
 
   return (
     <div className="fixed inset-0 z-[120] flex items-end justify-center bg-black/70 backdrop-blur-sm">
@@ -214,7 +246,7 @@ export default function StatsBottomSheet({ questionId, onClose, isOpen, currentT
                   <X className="w-5 h-5" />
                 </button>
               </div>
-              <h2 className="text-xl md:text-2xl font-black text-white drop-shadow-sm">본 질문지 상세 통계</h2>
+              <h2 className="text-xl md:text-2xl font-black text-white drop-shadow-sm">본 질문지 누적 상세통계</h2>
               <p className="text-lg md:text-xl text-brand-yellow font-black mt-4 mb-1">
                 해당 질문 누적 참여자 수 : {formatVoteCount(stats?.totalVotes || 0)}명
               </p>
@@ -233,9 +265,10 @@ export default function StatsBottomSheet({ questionId, onClose, isOpen, currentT
               )}
             </div>
 
+            {/* Section 1: Gender (Single Mode Users) */}
             <div className="space-y-4">
               <h4 className="text-base font-extrabold text-neutral-200 flex items-center gap-2">
-                <PieChart className="h-5 w-5 text-amber-400" /> 성별 선택 비율 (전체 유저)
+                <PieChart className="h-5 w-5 text-amber-400" /> 성별 선택 비율 (싱글모드 유저)
               </h4>
               
               <div className="space-y-4 bg-zinc-900/60 border border-zinc-800 p-4 rounded-2xl">
@@ -295,10 +328,10 @@ export default function StatsBottomSheet({ questionId, onClose, isOpen, currentT
               </div>
             </div>
 
-            {/* Age Group Breakdown (Option A vs Option B ratio per age group) */}
+            {/* Section 2: Age Groups (Single Mode Users) */}
             <div className="space-y-4">
               <h4 className="text-base font-extrabold text-neutral-200 flex items-center gap-2">
-                <BarChart className="h-5 w-5 text-amber-400" /> 연령별 선택 비율 (전체 유저)
+                <BarChart className="h-5 w-5 text-amber-400" /> 연령별 선택 비율 (싱글모드 유저)
               </h4>
               <div className="space-y-3 bg-zinc-900/60 border border-zinc-800 p-4 rounded-2xl">
                 {stats.ageGroups.map((group) => (
@@ -330,11 +363,47 @@ export default function StatsBottomSheet({ questionId, onClose, isOpen, currentT
                 ))}
               </div>
             </div>
+
+            {/* Section 3: Multi-Mode User Choice Breakdown */}
+            <div className="space-y-4 pt-1">
+              <h4 className="text-base font-extrabold text-neutral-200 flex items-center gap-2">
+                <Users className="h-5 w-5 text-purple-400" /> 멀티모드 유저 선택 비율
+              </h4>
+              <div className="space-y-3 bg-zinc-900/60 border border-zinc-800 p-4 rounded-2xl">
+                <div className="flex flex-col gap-1.5 text-sm">
+                  <div className="flex justify-between items-center px-0.5">
+                    <span className="text-neutral-200 font-extrabold text-xs">
+                      🎮 같이 플레이하기 (멀티모드) 전체 집계 ({formatVoteCount(stats.multiTotal)}표)
+                    </span>
+                    {stats.multiTotal > 0 ? (
+                      <div className="text-[11px] font-black space-x-1.5">
+                        <span className="text-amber-400">{stats.multiAPercent}%</span>
+                        <span className="text-zinc-700">/</span>
+                        <span className="text-emerald-400">{stats.multiBPercent}%</span>
+                      </div>
+                    ) : (
+                      <span className="text-neutral-600 text-[10px] font-medium">멀티모드 참여 없음</span>
+                    )}
+                  </div>
+
+                  <div className="relative flex h-3.5 w-full overflow-hidden rounded-full bg-zinc-800 shadow-inner">
+                    {stats.multiTotal > 0 ? (
+                      <>
+                        <div style={{ width: `${stats.multiAPercent}%` }} className="h-full bg-amber-500/80" />
+                        <div style={{ width: `${stats.multiBPercent}%` }} className="h-full bg-emerald-500/80" />
+                      </>
+                    ) : (
+                      <div className="h-full w-full bg-zinc-850" />
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+
           </div>
         ) : (
           <div className="text-center py-10 text-neutral-500 font-bold flex-1">통계 데이터를 불러올 수 없습니다.</div>
         )}
-        {/* AdsenseBanner has been removed per user request */}
       </motion.div>
     </div>
   );

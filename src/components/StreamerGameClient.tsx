@@ -1051,7 +1051,7 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
             <div className="text-center space-y-2">
               <h1 className="text-3xl md:text-4xl lg:text-5xl font-black tracking-tight text-white">🏆 최종 결과</h1>
               <p className="text-sm md:text-base text-neutral-300 font-bold">
-                스트리머 픽을 가장 잘 맞힌 시청자 순위입니다!
+                스트리머와 가장 잘 통하는 시청자 순위입니다!
               </p>
             </div>
 
@@ -1363,7 +1363,7 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
                   className="w-full flex items-center justify-center gap-2 rounded-2xl border border-zinc-800 bg-zinc-900/80 hover:bg-zinc-850 px-5 py-3 text-sm font-black text-neutral-200 hover:text-white transition-all shadow-md cursor-pointer"
                 >
                   <BarChart3 className="h-4 w-4 text-amber-400" />
-                  <span>본 질문지의 싱글 모드 상세통계</span>
+                  <span>본 질문지의 누적 상세통계</span>
                 </button>
               </motion.div>
             )}

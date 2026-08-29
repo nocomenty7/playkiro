@@ -4,13 +4,13 @@ import { supabase } from '@/lib/supabase';
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { roomId, hostSessionId, hostPick, questionId, gender = 'male', ageGroup = '20s', winnerParticipantIds: clientWinners = [] } = body;
+    const { roomId, hostSessionId, hostPick, questionId, winnerParticipantIds: clientWinners = [] } = body;
 
     if (!roomId || !hostPick || !['A', 'B'].includes(hostPick)) {
       return NextResponse.json({ error: 'Invalid parameters' }, { status: 400 });
     }
 
-    // 1. Verify host permission & Prevent double execution (Race condition check)
+    // 1. Verify host permission & Prevent double execution
     const { data: room, error: roomError } = await supabase
       .from('rooms')
       .select('id, host_id, question_ids, current_question_index, status')
@@ -30,11 +30,9 @@ export async function POST(request: Request) {
     }
 
     // 2. Score calculation: Award +100 points to participants whose vote matched hostPick
-    // Zero-DB Architecture: Rely on Host's aggregated liveVotesMap (clientWinners) to bypass DB write bottlenecks.
     const currentQId = questionId || room.question_ids[room.current_question_index];
     let winnerParticipantIds: string[] = clientWinners || [];
 
-    // Fallback just in case old versions insert into room_votes
     if (winnerParticipantIds.length === 0) {
       const { data: matchingVotes } = await supabase
         .from('room_votes')
@@ -49,14 +47,12 @@ export async function POST(request: Request) {
     }
 
     if (winnerParticipantIds && winnerParticipantIds.length > 0) {
-      // Parallelized batch score update (60x faster performance under heavy viewer load)
       const { data: winnerParticipants } = await supabase
         .from('room_participants')
         .select('id, score')
         .in('id', winnerParticipantIds);
 
       if (winnerParticipants && winnerParticipants.length > 0) {
-        // MUST AWAIT SCORE UPDATES COMPLETELY before changing room status!
         await Promise.all(
           winnerParticipants.map((p) =>
             supabase
@@ -69,7 +65,6 @@ export async function POST(request: Request) {
     }
 
     // 3. Update room with host pick and set status to RESULT
-    // This MUST happen after score updates so that when clients fetch participants on RESULT, they get the updated scores!
     await supabase
       .from('rooms')
       .update({
@@ -79,28 +74,16 @@ export async function POST(request: Request) {
       })
       .eq('id', roomId);
 
-    // 4. Single Player DB Sync: Streamer's pick ONLY is recorded into main stats
-    const genderKey = gender === '여성' || gender === 'female' ? 'female' : 'male';
-    let ageKey = '20s';
-    if (ageGroup.includes('10')) ageKey = '10s';
-    else if (ageGroup.includes('20')) ageKey = '20s';
-    else if (ageGroup.includes('30')) ageKey = '30s';
-    else if (ageGroup.includes('40')) ageKey = '40s';
-    else if (ageGroup.includes('50')) ageKey = '50s';
-    else if (ageGroup.includes('60') || ageGroup.includes('70')) ageKey = '60s';
+    // 4. Multi-Player DB Sync: Streamer's pick is recorded into `multi_a` / `multi_b` stats
+    const statKey = hostPick === 'A' ? 'multi_a' : 'multi_b';
 
-    const statKey = `${genderKey}_${ageKey}_${hostPick.toLowerCase()}`;
-
-    // Background Execution: Guaranteed UPSERT for streamer pick
     (async () => {
       try {
-        // A. Try RPC first for vote_stats
         await supabase.rpc('increment_vote_stat', {
           q_id: currentQId,
           stat_key: statKey,
         });
 
-        // B. Direct UPSERT check for vote_stats
         const { data: existingRow } = await supabase
           .from('vote_stats')
           .select('stats')
@@ -110,32 +93,30 @@ export async function POST(request: Request) {
         if (existingRow) {
           const currentStats = (existingRow.stats as Record<string, number>) || {};
           const currentCount = Number(currentStats[statKey] || 0);
-          const updatedStats = { ...currentStats, [statKey]: currentCount + 1 };
+          const nextMultiA = statKey === 'multi_a' ? Number(currentStats['multi_a'] || 0) + 1 : Number(currentStats['multi_a'] || 0);
+          const nextMultiB = statKey === 'multi_b' ? Number(currentStats['multi_b'] || 0) + 1 : Number(currentStats['multi_b'] || 0);
+
+          const updatedStats = {
+            ...currentStats,
+            [statKey]: currentCount + 1,
+            multi_a: nextMultiA,
+            multi_b: nextMultiB,
+            multi: nextMultiA + nextMultiB,
+          };
 
           await supabase
             .from('vote_stats')
             .update({ stats: updatedStats, updated_at: new Date().toISOString() })
             .eq('question_id', currentQId);
-        } else {
-          // Create brand new vote_stats row for this question
-          await supabase.from('vote_stats').insert({
-            question_id: currentQId,
-            stats: { [statKey]: 1 },
-            updated_at: new Date().toISOString(),
-          });
         }
       } catch (err) {
-        console.error('Streamer vote stat sync error:', err);
+        console.error('Background streamer pick stat processing error:', err);
       }
     })();
 
-    return NextResponse.json({
-      success: true,
-      hostPick,
-      winnersCount: winnerParticipantIds ? winnerParticipantIds.length : 0,
-    });
+    return NextResponse.json({ success: true });
   } catch (error: any) {
-    console.error('Submit host pick API exception:', error);
+    console.error('Submit pick API exception:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }

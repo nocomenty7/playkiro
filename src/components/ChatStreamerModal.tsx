@@ -15,8 +15,6 @@ export default function ChatStreamerModal({ isOpen, onClose }: ChatStreamerModal
   const router = useRouter();
 
   const [streamerNickname, setStreamerNickname] = useState('');
-  const [hostGender, setHostGender] = useState('male');
-  const [hostAgeGroup, setHostAgeGroup] = useState('20s');
 
   // Multi-platform selection
   const [selectedPlatforms, setSelectedPlatforms] = useState<('chzzk' | 'soop')[]>(['chzzk']);
@@ -94,7 +92,13 @@ export default function ChatStreamerModal({ isOpen, onClose }: ChatStreamerModal
     if (e) e.preventDefault();
     setErrorMsg('');
 
-    const nickname = streamerNickname.trim() || (isDemoMode ? '테스트스트리머' : '스트리머');
+    const nickname = streamerNickname.trim();
+
+    // Mandatory Nickname Validation (Request 4)
+    if (!nickname) {
+      setErrorMsg('스트리머 닉네임을 입력해 주세요.');
+      return;
+    }
 
     if (!isDemoMode) {
       if (selectedPlatforms.includes('chzzk') && !chzzkChannelId.trim()) {
@@ -148,21 +152,18 @@ export default function ChatStreamerModal({ isOpen, onClose }: ChatStreamerModal
         }
       }
 
-      // Session ID
       let hostSessionId = localStorage.getItem('kiro_streamer_session_id');
       if (!hostSessionId) {
         hostSessionId = 'session_' + Math.random().toString(36).substring(2, 9);
         localStorage.setItem('kiro_streamer_session_id', hostSessionId);
       }
 
-      // Create Room Entry in DB to sync questions and room state with OBS Overlay
+      // Create Room Entry in DB
       const createRes = await fetch('/api/streamer/create-room', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           hostNickname: nickname,
-          hostGender,
-          hostAgeGroup,
           hostSessionId,
           categories: selectedCategories,
           totalQuestions,
@@ -178,8 +179,6 @@ export default function ChatStreamerModal({ isOpen, onClose }: ChatStreamerModal
         pin: roomResult.pin,
         roomId: roomResult.roomId,
         nickname,
-        hostGender,
-        hostAgeGroup,
         platforms: selectedPlatforms,
         chzzk: chzzkData,
         soop: soopData,
@@ -191,13 +190,13 @@ export default function ChatStreamerModal({ isOpen, onClose }: ChatStreamerModal
 
       sessionStorage.setItem('kiro_chat_room_config', JSON.stringify(config));
 
-      // Build Unique Streamer URL with PIN
+      // Build Unique Streamer URL
       const queryParams = new URLSearchParams();
       queryParams.set('pin', roomResult.pin);
       queryParams.set('platforms', selectedPlatforms.join(','));
       if (chzzkChannelId.trim()) queryParams.set('chzzkId', chzzkChannelId.trim());
       if (soopBjId.trim()) queryParams.set('soopId', soopBjId.trim());
-      if (nickname) queryParams.set('nickname', nickname);
+      queryParams.set('nickname', nickname);
 
       onClose();
       router.push(`/streamer/chat?${queryParams.toString()}`);
@@ -256,9 +255,11 @@ export default function ChatStreamerModal({ isOpen, onClose }: ChatStreamerModal
           )}
 
           <form onSubmit={(e) => handleStartChatStream(e, false)} className="space-y-4">
-            {/* Streamer Nickname */}
+            {/* Streamer Nickname (Mandatory) */}
             <div>
-              <label className="block text-xs font-extrabold text-neutral-300 mb-1.5">스트리머 닉네임</label>
+              <label className="block text-xs font-extrabold text-neutral-300 mb-1.5">
+                스트리머 닉네임 <span className="text-purple-400">*필수</span>
+              </label>
               <input
                 type="text"
                 placeholder="본인 닉네임을 입력하세요 (방송 화면 표시용)"
@@ -267,39 +268,6 @@ export default function ChatStreamerModal({ isOpen, onClose }: ChatStreamerModal
                 className="w-full rounded-xl border border-zinc-800 bg-zinc-900/80 px-4 py-3 text-xs text-white placeholder-zinc-500 focus:border-purple-500 focus:outline-none"
               />
             </div>
-
-            {/* Gender and Age Group */}
-            <div className="grid grid-cols-2 gap-2">
-              <div>
-                <label className="block text-xs font-extrabold text-neutral-300 mb-1.5">성별</label>
-                <select
-                  value={hostGender}
-                  onChange={(e) => setHostGender(e.target.value)}
-                  className="w-full rounded-xl border border-zinc-800 bg-zinc-900/80 px-3 py-3 text-xs text-white focus:border-purple-500 focus:outline-none cursor-pointer"
-                >
-                  <option value="male">남성</option>
-                  <option value="female">여성</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-xs font-extrabold text-neutral-300 mb-1.5">연령대</label>
-                <select
-                  value={hostAgeGroup}
-                  onChange={(e) => setHostAgeGroup(e.target.value)}
-                  className="w-full rounded-xl border border-zinc-800 bg-zinc-900/80 px-3 py-3 text-xs text-white focus:border-purple-500 focus:outline-none cursor-pointer"
-                >
-                  <option value="10s">10대</option>
-                  <option value="20s">20대</option>
-                  <option value="30s">30대</option>
-                  <option value="40s">40대</option>
-                  <option value="50s">50대</option>
-                  <option value="60s">60대 이상</option>
-                </select>
-              </div>
-            </div>
-            <p className="text-xs text-neutral-300 font-bold leading-relaxed mt-1.5">
-              * 해당 정보는 단순 통계 저장용도로 사용됩니다.
-            </p>
 
             {/* Multi-Platform Selection */}
             <div className="border-t border-zinc-900/80 pt-3">

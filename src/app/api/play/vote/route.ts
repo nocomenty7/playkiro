@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 
-// In-memory Rate Limiting Cache (0ms latency, zero database load)
+// In-memory Rate Limiting Cache
 const ipRateLimitMap = new Map<string, number>();
 const RATE_LIMIT_WINDOW_MS = 1200; // 1.2s minimum interval between votes per IP
 
-// Whitelist of valid vote_stats keys to prevent arbitrary key injection
+// Whitelist of valid vote_stats keys
 const VALID_STAT_KEYS = new Set([
   'male_10s_a', 'male_10s_b',
   'male_20s_a', 'male_20s_b',
@@ -19,11 +19,11 @@ const VALID_STAT_KEYS = new Set([
   'female_40s_a', 'female_40s_b',
   'female_50s_a', 'female_50s_b',
   'female_60s_a', 'female_60s_b',
+  'multi_a', 'multi_b',
 ]);
 
 export async function POST(request: Request) {
   try {
-    // 1. Smart IP Rate Limiting (Prevent Macro & Bot Loop Spammers)
     const forwardedFor = request.headers.get('x-forwarded-for');
     const ip = forwardedFor ? forwardedFor.split(',')[0].trim() : null;
     const now = Date.now();
@@ -31,12 +31,10 @@ export async function POST(request: Request) {
     if (ip) {
       const lastVoteTime = ipRateLimitMap.get(ip) || 0;
       if (now - lastVoteTime < RATE_LIMIT_WINDOW_MS) {
-        // Reject spam requests silently without database load
         return NextResponse.json({ success: false, reason: 'rate_limited' }, { status: 429 });
       }
       ipRateLimitMap.set(ip, now);
 
-      // Periodically clean up old IP rate limit entries
       if (ipRateLimitMap.size > 5000) {
         for (const [key, timestamp] of ipRateLimitMap.entries()) {
           if (now - timestamp > 60000) {
@@ -47,38 +45,40 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { questionId, gender = 'male', ageGroup = '20s', option } = body;
+    const { questionId, gender = 'male', ageGroup = '20s', option, isMulti = false } = body;
 
     if (!questionId || !option || !['A', 'B'].includes(option)) {
       return NextResponse.json({ error: 'Invalid parameters' }, { status: 400 });
     }
 
-    // 2. Map & Validate Stat Key
-    const genderKey = gender === '여성' || gender === 'female' ? 'female' : 'male';
-    let ageKey = '20s';
-    if (ageGroup.includes('10')) ageKey = '10s';
-    else if (ageGroup.includes('20')) ageKey = '20s';
-    else if (ageGroup.includes('30')) ageKey = '30s';
-    else if (ageGroup.includes('40')) ageKey = '40s';
-    else if (ageGroup.includes('50')) ageKey = '50s';
-    else if (ageGroup.includes('60') || ageGroup.includes('70')) ageKey = '60s';
+    let statKey = '';
+    if (isMulti) {
+      statKey = option === 'A' ? 'multi_a' : 'multi_b';
+    } else {
+      const genderKey = gender === '여성' || gender === 'female' ? 'female' : 'male';
+      let ageKey = '20s';
+      if (ageGroup.includes('10')) ageKey = '10s';
+      else if (ageGroup.includes('20')) ageKey = '20s';
+      else if (ageGroup.includes('30')) ageKey = '30s';
+      else if (ageGroup.includes('40')) ageKey = '40s';
+      else if (ageGroup.includes('50')) ageKey = '50s';
+      else if (ageGroup.includes('60') || ageGroup.includes('70')) ageKey = '60s';
 
-    const statKey = `${genderKey}_${ageKey}_${option.toLowerCase()}`;
+      statKey = `${genderKey}_${ageKey}_${option.toLowerCase()}`;
+    }
 
     if (!VALID_STAT_KEYS.has(statKey)) {
       return NextResponse.json({ error: 'Invalid stat key' }, { status: 400 });
     }
 
-    // 3. Fire-and-forget background execution (0ms blocking time)
+    // Fire-and-forget background execution
     (async () => {
       try {
-        // A. Try RPC first for vote_stats
         await supabase.rpc('increment_vote_stat', {
           q_id: questionId,
           stat_key: statKey,
         });
 
-        // B. Direct UPSERT check for vote_stats
         const { data: existingRow } = await supabase
           .from('vote_stats')
           .select('stats')
@@ -88,17 +88,32 @@ export async function POST(request: Request) {
         if (existingRow) {
           const currentStats = (existingRow.stats as Record<string, number>) || {};
           const currentCount = Number(currentStats[statKey] || 0);
-          const updatedStats = { ...currentStats, [statKey]: currentCount + 1 };
+          const nextMultiA = statKey === 'multi_a' ? Number(currentStats['multi_a'] || 0) + 1 : Number(currentStats['multi_a'] || 0);
+          const nextMultiB = statKey === 'multi_b' ? Number(currentStats['multi_b'] || 0) + 1 : Number(currentStats['multi_b'] || 0);
+
+          const updatedStats = {
+            ...currentStats,
+            [statKey]: currentCount + 1,
+            multi_a: nextMultiA,
+            multi_b: nextMultiB,
+            multi: nextMultiA + nextMultiB,
+          };
 
           await supabase
             .from('vote_stats')
             .update({ stats: updatedStats, updated_at: new Date().toISOString() })
             .eq('question_id', questionId);
         } else {
-          // Create brand new vote_stats row for this question
+          const initialMultiA = statKey === 'multi_a' ? 1 : 0;
+          const initialMultiB = statKey === 'multi_b' ? 1 : 0;
           await supabase.from('vote_stats').insert({
             question_id: questionId,
-            stats: { [statKey]: 1 },
+            stats: {
+              [statKey]: 1,
+              multi_a: initialMultiA,
+              multi_b: initialMultiB,
+              multi: initialMultiA + initialMultiB,
+            },
             updated_at: new Date().toISOString(),
           });
         }
