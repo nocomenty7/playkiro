@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Tv, Loader2, Sparkles, AlertCircle, Check } from 'lucide-react';
+import { X, Tv, MessageSquare, Loader2, Sparkles, AlertCircle, Check } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
 interface ChatStreamerModalProps {
@@ -201,8 +201,8 @@ export default function ChatStreamerModal({ isOpen, onClose }: ChatStreamerModal
 
           {/* Modal Header */}
           <div className="flex items-center gap-3 mb-6">
-            <div className="p-3 rounded-2xl bg-gradient-to-br from-brand-yellow/20 to-orange-500/20 border border-brand-yellow/30 text-brand-yellow">
-              <Tv className="w-6 h-6" />
+            <div className="p-3 rounded-2xl bg-gradient-to-br from-purple-500/20 to-indigo-500/20 border border-purple-500/30 text-purple-400">
+              <MessageSquare className="w-6 h-6" />
             </div>
             <div>
               <h2 className="text-xl font-black text-white tracking-tight">함께 플레이하기 (방송 채팅 연동)</h2>
@@ -226,7 +226,7 @@ export default function ChatStreamerModal({ isOpen, onClose }: ChatStreamerModal
                 placeholder="본인 닉네임을 입력하세요."
                 value={streamerNickname}
                 onChange={(e) => setStreamerNickname(e.target.value)}
-                className="w-full rounded-xl border border-zinc-800 bg-zinc-900/80 px-4 py-3 text-xs text-white placeholder-zinc-500 focus:border-brand-yellow focus:outline-none"
+                className="w-full rounded-xl border border-zinc-800 bg-zinc-900/80 px-4 py-3 text-xs text-white placeholder-zinc-500 focus:border-purple-500 focus:outline-none"
               />
             </div>
 
@@ -237,7 +237,7 @@ export default function ChatStreamerModal({ isOpen, onClose }: ChatStreamerModal
                 <select
                   value={hostGender}
                   onChange={(e) => setHostGender(e.target.value)}
-                  className="w-full rounded-xl border border-zinc-800 bg-zinc-900/80 px-3 py-3 text-xs text-white focus:border-brand-yellow focus:outline-none cursor-pointer"
+                  className="w-full rounded-xl border border-zinc-800 bg-zinc-900/80 px-3 py-3 text-xs text-white focus:border-purple-500 focus:outline-none cursor-pointer"
                 >
                   <option value="male">남성</option>
                   <option value="female">여성</option>
@@ -248,7 +248,7 @@ export default function ChatStreamerModal({ isOpen, onClose }: ChatStreamerModal
                 <select
                   value={hostAgeGroup}
                   onChange={(e) => setHostAgeGroup(e.target.value)}
-                  className="w-full rounded-xl border border-zinc-800 bg-zinc-900/80 px-3 py-3 text-xs text-white focus:border-brand-yellow focus:outline-none cursor-pointer"
+                  className="w-full rounded-xl border border-zinc-800 bg-zinc-900/80 px-3 py-3 text-xs text-white focus:border-purple-500 focus:outline-none cursor-pointer"
                 >
                   <option value="10s">10대</option>
                   <option value="20s">20대</option>
@@ -259,7 +259,8 @@ export default function ChatStreamerModal({ isOpen, onClose }: ChatStreamerModal
                 </select>
               </div>
             </div>
-            <p className="text-[10px] text-zinc-500 font-medium tracking-tight mt-1">
+            {/* Enlarged statistic notice text */}
+            <p className="text-xs text-neutral-300 font-bold leading-relaxed mt-1.5">
               * 해당 정보는 단순 통계 저장용도로 사용됩니다.
             </p>
 
@@ -267,7 +268,7 @@ export default function ChatStreamerModal({ isOpen, onClose }: ChatStreamerModal
             <div className="border-t border-zinc-900/80 pt-3">
               <label className="flex items-center justify-between text-xs font-extrabold text-neutral-300 mb-2">
                 <span>방송 플랫폼 연동</span>
-                <span className="text-amber-400/90 text-xs font-bold">(동시 송출 복수 선택 가능)</span>
+                <span className="text-amber-400/90 text-xs font-bold">(복수 선택 가능)</span>
               </label>
 
               <div className="grid grid-cols-2 gap-2 mb-3">
@@ -337,7 +338,7 @@ export default function ChatStreamerModal({ isOpen, onClose }: ChatStreamerModal
                 )}
               </div>
 
-              {/* Enlarged Notice Text (Request 3) */}
+              {/* Enlarged Notice Text */}
               <p className="text-xs text-neutral-300 font-bold leading-relaxed pt-2">
                 * 방송 주소를 그대로 붙여넣으셔도 자동으로 인식합니다. (별도 API 키 필요 없음)
               </p>
@@ -354,7 +355,7 @@ export default function ChatStreamerModal({ isOpen, onClose }: ChatStreamerModal
                     onClick={() => setTotalQuestions(num)}
                     className={`py-2 rounded-xl text-xs font-black border transition-all cursor-pointer ${
                       totalQuestions === num
-                        ? 'border-brand-yellow bg-brand-yellow/10 text-brand-yellow'
+                        ? 'border-purple-500 bg-purple-500/20 text-purple-300'
                         : 'border-zinc-800 bg-zinc-900 text-neutral-400'
                     }`}
                   >
@@ -412,20 +413,20 @@ export default function ChatStreamerModal({ isOpen, onClose }: ChatStreamerModal
               </div>
             </div>
 
-            {/* Submit Button (Exact match with screenshot: '게임 시작') */}
+            {/* Submit Button (Purple Concept: '게임 시작') */}
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3.5 rounded-xl bg-brand-yellow text-zinc-950 font-black text-sm transition-all shadow-lg hover:brightness-110 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 mt-4"
+              className="w-full py-3.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-black text-sm transition-all shadow-lg flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 mt-4"
             >
               {loading ? (
                 <>
-                  <Loader2 className="w-4 h-4 animate-spin text-zinc-950" />
+                  <Loader2 className="w-4 h-4 animate-spin text-white" />
                   <span>방송 연동 및 질문 준비 중...</span>
                 </>
               ) : (
                 <>
-                  <Sparkles className="w-4 h-4 fill-zinc-950" />
+                  <Sparkles className="w-4 h-4 text-purple-200" />
                   <span>게임 시작</span>
                 </>
               )}
