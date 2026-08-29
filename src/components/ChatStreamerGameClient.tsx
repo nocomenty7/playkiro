@@ -98,6 +98,8 @@ export default function ChatStreamerGameClient() {
     statusRef.current = status;
   }, [status]);
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   // Audio / Sound FX
   const [isMuted, setIsMuted] = useState(false);
   const chzzkSocketRef = useRef<WebSocket | null>(null);
@@ -501,6 +503,8 @@ export default function ChatStreamerGameClient() {
 
   // Streamer Pick Handler
   const handleSelectStreamerPick = async (choice: 'A' | 'B') => {
+    if (isSubmitting) return;
+    setIsSubmitting(true);
     setStreamerPick(choice);
     setStatus('RESULT');
     playSound('https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3');
@@ -543,6 +547,8 @@ export default function ChatStreamerGameClient() {
         payload: { scores: newScores },
       });
     }
+    
+    setIsSubmitting(false);
   };
 
   // Lock Votes Action
@@ -1141,15 +1147,17 @@ export default function ChatStreamerGameClient() {
                 </span>
                 <div className="grid grid-cols-2 gap-2.5">
                   <button
+                    disabled={isSubmitting}
                     onClick={() => handleSelectStreamerPick('A')}
-                    className="py-3.5 px-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-zinc-950 font-black text-xs md:text-sm transition-all shadow-md cursor-pointer flex items-center justify-center gap-1.5"
+                    className="py-3.5 px-3 rounded-xl bg-amber-500 hover:bg-amber-400 disabled:opacity-50 text-zinc-950 font-black text-xs md:text-sm transition-all shadow-md cursor-pointer flex items-center justify-center gap-1.5"
                   >
                     <span className="truncate">{currentQuestion?.option_a}</span>
                   </button>
 
                   <button
+                    disabled={isSubmitting}
                     onClick={() => handleSelectStreamerPick('B')}
-                    className="py-3.5 px-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-black text-xs md:text-sm transition-all shadow-md cursor-pointer flex items-center justify-center gap-1.5"
+                    className="py-3.5 px-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-zinc-950 font-black text-xs md:text-sm transition-all shadow-md cursor-pointer flex items-center justify-center gap-1.5"
                   >
                     <span className="truncate">{currentQuestion?.option_b}</span>
                   </button>
@@ -1160,8 +1168,9 @@ export default function ChatStreamerGameClient() {
             {/* Phase 3: Next Question / View Final Result (Request 1 Fix) */}
             {status === 'RESULT' && (
               <button
+                disabled={isSubmitting}
                 onClick={handleNextQuestion}
-                className="w-full py-4 rounded-2xl bg-gradient-to-r from-brand-yellow via-amber-400 to-yellow-500 text-zinc-950 font-black text-base md:text-lg shadow-2xl hover:brightness-110 transition-all flex items-center justify-center gap-2 cursor-pointer border border-yellow-300"
+                className="w-full py-4 rounded-2xl bg-gradient-to-r from-brand-yellow via-amber-400 to-yellow-500 disabled:opacity-50 text-zinc-950 font-black text-base md:text-lg shadow-2xl hover:brightness-110 transition-all flex items-center justify-center gap-2 cursor-pointer border border-yellow-300"
               >
                 <span>{currentIndex + 1 >= questions.length ? '🏆 최종 결과 보기' : '다음 라운드로 이동'}</span>
                 <ChevronRight className="w-5 h-5" />
