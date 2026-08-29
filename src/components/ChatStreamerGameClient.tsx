@@ -344,7 +344,7 @@ export default function ChatStreamerGameClient() {
             cid: chzzkChatChannelId,
             bdy: {
               accTkn: config.chzzk.accessToken || '',
-              auth: 'SEND',
+              auth: 'READ',
               devType: 2001,
             },
             tid: 1,

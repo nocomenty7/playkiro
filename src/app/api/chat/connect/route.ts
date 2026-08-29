@@ -39,7 +39,7 @@ export async function POST(req: Request) {
           if (content && content.chatChannelId) {
             let accessToken = '';
             try {
-              const tokenRes = await fetch(`https://api.chzzk.naver.com/open/v1/chats/access-token?chatChannelId=${content.chatChannelId}&actionType=SEND`, {
+              const tokenRes = await fetch(`https://api.chzzk.naver.com/open/v1/chats/access-token?chatChannelId=${content.chatChannelId}&actionType=READ`, {
                 headers: {
                   'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
                 },
