@@ -74,10 +74,11 @@ export async function POST(req: Request) {
       });
     } else if (platform === 'soop') {
       let cleanBjId = trimmedId;
-      if (cleanBjId.includes('play.sooplive.co.kr/')) {
-        cleanBjId = cleanBjId.split('play.sooplive.co.kr/')[1]?.split('/')[0]?.split('?')[0] || cleanBjId;
-      } else if (cleanBjId.includes('sooplive.co.kr/')) {
-        cleanBjId = cleanBjId.split('sooplive.co.kr/')[1]?.split('/')[0]?.split('?')[0] || cleanBjId;
+      // Support both sooplive.co.kr and sooplive.com
+      if (cleanBjId.includes('play.sooplive.')) {
+        cleanBjId = cleanBjId.split(/play\.sooplive\.(?:co\.kr|com)\//)[1]?.split('/')[0]?.split('?')[0] || cleanBjId;
+      } else if (cleanBjId.includes('sooplive.')) {
+        cleanBjId = cleanBjId.split(/sooplive\.(?:co\.kr|com)\//)[1]?.split('/')[0]?.split('?')[0] || cleanBjId;
       }
 
       let channelName = cleanBjId;
