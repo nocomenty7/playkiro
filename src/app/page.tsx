@@ -83,7 +83,7 @@ function LandingClient() {
   ];
 
   return (
-    <div className="relative h-[100dvh] overflow-y-auto w-full max-w-2xl mx-auto flex flex-col justify-between overflow-x-hidden bg-[#080911] bg-[radial-gradient(circle_at_top,_rgba(99,102,241,0.1),_transparent_60%)] text-white font-sans">
+    <div className="relative h-[100dvh] overflow-y-auto w-full mx-auto flex flex-col justify-between overflow-x-hidden bg-[#080911] bg-[radial-gradient(circle_at_top,_rgba(99,102,241,0.1),_transparent_60%)] text-white font-sans">
       
       <Navigation
         selectedCategories={selectedCategories}
@@ -93,10 +93,10 @@ function LandingClient() {
       />
 
       {/* Main Spacious Content Area */}
-      <main className="flex-1 flex flex-col px-6 py-12 space-y-16">
+      <main className="flex-1 flex flex-col px-4 sm:px-6 py-8 md:py-12 space-y-12 md:space-y-16 max-w-xl md:max-w-4xl lg:max-w-6xl mx-auto w-full">
         
         {/* Hero Section */}
-        <section className="text-center space-y-6 pt-4">
+        <section className="text-center space-y-6 pt-2 md:pt-6">
           <motion.div 
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -121,7 +121,7 @@ function LandingClient() {
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.15 }}
-            className="flex flex-col items-center justify-center gap-2 text-sm font-extrabold text-neutral-300"
+            className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-6 text-sm font-extrabold text-neutral-300"
           >
             <span className="flex items-center gap-1">⚡️ 가입없이 0초 실행</span>
             <span className="flex items-center gap-1">🔒 100% 익명 통계</span>
@@ -169,7 +169,7 @@ function LandingClient() {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.2 }}
-            className="pt-2 max-w-sm mx-auto space-y-3"
+            className="pt-2 max-w-sm md:max-w-md mx-auto space-y-3"
           >
             <button
               onClick={handleStartGame}
@@ -199,7 +199,7 @@ function LandingClient() {
         </section>
 
         {/* Vercel Style Spacious Feature Cards */}
-        <section className="grid grid-cols-1 gap-6 max-w-xl mx-auto">
+        <section className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
           
           <div className="group rounded-3xl border border-zinc-900 bg-zinc-900/10 p-8 space-y-4 hover:border-zinc-800 transition-all duration-300">
             <div className="h-12 w-12 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400">

@@ -351,7 +351,7 @@ export default function VoteClient({
   // Witty completion screen when all questions have been voted on
   if (noMoreQuestions) {
     return (
-      <div className="relative flex h-[100dvh] w-full max-w-md mx-auto flex-col justify-between overflow-hidden bg-[#080911] bg-[radial-gradient(circle_at_top,_rgba(99,102,241,0.07),_transparent_60%)] text-white font-sans">
+      <div className="relative flex h-[100dvh] w-full max-w-md md:max-w-2xl lg:max-w-3xl mx-auto flex-col justify-between overflow-hidden bg-[#080911] bg-[radial-gradient(circle_at_top,_rgba(99,102,241,0.07),_transparent_60%)] text-white font-sans">
         
         <Navigation
           selectedCategories={selectedCategories}
@@ -424,7 +424,7 @@ export default function VoteClient({
   }
 
   return (
-    <div className="relative flex h-[100dvh] w-full max-w-md mx-auto flex-col justify-between overflow-hidden bg-[#080911] bg-[radial-gradient(circle_at_top,_rgba(99,102,241,0.07),_transparent_60%)] text-white font-sans select-none animate-fade-in">
+    <div className="relative flex h-[100dvh] w-full max-w-md md:max-w-2xl lg:max-w-3xl mx-auto flex-col justify-between overflow-hidden bg-[#080911] bg-[radial-gradient(circle_at_top,_rgba(99,102,241,0.07),_transparent_60%)] text-white font-sans select-none animate-fade-in">
       
       <Navigation
         selectedCategories={selectedCategories}

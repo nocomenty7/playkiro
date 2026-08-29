@@ -76,24 +76,26 @@ export default function Navigation({
 
   return (
     <>
-      {/* 1. Unified Global Header Bar */}
-      <header className="w-full h-16 shrink-0 flex items-center justify-between px-6 border-b border-zinc-900 bg-[#080911]/85 backdrop-blur-md sticky top-0 z-40">
-        <Link href="/" className="relative h-11 w-32 flex items-center">
-          <img
-            src="/logo.png?v=2"
-            alt="기로 로고"
-            className="h-10 w-auto object-contain pt-[2px]"
-          />
-        </Link>
-        <div className="flex items-center gap-2">
-          <ThemeToggle />
-          <button
-            onClick={() => setShowDrawer(true)}
-            className="p-2.5 rounded-xl text-neutral-400 hover:text-white hover:bg-zinc-900 transition-all cursor-pointer"
-            title="메뉴"
-          >
-            <Menu className="h-6 w-6" />
-          </button>
+      {/* 1. Top Header */}
+      <header className="w-full h-16 shrink-0 border-b border-zinc-900 bg-[#080911]/85 backdrop-blur-md sticky top-0 z-40 px-4 sm:px-6">
+        <div className="w-full max-w-xl md:max-w-4xl lg:max-w-6xl mx-auto flex items-center justify-between">
+          <Link href="/" className="relative h-11 w-32 flex items-center">
+            <img
+              src="/logo.png?v=2"
+              alt="기로 로고"
+              className="h-10 w-auto object-contain pt-[2px]"
+            />
+          </Link>
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
+            <button
+              onClick={() => setShowDrawer(true)}
+              className="p-2.5 rounded-xl text-neutral-400 hover:text-white hover:bg-zinc-900 transition-all cursor-pointer"
+              title="메뉴"
+            >
+              <Menu className="h-6 w-6" />
+            </button>
+          </div>
         </div>
       </header>
 
