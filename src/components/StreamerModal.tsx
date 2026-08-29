@@ -38,6 +38,13 @@ export default function StreamerModal({ isOpen, onClose }: StreamerModalProps) {
   const [joining, setJoining] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
+  // All Questions Completed Alert Popup State
+  const [completedAlert, setCompletedAlert] = useState<{ isOpen: boolean; title: string; message: string }>({
+    isOpen: false,
+    title: '',
+    message: '',
+  });
+
   const categoriesConfig = [
     { name: '전체', activeClass: 'border-white bg-white text-[#080911]', inactiveClass: 'border-zinc-800 bg-zinc-900/50 text-neutral-400 hover:border-zinc-700' },
     { name: '음식', activeClass: 'border-red-500 bg-red-500 text-white', inactiveClass: 'border-red-500/30 bg-red-500/5 text-red-400 hover:border-red-500/50' },
@@ -163,13 +170,24 @@ export default function StreamerModal({ isOpen, onClose }: StreamerModalProps) {
 
       const data = await res.json();
       if (!res.ok || !data.success) {
+        if (data.code === 'ALL_QUESTIONS_COMPLETED' || data.code === 'NOT_ENOUGH_UNPLAYED_QUESTIONS') {
+          setCompletedAlert({
+            isOpen: true,
+            title: data.code === 'ALL_QUESTIONS_COMPLETED' 
+              ? '선택하신 카테고리의 모든 문제를 다 풀었습니다!' 
+              : '안 푼 남은 문제 수가 부족합니다!',
+            message: data.error || '다른 카테고리를 선택해 주세요.',
+          });
+          setCreating(false);
+          return;
+        }
         throw new Error(data.error || '방 생성에 실패했습니다.');
       }
 
       // Record selected questions into streamer used questions history
       try {
         const newIds: string[] = data.selectedQuestionIds || [];
-        const nextUsed = data.wasReset ? newIds : Array.from(new Set([...usedQuestionIds, ...newIds]));
+        const nextUsed = Array.from(new Set([...usedQuestionIds, ...newIds]));
         localStorage.setItem('kiro_streamer_used_questions', JSON.stringify(nextUsed));
       } catch (e) {
         // ignore storage errors
@@ -465,6 +483,58 @@ export default function StreamerModal({ isOpen, onClose }: StreamerModalProps) {
             </form>
           )}
         </motion.div>
+
+        {/* All Questions Completed Alert Modal */}
+        <AnimatePresence>
+          {completedAlert.isOpen && (
+            <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9, y: 10 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9, y: 10 }}
+                className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 max-w-sm w-full shadow-2xl text-center space-y-4 relative"
+              >
+                <div className="w-12 h-12 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 flex items-center justify-center mx-auto text-2xl">
+                  🎉
+                </div>
+                <div className="space-y-2">
+                  <h3 className="text-lg font-black text-white leading-snug break-keep">
+                    {completedAlert.title}
+                  </h3>
+                  <p className="text-xs text-neutral-400 font-bold leading-relaxed break-keep">
+                    {completedAlert.message}
+                  </p>
+                </div>
+
+                <div className="pt-2 flex flex-col gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setCompletedAlert({ isOpen: false, title: '', message: '' });
+                    }}
+                    className="w-full py-3 rounded-xl bg-brand-yellow text-zinc-950 font-black text-sm hover:brightness-110 transition-all cursor-pointer shadow-md"
+                  >
+                    확인 (카테고리 변경하기)
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      try {
+                        localStorage.removeItem('kiro_streamer_used_questions');
+                      } catch (e) {}
+                      setCompletedAlert({ isOpen: false, title: '', message: '' });
+                      setErrorMsg('스트리머 풀었던 문제 이력이 초기화되었습니다. 방을 다시 생성해 주세요.');
+                    }}
+                    className="w-full py-2.5 rounded-xl bg-zinc-800 text-neutral-400 hover:text-white font-bold text-xs hover:bg-zinc-700 transition-all cursor-pointer"
+                  >
+                    풀었던 문제 기록 초기화하고 다시 풀기
+                  </button>
+                </div>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
       </div>
     </AnimatePresence>
   );

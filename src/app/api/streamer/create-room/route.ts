@@ -51,13 +51,32 @@ export async function POST(request: Request) {
     }
 
     // Deduplication: Filter out previously played questions for this streamer
-    let availablePool = targetPool.filter((q) => !usedQuestionIds.includes(q.id));
-    let wasReset = false;
+    const availablePool = targetPool.filter((q) => !usedQuestionIds.includes(q.id));
 
-    // Fallback: If unplayed questions are fewer than totalQuestions requested, auto-reset history
+    // If no unplayed questions remain in the selected category
+    if (availablePool.length === 0) {
+      return NextResponse.json(
+        {
+          success: false,
+          code: 'ALL_QUESTIONS_COMPLETED',
+          error: '선택하신 카테고리 내의 모든 문제를 이미 다 풀었습니다.',
+        },
+        { status: 400 }
+      );
+    }
+
+    // If remaining unplayed questions are fewer than requested totalQuestions
     if (availablePool.length < totalQuestions) {
-      availablePool = targetPool;
-      wasReset = true;
+      return NextResponse.json(
+        {
+          success: false,
+          code: 'NOT_ENOUGH_UNPLAYED_QUESTIONS',
+          remainingCount: availablePool.length,
+          totalRequested: totalQuestions,
+          error: `선택하신 카테고리의 안 푼 남은 문제(${availablePool.length}개)가 설정한 문제 수(${totalQuestions}개)보다 적습니다. 다른 카테고리를 추가하거나 문제 수를 줄여주세요.`,
+        },
+        { status: 400 }
+      );
     }
 
     // True Unbiased Fisher-Yates (Knuth) Shuffle Algorithm on availablePool
@@ -135,7 +154,6 @@ export async function POST(request: Request) {
       roomId: room.id,
       totalQuestions: room.total_questions,
       selectedQuestionIds: room.question_ids,
-      wasReset,
     });
   } catch (error: any) {
     console.error('Create room API exception:', error);
