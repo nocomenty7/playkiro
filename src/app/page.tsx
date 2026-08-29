@@ -328,6 +328,16 @@ function LandingClient() {
         )}
       </AnimatePresence>
 
+      {/* Play Mode Selection Modal */}
+      <PlayModeSelectModal
+        isOpen={showPlayModeModal}
+        onClose={() => setShowPlayModeModal(false)}
+        onSelectDirectJoin={() => {
+          setShowPlayModeModal(false);
+          setShowStreamerModal(true);
+        }}
+      />
+
       {/* Streamer Mode Creation/Join Modal */}
       <StreamerModal
         isOpen={showStreamerModal}
