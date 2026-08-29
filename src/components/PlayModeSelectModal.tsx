@@ -71,8 +71,8 @@ export default function PlayModeSelectModal({
                       <span className="font-black text-sm text-neutral-200">
                         1. 채팅 연동 방식 (치지직, 숲 지원)
                       </span>
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-purple-500/20 text-purple-300 border border-purple-500/30">
-                        NEW
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-zinc-800 text-neutral-400 border border-zinc-700">
+                        준비중
                       </span>
                     </div>
                     <p className="text-xs text-neutral-400 mt-1 leading-relaxed break-keep">

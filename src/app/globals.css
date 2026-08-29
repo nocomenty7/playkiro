@@ -243,3 +243,10 @@ html.light .bg-black\/65 {
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width: none;  /* Firefox */
 }
+
+/* PC Widescreen Desktop Auto-Zoom (~125% comfortable scaling for desktop screens, mobile stays 100%) */
+@media (min-width: 768px) {
+  html {
+    zoom: 1.25;
+  }
+}
