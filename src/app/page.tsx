@@ -175,14 +175,14 @@ function LandingClient() {
               onClick={handleStartGame}
               className="w-full flex items-center justify-center gap-2 rounded-2xl bg-brand-yellow hover:bg-[#e0b240] text-zinc-950 font-black text-base px-6 h-14 shadow-[0_0_30px_rgba(245,195,82,0.3)] transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
             >
-              <span>👤 혼자 플레이하기 (싱글 모드)</span>
+              <span>👤 혼자 플레이하기 (싱글모드)</span>
             </button>
 
             <button
               onClick={() => setShowPlayModeModal(true)}
-              className="w-full flex items-center justify-center gap-2 rounded-2xl bg-zinc-900 border border-zinc-700 hover:bg-zinc-800 text-white font-black text-sm px-6 h-12 transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+              className="w-full flex items-center justify-center gap-2 rounded-2xl bg-zinc-900 border border-zinc-700 hover:bg-zinc-800 text-white font-black text-base px-6 h-14 transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
             >
-              <span>📺 함께 플레이하기</span>
+              <span>📺 함께 플레이하기 (멀티모드)</span>
             </button>
           </motion.div>
 
