@@ -96,7 +96,6 @@ export async function POST(request: Request) {
             [statKey]: currentCount + 1,
             multi_a: nextMultiA,
             multi_b: nextMultiB,
-            multi: nextMultiA + nextMultiB,
           };
 
           await supabase
@@ -112,7 +111,6 @@ export async function POST(request: Request) {
               [statKey]: 1,
               multi_a: initialMultiA,
               multi_b: initialMultiB,
-              multi: initialMultiA + initialMultiB,
             },
             updated_at: new Date().toISOString(),
           });

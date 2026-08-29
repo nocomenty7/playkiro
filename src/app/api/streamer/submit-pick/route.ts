@@ -101,7 +101,6 @@ export async function POST(request: Request) {
             [statKey]: currentCount + 1,
             multi_a: nextMultiA,
             multi_b: nextMultiB,
-            multi: nextMultiA + nextMultiB,
           };
 
           await supabase
