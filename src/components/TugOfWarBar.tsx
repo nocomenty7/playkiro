@@ -33,12 +33,7 @@ export default function TugOfWarBar({
 
   // Item 1: Reduced padding and target 🎯 emoji
   if (!hasVotedOrHost) {
-    return (
-      <div className="w-full bg-zinc-900/80 border border-zinc-800 rounded-2xl py-2.5 px-4 text-center text-neutral-300 text-xs md:text-sm font-extrabold backdrop-blur-sm shadow-inner my-1">
-        <span className="inline-block animate-pulse mr-1.5 text-sm md:text-base">🎯</span>
-        <span className="text-brand-yellow font-black">{hostNickname}</span>님의 선택을 예상하여 픽해주세요.
-      </div>
-    );
+    return null;
   }
 
   return (

@@ -902,21 +902,25 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
                 <span className="font-extrabold text-neutral-300 block mb-3 text-[15px]">💡 간단 진행 가이드</span>
                 <div className="flex items-start gap-2 text-neutral-300">
                   <span className="font-black text-amber-400 shrink-0">1.</span>
+                  <p><strong className="font-extrabold text-amber-400">[스트리머]</strong> 내 예상 픽을 시청자가 맞추며 투표하는 게임을 할것인지, 시청자도 소신껏 자기의견을 투표하는 게임을 할것인지 기준을 정해 시청자에게 안내해주세요.</p>
+                </div>
+                <div className="flex items-start gap-2 text-neutral-300">
+                  <span className="font-black text-amber-400 shrink-0">2.</span>
                   <div className="space-y-0.5">
                     <p><strong className="font-extrabold text-indigo-400">[스트리머]</strong> 시청자들에게 기로 웹사이트 주소(<span className="text-amber-400 font-semibold underline">https://playkiro.kr</span>)와 <strong className="font-extrabold text-white">PIN 코드</strong>를 알려주고 입장을 기다립니다.</p>
                     <p className="text-[11px] md:text-xs text-neutral-450 font-medium leading-relaxed">* 시청자는 모바일, PC 모두 가능하며, 게임 도중에도 입장 가능합니다.</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-2 text-neutral-300">
-                  <span className="font-black text-amber-400 shrink-0">2.</span>
-                  <p><strong className="font-extrabold text-amber-400">[시청자]</strong> 스트리머의 픽을 예상하여 투표합니다.</p>
-                </div>
-                <div className="flex items-start gap-2 text-neutral-300">
                   <span className="font-black text-amber-400 shrink-0">3.</span>
-                  <p><strong className="font-extrabold text-indigo-400">[스트리머]</strong> 투표를 마감하고 싶을때, 하단의 <strong className="font-extrabold text-white">[시청자 투표 마감하기]</strong> 버튼을 누릅니다.</p>
+                  <p><strong className="font-extrabold text-amber-400">[시청자]</strong> 스트리머가 안내한 기준에 따라 자유롭게 투표합니다.</p>
                 </div>
                 <div className="flex items-start gap-2 text-neutral-300">
                   <span className="font-black text-amber-400 shrink-0">4.</span>
+                  <p><strong className="font-extrabold text-indigo-400">[스트리머]</strong> 투표를 마감하고 싶을때, 하단의 <strong className="font-extrabold text-white">[시청자 투표 마감하기]</strong> 버튼을 누릅니다.</p>
+                </div>
+                <div className="flex items-start gap-2 text-neutral-300">
+                  <span className="font-black text-amber-400 shrink-0">5.</span>
                   <p><strong className="font-extrabold text-indigo-400">[스트리머]</strong> 마감 이후, 본인의 <strong className="font-extrabold text-white">[진짜 취향 선택지]</strong>를 누르면 시청자의 선택지별 선택률이 실시간 공개됩니다.</p>
                 </div>
 

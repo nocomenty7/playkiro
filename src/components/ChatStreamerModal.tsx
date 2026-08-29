@@ -17,7 +17,7 @@ export default function ChatStreamerModal({ isOpen, onClose }: ChatStreamerModal
   const [streamerNickname, setStreamerNickname] = useState('');
 
   // Multi-platform selection
-  const [selectedPlatforms, setSelectedPlatforms] = useState<('chzzk' | 'soop')[]>(['chzzk']);
+  const [selectedPlatforms, setSelectedPlatforms] = useState<('chzzk' | 'soop')[]>([]);
   const [chzzkChannelId, setChzzkChannelId] = useState('');
   const [soopBjId, setSoopBjId] = useState('');
 
@@ -67,7 +67,6 @@ export default function ChatStreamerModal({ isOpen, onClose }: ChatStreamerModal
 
   const togglePlatform = (p: 'chzzk' | 'soop') => {
     if (selectedPlatforms.includes(p)) {
-      if (selectedPlatforms.length === 1) return;
       setSelectedPlatforms(selectedPlatforms.filter((item) => item !== p));
     } else {
       setSelectedPlatforms([...selectedPlatforms, p]);
@@ -101,6 +100,11 @@ export default function ChatStreamerModal({ isOpen, onClose }: ChatStreamerModal
     }
 
     if (!isDemoMode) {
+      if (selectedPlatforms.length === 0) {
+        setErrorMsg('방송 플랫폼 연동을 최소 1개 이상 선택해 주세요.');
+        return;
+      }
+
       if (selectedPlatforms.includes('chzzk') && !chzzkChannelId.trim()) {
         setErrorMsg('치지직 채널 ID 또는 방송 URL을 입력해 주세요.');
         return;
@@ -433,16 +437,6 @@ export default function ChatStreamerModal({ isOpen, onClose }: ChatStreamerModal
                   <span>게임 시작</span>
                 </>
               )}
-            </button>
-
-            {/* Instant Offline Test Mode Button */}
-            <button
-              type="button"
-              disabled={loading}
-              onClick={() => handleStartChatStream(undefined, true)}
-              className="w-full py-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-neutral-400 hover:text-white font-extrabold text-xs transition-all flex items-center justify-center gap-2 cursor-pointer mt-2 disabled:opacity-50"
-            >
-              <span>🧪 방송 없이 테스트 화면 바로가기</span>
             </button>
           </form>
         </motion.div>

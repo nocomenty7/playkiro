@@ -17,26 +17,7 @@ export default function PlayModeSelectModal({
   onSelectDirectJoin,
   onSelectChatIntegration,
 }: PlayModeSelectModalProps) {
-  const [clickCount, setClickCount] = useState(0);
-  const clickTimerRef = React.useRef<NodeJS.Timeout | null>(null);
-
   if (!isOpen) return null;
-
-  const handleSecretChatClick = () => {
-    const nextCount = clickCount + 1;
-    setClickCount(nextCount);
-
-    if (clickTimerRef.current) clearTimeout(clickTimerRef.current);
-
-    if (nextCount >= 3) {
-      setClickCount(0);
-      onSelectChatIntegration();
-    } else {
-      clickTimerRef.current = setTimeout(() => {
-        setClickCount(0);
-      }, 1200);
-    }
-  };
 
   return (
     <AnimatePresence>
@@ -81,21 +62,21 @@ export default function PlayModeSelectModal({
             {/* Mode 1: Chat Integration (Secret Triple Click Entry) */}
             <button
               type="button"
-              onClick={handleSecretChatClick}
-              className="w-full text-left group relative rounded-2xl border border-zinc-800 bg-zinc-900/40 p-4 transition-all opacity-85 hover:border-zinc-700 cursor-pointer"
+              onClick={onSelectChatIntegration}
+              className="w-full text-left group relative rounded-2xl border border-purple-500/40 bg-gradient-to-r from-purple-500/10 via-zinc-900/80 to-zinc-900 p-4 transition-all hover:border-purple-400 hover:scale-[1.01] active:scale-[0.99] cursor-pointer shadow-lg"
             >
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="p-2.5 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-400">
+                  <div className="p-2.5 rounded-xl bg-purple-500/20 border border-purple-500/40 text-purple-400">
                     <MessageSquare className="w-5 h-5" />
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="font-black text-sm text-neutral-300">
+                      <span className="font-black text-sm text-white group-hover:text-purple-300 transition-colors">
                         1. 채팅 연동 방식 (치지직, 숲 지원)
                       </span>
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-purple-500/10 text-purple-300 border border-purple-500/30">
-                        8/30(일) 0시 오픈 예정
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                        신규 방식
                       </span>
                     </div>
                     <p className="text-xs text-neutral-400 mt-1 leading-relaxed break-keep">
@@ -103,6 +84,7 @@ export default function PlayModeSelectModal({
                     </p>
                   </div>
                 </div>
+                <ChevronRight className="w-5 h-5 text-purple-400 group-hover:translate-x-1 transition-transform shrink-0 self-center" />
               </div>
             </button>
 
