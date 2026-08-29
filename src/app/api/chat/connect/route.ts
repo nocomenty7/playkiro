@@ -39,7 +39,7 @@ export async function POST(req: Request) {
           if (content && content.chatChannelId) {
             let accessToken = '';
             try {
-              const tokenRes = await fetch(`https://api.chzzk.naver.com/open/v1/chats/access-token?chatChannelId=${content.chatChannelId}&actionType=READ`, {
+              const tokenRes = await fetch(`https://comm-api.game.naver.com/nng_main/v1/chats/access-token?channelId=${content.chatChannelId}&chatType=STREAMING`, {
                 headers: {
                   'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
                 },
@@ -48,7 +48,9 @@ export async function POST(req: Request) {
                 const tokenData = await tokenRes.json();
                 accessToken = tokenData?.content?.accessToken || '';
               }
-            } catch (e) {}
+            } catch (e) {
+              console.error('Chzzk Token Fetch Error:', e);
+            }
 
             return NextResponse.json({
               success: true,
