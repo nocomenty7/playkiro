@@ -77,10 +77,11 @@ export default function ChatStreamerGameClient() {
   // Cumulative Viewer Scores (Leaderboard)
   const [scores, setScores] = useState<{ [userKey: string]: ViewerScore }>({});
 
-  // UI Toast & OBS State
+  // UI Toast & Guide Modal State
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
   const [copiedOverlay, setCopiedOverlay] = useState(false);
+  const [showHostGuide, setShowHostGuide] = useState(true);
   const [showObsHelp, setShowObsHelp] = useState(false);
   const [showStatsModal, setShowStatsModal] = useState(false);
 
@@ -203,7 +204,7 @@ export default function ChatStreamerGameClient() {
     };
   }, [config, status]);
 
-  // Vote Parser Handler
+  // Vote Parser Handler (Revoting & 1-vote deduplication support)
   const parseChatVote = (platform: 'chzzk' | 'soop', userId: string, nickname: string, text: string) => {
     if (status !== 'VOTING') return;
 
@@ -218,6 +219,7 @@ export default function ChatStreamerGameClient() {
       playSound('https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3');
       const uniqueKey = `${platform}:${userId}`;
       const platformBadge = platform === 'chzzk' ? '치지직' : 'SOOP';
+      // Overwriting key handles choice updates (revoting) & deduplication seamlessly
       setLiveVotes((prev) => ({
         ...prev,
         [uniqueKey]: { nickname: `${nickname} (${platformBadge})`, platform, choice: choice! },
@@ -235,7 +237,7 @@ export default function ChatStreamerGameClient() {
     parseChatVote(platform, randomName, randomName, `!${choice === 'A' ? '1' : '2'}`);
   };
 
-  // Vote Calculations
+  // Realtime Vote Calculations
   const votesA = Object.values(liveVotes).filter((v) => v.choice === 'A').length;
   const votesB = Object.values(liveVotes).filter((v) => v.choice === 'B').length;
   const totalVotes = votesA + votesB;
@@ -345,6 +347,97 @@ export default function ChatStreamerGameClient() {
         )}
       </AnimatePresence>
 
+      {/* Host Onboarding Guide Modal (Request 5) */}
+      <AnimatePresence>
+        {showHostGuide && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowHostGuide(false)}
+              className="absolute inset-0 bg-black/85 backdrop-blur-md"
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 15 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 15 }}
+              className="relative z-10 w-full max-w-md bg-[#0d0e1d] border border-amber-500/40 rounded-3xl p-6 shadow-2xl text-white space-y-5"
+            >
+              <div className="text-center space-y-1">
+                <div className="inline-flex p-3 rounded-2xl bg-purple-500/10 border border-purple-500/30 text-purple-400 mb-1">
+                  <Sparkles className="w-6 h-6" />
+                </div>
+                <h2 className="text-xl font-black text-white">🎉 방송 연동 개설이 완료되었습니다!</h2>
+                <p className="text-xs text-neutral-400 leading-relaxed">
+                  시청자들이 방송 채팅창에서 !1, !2를 입력하여 실시간으로 참여합니다.
+                </p>
+              </div>
+
+              {/* OBS Quick Copy Widget inside Guide */}
+              <div className="bg-zinc-950 border border-purple-500/30 rounded-2xl p-4 text-center space-y-2">
+                <span className="text-xs font-extrabold text-purple-300 block">🎥 OBS / 프릭샷 오버레이 URL</span>
+                <button
+                  onClick={handleCopyOverlayUrl}
+                  className="w-full py-2.5 px-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-black transition cursor-pointer flex items-center justify-center gap-1.5 shadow-md"
+                >
+                  {copiedOverlay ? <Check className="w-3.5 h-3.5 text-emerald-300" /> : <Copy className="w-3.5 h-3.5" />}
+                  <span>OBS 오버레이 URL 복사</span>
+                </button>
+              </div>
+
+              {/* Simple Guidance (Request 5) */}
+              <div className="space-y-2.5 bg-zinc-900/60 p-4 rounded-2xl border border-zinc-800 text-[13px] md:text-sm">
+                <span className="font-extrabold text-neutral-300 block mb-3 text-[15px]">💡 간단 진행 가이드</span>
+                
+                <div className="flex items-start gap-2 text-neutral-300">
+                  <span className="font-black text-amber-400 shrink-0">1.</span>
+                  <p>
+                    <strong className="font-extrabold text-amber-400">[시청자]</strong> 스트리머의 픽을 예상하여 채팅창에서 <strong className="text-white">!1</strong> 혹은 <strong className="text-white">!2</strong> 로 투표합니다. (투표는 번복 가능하나, 1인당 1표만 반영)
+                  </p>
+                </div>
+
+                <div className="flex items-start gap-2 text-neutral-300">
+                  <span className="font-black text-amber-400 shrink-0">2.</span>
+                  <p>
+                    <strong className="font-extrabold text-indigo-400">[스트리머]</strong> 투표를 마감하고 싶을때, 하단의 <strong className="font-extrabold text-white">[시청자 투표 마감하기]</strong> 버튼을 누릅니다.
+                  </p>
+                </div>
+
+                <div className="flex items-start gap-2 text-neutral-300">
+                  <span className="font-black text-amber-400 shrink-0">3.</span>
+                  <p>
+                    <strong className="font-extrabold text-indigo-400">[스트리머]</strong> 마감 이후, 본인의 <strong className="font-extrabold text-white">[진짜 취향 선택지]</strong>를 누릅니다.
+                  </p>
+                </div>
+
+                {/* Collapsible OBS tip inside Guide Modal */}
+                <div className="border-t border-zinc-800/80 pt-2.5 mt-1">
+                  <details className="group cursor-pointer">
+                    <summary className="text-xs md:text-[13px] text-purple-400 font-extrabold select-none list-none no-scrollbar flex items-center gap-1.5">
+                      <span className="transition-transform group-open:rotate-90">👉</span> OBS / 프릭샷 등 방송에 투표창 띄우는 방법
+                    </summary>
+                    <div className="mt-2 space-y-1.5 text-[11px] md:text-xs text-neutral-400 leading-relaxed pl-2 cursor-default">
+                      <p>• <strong className="font-bold text-white">브라우저 소스</strong> 추가 후 복사한 오버레이 URL 입력</p>
+                      <p>• 권장 크기: <strong className="font-bold text-white">3:4 비율</strong> (예시: 450x600, 600x800 등)</p>
+                      <p>• 투명 배경: 커스텀 CSS 칸에 <code className="bg-zinc-900 px-1 py-0.5 rounded text-[10px] font-mono">{"body { background: transparent !important; }"}</code>를 기입하세요.</p>
+                    </div>
+                  </details>
+                </div>
+              </div>
+
+              <button
+                onClick={() => setShowHostGuide(false)}
+                className="w-full py-4 rounded-2xl bg-purple-600 hover:bg-purple-500 text-white font-black text-base transition-all shadow-lg flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <span>시작하기</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
       {/* Stats Bottom Sheet Modal (Single Mode Stats) */}
       {showStatsModal && currentQuestion?.id && (
         <StatsBottomSheet
@@ -366,32 +459,35 @@ export default function ChatStreamerGameClient() {
         <ThemeToggle />
       </header>
 
-      {/* Sub-Header Live Bar */}
+      {/* Sub-Header Live Bar (Request 3 & Request 7: Match top bar with exact request) */}
       <div className="w-full border-b border-zinc-900/80 bg-zinc-950/60 backdrop-blur-sm shrink-0">
         <div className="max-w-md mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
             {config.platforms.includes('chzzk') && (
               <div className="flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/30 px-3 py-1.5 rounded-xl">
                 <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
-                <span className="text-xs md:text-sm font-black text-emerald-400">치지직</span>
+                <span className="text-xs md:text-sm font-black text-emerald-400">치지직 채팅 연동중</span>
               </div>
             )}
             {config.platforms.includes('soop') && (
               <div className="flex items-center gap-1.5 bg-blue-500/10 border border-blue-500/30 px-3 py-1.5 rounded-xl">
                 <span className="w-2.5 h-2.5 rounded-full bg-blue-400 animate-pulse" />
-                <span className="text-xs md:text-sm font-black text-blue-400">SOOP</span>
+                <span className="text-xs md:text-sm font-black text-blue-400">SOOP 채팅 연동중</span>
               </div>
             )}
           </div>
 
-          <div className="flex items-center gap-2 text-xs md:text-sm text-neutral-300 font-black bg-zinc-900 border border-zinc-800 px-3 py-1.5 rounded-xl">
-            <span className="text-neutral-400">스트리머:</span>
-            <span className="text-white font-extrabold">{config.nickname}</span>
-          </div>
+          <button
+            onClick={() => setShowHostGuide(true)}
+            className="flex items-center gap-1 text-xs md:text-sm font-black text-amber-400 bg-amber-500/10 border border-amber-500/30 px-3 py-1.5 rounded-xl hover:bg-amber-500/20 transition cursor-pointer"
+            title="진행 가이드 열기"
+          >
+            <span>💡 가이드</span>
+          </button>
         </div>
       </div>
 
-      {/* FINISHED STATE VIEW (Exact PlayKiro Top 3 Podium & Leaderboard) */}
+      {/* FINISHED STATE VIEW */}
       {status === 'FINISHED' ? (
         <main className="w-full max-w-md mx-auto p-4 flex-1 flex flex-col justify-center space-y-6 my-auto">
           <div className="space-y-6">
@@ -470,7 +566,7 @@ export default function ChatStreamerGameClient() {
           </div>
         </main>
       ) : (
-        /* ACTIVE GAMEPLAY SCREEN (Exact PlayKiro Layout & Identity) */
+        /* ACTIVE GAMEPLAY SCREEN */
         <main className="w-full max-w-md mx-auto p-4 flex-1 flex flex-col justify-center space-y-6 my-auto">
           <div className="bg-zinc-950/40 border border-zinc-900 rounded-3xl p-5 md:p-7 backdrop-blur-xl shadow-2xl space-y-5">
             
@@ -495,7 +591,7 @@ export default function ChatStreamerGameClient() {
               </div>
             )}
 
-            {/* Total Votes Badge & Prompt */}
+            {/* Total Votes Badge (Request 4: Removed prompt text) */}
             <div className="space-y-3 my-2">
               <div className="flex justify-center">
                 <span className={`text-xs md:text-sm font-black px-4 py-1.5 rounded-full border shadow-sm ${
@@ -508,14 +604,9 @@ export default function ChatStreamerGameClient() {
                     : `투표마감 (총 ${totalVotes}명 투표)`}
                 </span>
               </div>
-
-              <div className="w-full bg-zinc-900/80 border border-zinc-800 rounded-2xl py-2.5 px-4 text-center text-neutral-300 text-xs md:text-sm font-extrabold backdrop-blur-sm shadow-inner">
-                <span className="inline-block animate-pulse mr-1.5 text-sm md:text-base">💬</span>
-                방송 채팅창에 <span className="text-amber-400 font-black">!1</span> 또는 <span className="text-emerald-400 font-black">!2</span>를 입력해 주세요.
-              </div>
             </div>
 
-            {/* Option A & B Cards (Exact match with PlayKiro Streamer Game Screen) */}
+            {/* Option A & B Cards (Request 2: Live Bar Graph Fill Animation during VOTING, LOCKED & RESULT) */}
             {currentQuestion && (
               <div className="grid grid-cols-1 gap-4 pt-1">
                 {/* Option 1 (A) - Amber / Yellow */}
@@ -528,16 +619,14 @@ export default function ChatStreamerGameClient() {
                       : 'bg-zinc-900/50 border-zinc-800/80 hover:bg-zinc-900/80 hover:border-zinc-700'
                   } ${status === 'RESULT' ? 'opacity-95 cursor-default' : 'cursor-pointer'}`}
                 >
-                  {/* Fill Animation when Streamer Picked (RESULT status) */}
-                  {status === 'RESULT' && (
-                    <motion.div
-                      initial={{ scaleX: 0 }}
-                      animate={{ scaleX: 1 }}
-                      transition={{ duration: 0.6, ease: 'easeOut' }}
-                      className="absolute inset-0 z-0 opacity-20 bg-amber-500"
-                      style={{ width: `${percentA}%`, transformOrigin: 'left' }}
-                    />
-                  )}
+                  {/* Realtime Fill Animation during VOTING, LOCKED & RESULT (Request 2) */}
+                  <motion.div
+                    initial={{ scaleX: 0 }}
+                    animate={{ scaleX: percentA / 100 }}
+                    transition={{ duration: 0.4, ease: 'easeOut' }}
+                    className="absolute inset-0 z-0 opacity-20 bg-amber-500"
+                    style={{ transformOrigin: 'left' }}
+                  />
 
                   <div className="relative z-10 flex flex-col items-center justify-center gap-1.5 w-full text-center my-auto">
                     {streamerPick === 'A' && (
@@ -566,19 +655,13 @@ export default function ChatStreamerGameClient() {
                       </p>
                     </div>
 
-                    {status === 'RESULT' && (
-                      <motion.div
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ type: 'spring', damping: 15 }}
-                        className="flex items-baseline justify-center gap-1.5 mt-1"
-                      >
-                        <span className="text-2xl md:text-3xl font-black text-amber-400">
-                          {percentA.toFixed(1)}%
-                        </span>
-                        <span className="text-xs text-neutral-400 font-extrabold">({votesA}명)</span>
-                      </motion.div>
-                    )}
+                    {/* Realtime Live Percentage & Vote Count (Request 2) */}
+                    <div className="flex items-baseline justify-center gap-1.5 mt-1">
+                      <span className="text-xl md:text-2xl font-black text-amber-400">
+                        {percentA.toFixed(1)}%
+                      </span>
+                      <span className="text-xs text-neutral-400 font-extrabold">({votesA}명)</span>
+                    </div>
                   </div>
                 </button>
 
@@ -592,16 +675,14 @@ export default function ChatStreamerGameClient() {
                       : 'bg-zinc-900/50 border-zinc-800/80 hover:bg-zinc-900/80 hover:border-zinc-700'
                   } ${status === 'RESULT' ? 'opacity-95 cursor-default' : 'cursor-pointer'}`}
                 >
-                  {/* Fill Animation when Streamer Picked (RESULT status) */}
-                  {status === 'RESULT' && (
-                    <motion.div
-                      initial={{ scaleX: 0 }}
-                      animate={{ scaleX: 1 }}
-                      transition={{ duration: 0.6, ease: 'easeOut' }}
-                      className="absolute inset-0 z-0 opacity-20 bg-emerald-500"
-                      style={{ width: `${percentB}%`, transformOrigin: 'left' }}
-                    />
-                  )}
+                  {/* Realtime Fill Animation during VOTING, LOCKED & RESULT (Request 2) */}
+                  <motion.div
+                    initial={{ scaleX: 0 }}
+                    animate={{ scaleX: percentB / 100 }}
+                    transition={{ duration: 0.4, ease: 'easeOut' }}
+                    className="absolute inset-0 z-0 opacity-20 bg-emerald-500"
+                    style={{ transformOrigin: 'left' }}
+                  />
 
                   <div className="relative z-10 flex flex-col items-center justify-center gap-1.5 w-full text-center my-auto">
                     {streamerPick === 'B' && (
@@ -630,19 +711,13 @@ export default function ChatStreamerGameClient() {
                       </p>
                     </div>
 
-                    {status === 'RESULT' && (
-                      <motion.div
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ type: 'spring', damping: 15 }}
-                        className="flex items-baseline justify-center gap-1.5 mt-1"
-                      >
-                        <span className="text-2xl md:text-3xl font-black text-emerald-400">
-                          {percentB.toFixed(1)}%
-                        </span>
-                        <span className="text-xs text-neutral-400 font-extrabold">({votesB}명)</span>
-                      </motion.div>
-                    )}
+                    {/* Realtime Live Percentage & Vote Count (Request 2) */}
+                    <div className="flex items-baseline justify-center gap-1.5 mt-1">
+                      <span className="text-xl md:text-2xl font-black text-emerald-400">
+                        {percentB.toFixed(1)}%
+                      </span>
+                      <span className="text-xs text-neutral-400 font-extrabold">({votesB}명)</span>
+                    </div>
                   </div>
                 </button>
               </div>
@@ -668,7 +743,7 @@ export default function ChatStreamerGameClient() {
         </main>
       )}
 
-      {/* Streamer Host Control Panel (Exact match with PlayKiro Golden Box) */}
+      {/* Streamer Host Control Panel (Request 1: Exact match with StreamerMode) */}
       {status !== 'FINISHED' && (
         <div className="w-full max-w-md mx-auto p-4 shrink-0">
           <div className="w-full bg-gradient-to-b from-amber-500/15 via-zinc-950 to-zinc-950 border-2 border-amber-400/60 shadow-[0_0_35px_rgba(245,158,11,0.25)] rounded-3xl p-5 space-y-4">
@@ -703,31 +778,32 @@ export default function ChatStreamerGameClient() {
             {status === 'VOTING' && (
               <button
                 onClick={handleLockVoting}
-                className="w-full py-4 rounded-2xl bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 text-zinc-950 font-black text-base md:text-lg shadow-2xl hover:brightness-110 transition-all flex items-center justify-center gap-2 cursor-pointer border border-yellow-300"
+                className="w-full py-4 rounded-2xl bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 hover:brightness-110 text-zinc-950 font-black text-base md:text-lg shadow-2xl transition-all flex items-center justify-center gap-2 cursor-pointer border border-yellow-300"
               >
                 <Lock className="w-5 h-5" />
-                <span>시청자 투표 마감하기</span>
+                <span>🔒 시청자 투표 마감하기</span>
               </button>
             )}
 
-            {/* Phase 2: Pick Option A or B */}
+            {/* Phase 2: Pick Option A or B (Request 1: Exact Option Texts matching StreamerMode) */}
             {status === 'LOCKED' && (
-              <div className="space-y-2 text-center">
-                <p className="text-xs text-amber-300 font-bold">
-                  👆 위의 선택지 A 또는 선택지 B 카드 중 스트리머의 진짜 취향을 직접 클릭해 주세요!
-                </p>
-                <div className="grid grid-cols-2 gap-2">
+              <div className="space-y-2.5">
+                <span className="text-xs md:text-sm text-amber-300 font-black block text-center bg-amber-500/10 py-1.5 px-3 rounded-xl border border-amber-500/30 animate-pulse">
+                  👉 스트리머 본인의 진짜 취향 픽을 선택해 주세요!
+                </span>
+                <div className="grid grid-cols-2 gap-2.5">
                   <button
                     onClick={() => handleSelectStreamerPick('A')}
-                    className="py-3 rounded-xl bg-amber-500/20 border border-amber-400 text-amber-300 font-black text-sm hover:bg-amber-500/30 transition cursor-pointer"
+                    className="py-3.5 px-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-zinc-950 font-black text-xs md:text-sm transition-all shadow-md cursor-pointer flex items-center justify-center gap-1.5"
                   >
-                    선택지 A 픽하기
+                    <span className="truncate">{currentQuestion?.option_a}</span>
                   </button>
+
                   <button
                     onClick={() => handleSelectStreamerPick('B')}
-                    className="py-3 rounded-xl bg-emerald-500/20 border border-emerald-400 text-emerald-300 font-black text-sm hover:bg-emerald-500/30 transition cursor-pointer"
+                    className="py-3.5 px-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-black text-xs md:text-sm transition-all shadow-md cursor-pointer flex items-center justify-center gap-1.5"
                   >
-                    선택지 B 픽하기
+                    <span className="truncate">{currentQuestion?.option_b}</span>
                   </button>
                 </div>
               </div>
