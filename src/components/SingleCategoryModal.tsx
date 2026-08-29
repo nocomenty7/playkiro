@@ -139,7 +139,7 @@ export default function SingleCategoryModal({
                   <Filter className="w-3.5 h-3.5 text-amber-400" />
                   카테고리 필터
                 </span>
-                <span className="text-neutral-500 text-[10px] font-normal">(복수 선택 가능)</span>
+                <span className="text-amber-400/90 text-xs font-bold">(복수 선택 가능)</span>
               </label>
 
               {/* '전체' Category */}
@@ -189,7 +189,7 @@ export default function SingleCategoryModal({
               className="w-full py-3.5 rounded-xl bg-brand-yellow text-zinc-950 font-black text-sm transition-all shadow-lg hover:brightness-110 flex items-center justify-center gap-2 cursor-pointer mt-6"
             >
               <Sparkles className="w-4 h-4 fill-zinc-950" />
-              <span>선택한 카테고리로 시작하기</span>
+              <span>시작하기</span>
             </button>
           </form>
         </motion.div>
