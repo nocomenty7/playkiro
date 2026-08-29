@@ -10,6 +10,7 @@ import StreamerModal from '../components/StreamerModal';
 import NoticePopup from '../components/NoticePopup';
 import AdsenseBanner from '../components/AdsenseBanner';
 import PlayModeSelectModal from '../components/PlayModeSelectModal';
+import SingleCategoryModal from '../components/SingleCategoryModal';
 
 function LandingClient() {
   const searchParams = useSearchParams();
@@ -19,6 +20,7 @@ function LandingClient() {
   const [showDrawer, setShowDrawer] = useState(false);
   const [showStreamerModal, setShowStreamerModal] = useState(false);
   const [showPlayModeModal, setShowPlayModeModal] = useState(false);
+  const [showSingleCategoryModal, setShowSingleCategoryModal] = useState(false);
   const [isNavigating, setIsNavigating] = useState(false);
   const [selectedCategories, setSelectedCategories] = useState<string[]>(() => {
     if (typeof window !== 'undefined') {
@@ -172,7 +174,7 @@ function LandingClient() {
             className="pt-2 max-w-sm md:max-w-md mx-auto space-y-3"
           >
             <button
-              onClick={handleStartGame}
+              onClick={() => setShowSingleCategoryModal(true)}
               className="w-full flex items-center justify-center gap-2 rounded-2xl bg-brand-yellow hover:bg-[#e0b240] text-zinc-950 font-black text-base px-6 h-14 shadow-[0_0_30px_rgba(245,195,82,0.3)] transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
             >
               <span>👤 혼자 플레이하기 (싱글모드)</span>
@@ -335,6 +337,18 @@ function LandingClient() {
         onSelectDirectJoin={() => {
           setShowPlayModeModal(false);
           setShowStreamerModal(true);
+        }}
+      />
+
+      {/* Single Mode Category Selection Modal */}
+      <SingleCategoryModal
+        isOpen={showSingleCategoryModal}
+        onClose={() => setShowSingleCategoryModal(false)}
+        onStartGame={(selectedCats) => {
+          setSelectedCategories(selectedCats);
+          setShowSingleCategoryModal(false);
+          setIsNavigating(true);
+          router.push('/play');
         }}
       />
 
