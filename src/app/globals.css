@@ -244,9 +244,9 @@ html.light .bg-black\/65 {
   scrollbar-width: none;  /* Firefox */
 }
 
-/* PC Widescreen Desktop Auto-Zoom (~125% comfortable scaling for desktop screens, mobile stays 100%) */
+/* PC Widescreen Desktop Text & Element Sizing (Scales REM text sizes up by 125% on PC, mobile stays 100%) */
 @media (min-width: 768px) {
   html {
-    zoom: 1.25;
+    font-size: 125%;
   }
 }
