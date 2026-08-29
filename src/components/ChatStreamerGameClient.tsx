@@ -98,6 +98,11 @@ export default function ChatStreamerGameClient() {
   const chzzkSocketRef = useRef<WebSocket | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const channelRef = useRef<any>(null);
+  const liveVotesRef = useRef(liveVotes);
+
+  useEffect(() => {
+    liveVotesRef.current = liveVotes;
+  }, [liveVotes]);
 
   // Transparent background for OBS Overlay Mode
   useEffect(() => {
@@ -111,7 +116,7 @@ export default function ChatStreamerGameClient() {
     };
   }, [isOverlay]);
 
-  // 1. Initial Room & Questions Load from DB (Syncing OBS Overlay & Host Streamer)
+  // 1. Initial Room & Questions Load from DB
   useEffect(() => {
     let rawConfig: any = null;
     try {
@@ -182,7 +187,6 @@ export default function ChatStreamerGameClient() {
             .in('id', roomData.question_ids);
 
           if (qData) {
-            // Map to exact ordered array
             const qMap = new Map(qData.map((q: any) => [q.id, q]));
             const orderedQuestions = roomData.question_ids.map((id: string) => qMap.get(id)).filter(Boolean);
             setQuestions(orderedQuestions);
@@ -224,12 +228,14 @@ export default function ChatStreamerGameClient() {
     initRoomData();
   }, [urlPin, isOverlay, router]);
 
-  // 2. Realtime Room Subscription for OBS & Host Sync
+  // 2. Realtime Room Subscription + Live Votes Broadcast for OBS
   useEffect(() => {
     if (!room?.id) return;
 
     const channel = supabase
-      .channel(`chat_room_${room.id}`)
+      .channel(`chat_room_${room.id}`, {
+        config: { broadcast: { self: true } },
+      })
       .on(
         'postgres_changes',
         { event: 'UPDATE', schema: 'public', table: 'rooms', filter: `id=eq.${room.id}` },
@@ -246,7 +252,7 @@ export default function ChatStreamerGameClient() {
               setLiveVotes({});
             }
 
-            // Question IDs array updated (e.g. Question Pass)
+            // Question IDs array updated
             if (JSON.stringify(newRoom.question_ids) !== JSON.stringify(room.question_ids)) {
               const { data: qData } = await supabase
                 .from('questions')
@@ -262,7 +268,23 @@ export default function ChatStreamerGameClient() {
           }
         }
       )
-      .subscribe();
+      .on('broadcast', { event: 'VOTE_UPDATE' }, (payload: any) => {
+        if (payload.payload?.liveVotes) {
+          setLiveVotes(payload.payload.liveVotes);
+        }
+      })
+      .subscribe((statusStr: string) => {
+        if (statusStr === 'SUBSCRIBED' && !isOverlay) {
+          // Send initial sync broadcast if host has existing votes
+          if (Object.keys(liveVotesRef.current).length > 0) {
+            channel.send({
+              type: 'broadcast',
+              event: 'VOTE_UPDATE',
+              payload: { liveVotes: liveVotesRef.current },
+            });
+          }
+        }
+      });
 
     channelRef.current = channel;
 
@@ -271,7 +293,7 @@ export default function ChatStreamerGameClient() {
         supabase.removeChannel(channelRef.current);
       }
     };
-  }, [room?.id, currentIndex]);
+  }, [room?.id, currentIndex, isOverlay]);
 
   // Helper: Play SFX
   const playSound = (src: string) => {
@@ -351,7 +373,7 @@ export default function ChatStreamerGameClient() {
     };
   }, [config, status]);
 
-  // Vote Parser Handler (Revoting & 1-vote deduplication support)
+  // Vote Parser Handler (Revoting & 1-vote deduplication support + Broadcast to OBS)
   const parseChatVote = (platform: 'chzzk' | 'soop', userId: string, nickname: string, text: string) => {
     if (status !== 'VOTING') return;
 
@@ -366,10 +388,24 @@ export default function ChatStreamerGameClient() {
       playSound('https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3');
       const uniqueKey = `${platform}:${userId}`;
       const platformBadge = platform === 'chzzk' ? '치지직' : 'SOOP';
-      setLiveVotes((prev) => ({
-        ...prev,
-        [uniqueKey]: { nickname: `${nickname} (${platformBadge})`, platform, choice: choice! },
-      }));
+      
+      setLiveVotes((prev) => {
+        const nextVotes = {
+          ...prev,
+          [uniqueKey]: { nickname: `${nickname} (${platformBadge})`, platform, choice: choice! },
+        };
+
+        // Broadcast to OBS overlay in real-time
+        if (channelRef.current && !isOverlay) {
+          channelRef.current.send({
+            type: 'broadcast',
+            event: 'VOTE_UPDATE',
+            payload: { liveVotes: nextVotes },
+          });
+        }
+
+        return nextVotes;
+      });
     }
   };
 
@@ -472,7 +508,6 @@ export default function ChatStreamerGameClient() {
     if (!room || !currentQuestion) return;
 
     try {
-      // Fetch a replacement question from pool
       let query = supabase.from('questions').select('id, category');
       if (config?.categories && !config.categories.includes('전체') && config.categories.length > 0) {
         query = query.in('category', config.categories);
@@ -511,11 +546,23 @@ export default function ChatStreamerGameClient() {
     }
   };
 
-  // Copy OBS Overlay URL
+  // Copy OBS Overlay URL (Including Channel IDs & PIN)
   const handleCopyOverlayUrl = () => {
     if (typeof window === 'undefined' || !config) return;
 
-    const overlayUrl = `${window.location.origin}/streamer/chat?pin=${config.pin || room?.pin}&overlay=true`;
+    const params = new URLSearchParams();
+    params.set('pin', config.pin || room?.pin || '');
+    params.set('overlay', 'true');
+    if (config.platforms && config.platforms.length > 0) {
+      params.set('platforms', config.platforms.join(','));
+    }
+    const chId = config.chzzkChannelId || config.chzzk?.channelId;
+    if (chId) params.set('chzzkId', chId);
+    const soopId = config.soopBjId || config.soop?.channelId;
+    if (soopId) params.set('soopId', soopId);
+    if (config.nickname) params.set('nickname', config.nickname);
+
+    const overlayUrl = `${window.location.origin}/streamer/chat?${params.toString()}`;
     navigator.clipboard.writeText(overlayUrl);
     setCopiedOverlay(true);
     triggerToast('📋 OBS 오버레이 URL이 클립보드에 복사되었습니다.');
