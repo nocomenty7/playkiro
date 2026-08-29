@@ -8,12 +8,14 @@ interface PlayModeSelectModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSelectDirectJoin: () => void;
+  onSelectChatIntegration: () => void;
 }
 
 export default function PlayModeSelectModal({
   isOpen,
   onClose,
   onSelectDirectJoin,
+  onSelectChatIntegration,
 }: PlayModeSelectModalProps) {
   if (!isOpen) return null;
 
@@ -57,22 +59,24 @@ export default function PlayModeSelectModal({
 
           {/* Mode Options List */}
           <div className="space-y-3.5">
-            {/* Mode 1: Chat Integration (Inactive for now) */}
-            <div
-              className="group relative rounded-2xl border border-zinc-800 bg-zinc-900/40 p-4 transition-all opacity-80 cursor-default"
+            {/* Mode 1: Chat Integration */}
+            <button
+              type="button"
+              onClick={onSelectChatIntegration}
+              className="w-full text-left group relative rounded-2xl border border-purple-500/40 bg-gradient-to-r from-purple-500/10 via-zinc-900/80 to-zinc-900 p-4 transition-all hover:border-purple-400 hover:scale-[1.01] active:scale-[0.99] cursor-pointer shadow-lg"
             >
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="p-2.5 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-400">
+                  <div className="p-2.5 rounded-xl bg-purple-500/20 border border-purple-500/40 text-purple-300">
                     <MessageSquare className="w-5 h-5" />
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="font-black text-sm text-neutral-200">
+                      <span className="font-black text-sm text-white group-hover:text-purple-300 transition-colors">
                         1. 채팅 연동 방식 (치지직, 숲 지원)
                       </span>
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-zinc-800 text-neutral-400 border border-zinc-700">
-                        준비중
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                        강력추천
                       </span>
                     </div>
                     <p className="text-xs text-neutral-400 mt-1 leading-relaxed break-keep">
@@ -80,8 +84,9 @@ export default function PlayModeSelectModal({
                     </p>
                   </div>
                 </div>
+                <ChevronRight className="w-5 h-5 text-purple-400 group-hover:translate-x-1 transition-transform shrink-0 self-center" />
               </div>
-            </div>
+            </button>
 
             {/* Mode 2: Create Room & Direct Viewer Join */}
             <button

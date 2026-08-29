@@ -11,6 +11,7 @@ import NoticePopup from '../components/NoticePopup';
 import AdsenseBanner from '../components/AdsenseBanner';
 import PlayModeSelectModal from '../components/PlayModeSelectModal';
 import SingleCategoryModal from '../components/SingleCategoryModal';
+import ChatStreamerModal from '../components/ChatStreamerModal';
 
 function LandingClient() {
   const searchParams = useSearchParams();
@@ -21,6 +22,7 @@ function LandingClient() {
   const [showStreamerModal, setShowStreamerModal] = useState(false);
   const [showPlayModeModal, setShowPlayModeModal] = useState(false);
   const [showSingleCategoryModal, setShowSingleCategoryModal] = useState(false);
+  const [showChatStreamerModal, setShowChatStreamerModal] = useState(false);
   const [isNavigating, setIsNavigating] = useState(false);
   const [selectedCategories, setSelectedCategories] = useState<string[]>(() => {
     if (typeof window !== 'undefined') {
@@ -351,6 +353,16 @@ function LandingClient() {
           setShowPlayModeModal(false);
           setShowStreamerModal(true);
         }}
+        onSelectChatIntegration={() => {
+          setShowPlayModeModal(false);
+          setShowChatStreamerModal(true);
+        }}
+      />
+
+      {/* Chat Streamer Setup Modal */}
+      <ChatStreamerModal
+        isOpen={showChatStreamerModal}
+        onClose={() => setShowChatStreamerModal(false)}
       />
 
       {/* Single Mode Category Selection Modal */}
