@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Trophy,
@@ -32,11 +32,13 @@ import StatsBottomSheet from './StatsBottomSheet';
 
 interface ChatRoomConfig {
   nickname: string;
-  hostGender: string;
-  hostAgeGroup: string;
+  hostGender?: string;
+  hostAgeGroup?: string;
   platforms: ('chzzk' | 'soop')[];
   chzzk?: any;
   soop?: any;
+  chzzkChannelId?: string;
+  soopBjId?: string;
   categories: string[];
   totalQuestions: number;
 }
@@ -61,6 +63,9 @@ const calculateViewerRanks = (sortedViewers: ViewerScore[]) => {
 
 export default function ChatStreamerGameClient() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const isOverlay = searchParams.get('overlay') === 'true';
 
   const [config, setConfig] = useState<ChatRoomConfig | null>(null);
   const [questions, setQuestions] = useState<any[]>([]);
@@ -81,7 +86,7 @@ export default function ChatStreamerGameClient() {
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
   const [copiedOverlay, setCopiedOverlay] = useState(false);
-  const [showHostGuide, setShowHostGuide] = useState(true);
+  const [showHostGuide, setShowHostGuide] = useState(false);
   const [showObsHelp, setShowObsHelp] = useState(false);
   const [showStatsModal, setShowStatsModal] = useState(false);
 
@@ -90,46 +95,122 @@ export default function ChatStreamerGameClient() {
   const chzzkSocketRef = useRef<WebSocket | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  // 1. Read Room Config & Fetch Questions
+  // Transparent background for OBS Overlay Mode
   useEffect(() => {
-    const raw = sessionStorage.getItem('kiro_chat_room_config');
-    if (!raw) {
-      router.replace('/');
+    if (isOverlay) {
+      document.body.style.backgroundColor = 'transparent';
+      document.body.style.overflow = 'hidden';
+    }
+    return () => {
+      document.body.style.backgroundColor = '';
+      document.body.style.overflow = '';
+    };
+  }, [isOverlay]);
+
+  // 1. Read Room Config from sessionStorage OR URL SearchParams (For OBS Browser Source)
+  useEffect(() => {
+    let parsedConfig: ChatRoomConfig | null = null;
+
+    // Check if URL parameters exist (OBS Overlay Mode)
+    const chzzkIdParam = searchParams.get('chzzkId');
+    const soopIdParam = searchParams.get('soopId');
+    const platformsParam = searchParams.get('platforms');
+
+    if (chzzkIdParam || soopIdParam || isOverlay) {
+      const platforms: ('chzzk' | 'soop')[] = platformsParam
+        ? (platformsParam.split(',') as ('chzzk' | 'soop')[])
+        : chzzkIdParam
+        ? ['chzzk']
+        : ['soop'];
+
+      parsedConfig = {
+        nickname: searchParams.get('nickname') || '스트리머',
+        platforms,
+        chzzk: chzzkIdParam ? { channelId: chzzkIdParam, chatChannelId: '' } : undefined,
+        soop: soopIdParam ? { channelId: soopIdParam } : undefined,
+        chzzkChannelId: chzzkIdParam || '',
+        soopBjId: soopIdParam || '',
+        categories: searchParams.get('categories')?.split(',') || ['전체'],
+        totalQuestions: Number(searchParams.get('totalQuestions') || 10),
+      };
+    } else {
+      // Fallback to sessionStorage for host browser
+      const raw = sessionStorage.getItem('kiro_chat_room_config');
+      if (raw) {
+        try {
+          parsedConfig = JSON.parse(raw);
+        } catch (e) {}
+      }
+    }
+
+    if (!parsedConfig) {
+      if (!isOverlay) router.replace('/');
       return;
     }
-    try {
-      const parsed: ChatRoomConfig = JSON.parse(raw);
-      setConfig(parsed);
 
-      const fetchQuestions = async () => {
-        let query = supabase.from('questions').select('*');
-        if (parsed.categories && !parsed.categories.includes('전체') && parsed.categories.length > 0) {
-          query = query.in('category', parsed.categories);
-        }
+    setConfig(parsedConfig);
+    if (!isOverlay) setShowHostGuide(true);
 
-        const { data, error } = await query;
-        if (error || !data || data.length === 0) {
-          const { data: fallback } = await supabase.from('questions').select('*');
-          if (fallback) {
-            const shuffled = [...fallback].sort(() => Math.random() - 0.5).slice(0, parsed.totalQuestions);
-            setQuestions(shuffled);
-          }
-        } else {
-          const shuffled = [...data].sort(() => Math.random() - 0.5).slice(0, parsed.totalQuestions);
+    const targetCategories = parsedConfig.categories || ['전체'];
+    const targetQCount = parsedConfig.totalQuestions || 10;
+
+    // Fetch Questions
+    const fetchQuestions = async () => {
+      let query = supabase.from('questions').select('*');
+      if (targetCategories && !targetCategories.includes('전체') && targetCategories.length > 0) {
+        query = query.in('category', targetCategories);
+      }
+
+      const { data, error } = await query;
+      if (error || !data || data.length === 0) {
+        const { data: fallback } = await supabase.from('questions').select('*');
+        if (fallback) {
+          const shuffled = [...fallback].sort(() => Math.random() - 0.5).slice(0, targetQCount);
           setQuestions(shuffled);
         }
-        setLoading(false);
-      };
+      } else {
+        const shuffled = [...data].sort(() => Math.random() - 0.5).slice(0, targetQCount);
+        setQuestions(shuffled);
+      }
+      setLoading(false);
+    };
 
-      fetchQuestions();
-    } catch (e) {
-      router.replace('/');
-    }
-  }, [router]);
+    // Fetch Chzzk metadata if chatChannelId is missing
+    const resolveChzzkMetadata = async () => {
+      const chId = parsedConfig?.chzzk?.channelId || parsedConfig?.chzzkChannelId;
+      if (chId && !parsedConfig?.chzzk?.chatChannelId) {
+        try {
+          const res = await fetch('/api/chat/connect', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ platform: 'chzzk', channelId: chId }),
+          });
+          const resData = await res.json();
+          if (res.ok && resData.success && resData.chatChannelId) {
+            setConfig((prev) =>
+              prev
+                ? {
+                    ...prev,
+                    chzzk: {
+                      ...prev.chzzk,
+                      chatChannelId: resData.chatChannelId,
+                      accessToken: resData.accessToken || '',
+                    },
+                  }
+                : null
+            );
+          }
+        } catch (e) {}
+      }
+    };
+
+    fetchQuestions();
+    resolveChzzkMetadata();
+  }, [searchParams, isOverlay, router]);
 
   // Helper: Play SFX
   const playSound = (src: string) => {
-    if (isMuted) return;
+    if (isMuted || isOverlay) return;
     try {
       if (!audioRef.current) audioRef.current = new Audio();
       audioRef.current.src = src;
@@ -149,7 +230,8 @@ export default function ChatStreamerGameClient() {
   useEffect(() => {
     if (!config) return;
 
-    if (config.platforms.includes('chzzk') && config.chzzk?.chatChannelId) {
+    const chzzkChatChannelId = config.chzzk?.chatChannelId;
+    if (config.platforms.includes('chzzk') && chzzkChatChannelId) {
       try {
         const wsUrl = 'wss://kr-ss1.chat.naver.com/chat';
         const ws = new WebSocket(wsUrl);
@@ -160,7 +242,7 @@ export default function ChatStreamerGameClient() {
             ver: '2',
             cmd: 10100,
             svcid: 'game',
-            cid: config.chzzk.chatChannelId,
+            cid: chzzkChatChannelId,
             bdy: {
               accTkn: config.chzzk.accessToken || '',
               auth: 'SEND',
@@ -219,7 +301,6 @@ export default function ChatStreamerGameClient() {
       playSound('https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3');
       const uniqueKey = `${platform}:${userId}`;
       const platformBadge = platform === 'chzzk' ? '치지직' : 'SOOP';
-      // Overwriting key handles choice updates (revoting) & deduplication seamlessly
       setLiveVotes((prev) => ({
         ...prev,
         [uniqueKey]: { nickname: `${nickname} (${platformBadge})`, platform, choice: choice! },
@@ -309,11 +390,32 @@ export default function ChatStreamerGameClient() {
     }
   };
 
-  // Copy Overlay URL
+  // Generate Self-Contained OBS Overlay URL
   const handleCopyOverlayUrl = () => {
-    if (typeof window === 'undefined') return;
-    const url = `${window.location.origin}/streamer/chat?overlay=true`;
-    navigator.clipboard.writeText(url);
+    if (typeof window === 'undefined' || !config) return;
+
+    const params = new URLSearchParams();
+    params.set('overlay', 'true');
+
+    if (config.platforms && config.platforms.length > 0) {
+      params.set('platforms', config.platforms.join(','));
+    }
+    const chId = config.chzzk?.channelId || config.chzzkChannelId;
+    if (chId) params.set('chzzkId', chId);
+
+    const soopId = config.soop?.channelId || config.soopBjId;
+    if (soopId) params.set('soopId', soopId);
+
+    if (config.nickname) params.set('nickname', config.nickname);
+    if (config.categories && config.categories.length > 0) {
+      params.set('categories', config.categories.join(','));
+    }
+    if (config.totalQuestions) {
+      params.set('totalQuestions', String(config.totalQuestions));
+    }
+
+    const overlayUrl = `${window.location.origin}/streamer/chat?${params.toString()}`;
+    navigator.clipboard.writeText(overlayUrl);
     setCopiedOverlay(true);
     triggerToast('📋 OBS 오버레이 URL이 클립보드에 복사되었습니다.');
     setTimeout(() => setCopiedOverlay(false), 2000);
@@ -321,9 +423,9 @@ export default function ChatStreamerGameClient() {
 
   if (loading || !config) {
     return (
-      <div className="min-h-screen bg-[#080911] flex flex-col items-center justify-center text-white p-4">
+      <div className={`min-h-screen ${isOverlay ? 'bg-transparent' : 'bg-[#080911]'} flex flex-col items-center justify-center text-white p-4`}>
         <div className="w-10 h-10 border-4 border-brand-yellow border-t-transparent rounded-full animate-spin mb-4" />
-        <p className="text-base font-extrabold text-neutral-400">방송 채팅 소켓 연결 중입니다...</p>
+        {!isOverlay && <p className="text-base font-extrabold text-neutral-400">방송 채팅 소켓 연결 중입니다...</p>}
       </div>
     );
   }
@@ -332,10 +434,10 @@ export default function ChatStreamerGameClient() {
   const sortedLeaderboard = calculateViewerRanks(Object.values(scores).sort((a, b) => b.score - a.score));
 
   return (
-    <div className="h-screen h-[100dvh] overflow-y-auto overscroll-y-contain touch-pan-y bg-[#080911] pb-12 text-white flex flex-col justify-between antialiased relative">
+    <div className={`h-screen h-[100dvh] ${isOverlay ? 'overflow-hidden bg-transparent pb-0' : 'overflow-y-auto overscroll-y-contain touch-pan-y bg-[#080911] pb-12'} text-white flex flex-col justify-between antialiased relative`}>
       {/* Toast Notification */}
       <AnimatePresence>
-        {showToast && (
+        {showToast && !isOverlay && (
           <motion.div
             initial={{ opacity: 0, y: 10, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -347,9 +449,9 @@ export default function ChatStreamerGameClient() {
         )}
       </AnimatePresence>
 
-      {/* Host Onboarding Guide Modal (Request 5) */}
+      {/* Host Onboarding Guide Modal */}
       <AnimatePresence>
-        {showHostGuide && (
+        {showHostGuide && !isOverlay && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
             <motion.div
               initial={{ opacity: 0 }}
@@ -386,7 +488,7 @@ export default function ChatStreamerGameClient() {
                 </button>
               </div>
 
-              {/* Simple Guidance (Request 5) */}
+              {/* Simple Guidance */}
               <div className="space-y-2.5 bg-zinc-900/60 p-4 rounded-2xl border border-zinc-800 text-[13px] md:text-sm">
                 <span className="font-extrabold text-neutral-300 block mb-3 text-[15px]">💡 간단 진행 가이드</span>
                 
@@ -438,7 +540,7 @@ export default function ChatStreamerGameClient() {
         )}
       </AnimatePresence>
 
-      {/* Stats Bottom Sheet Modal (Single Mode Stats) */}
+      {/* Stats Bottom Sheet Modal */}
       {showStatsModal && currentQuestion?.id && (
         <StatsBottomSheet
           questionId={currentQuestion.id}
@@ -448,48 +550,52 @@ export default function ChatStreamerGameClient() {
       )}
 
       {/* Unified PlayKiro Header & Logo */}
-      <header className="w-full h-16 shrink-0 flex items-center justify-between px-6 border-b border-zinc-900 bg-[#080911]/85 backdrop-blur-md sticky top-0 z-40">
-        <Link href="/" className="relative h-11 w-32 flex items-center">
-          <img
-            src="/logo.png?v=2"
-            alt="기로 로고"
-            className="h-10 w-auto object-contain pt-[2px]"
-          />
-        </Link>
-        <ThemeToggle />
-      </header>
+      {!isOverlay && (
+        <header className="w-full h-16 shrink-0 flex items-center justify-between px-6 border-b border-zinc-900 bg-[#080911]/85 backdrop-blur-md sticky top-0 z-40">
+          <Link href="/" className="relative h-11 w-32 flex items-center">
+            <img
+              src="/logo.png?v=2"
+              alt="기로 로고"
+              className="h-10 w-auto object-contain pt-[2px]"
+            />
+          </Link>
+          <ThemeToggle />
+        </header>
+      )}
 
-      {/* Sub-Header Live Bar (Request 3 & Request 7: Match top bar with exact request) */}
-      <div className="w-full border-b border-zinc-900/80 bg-zinc-950/60 backdrop-blur-sm shrink-0">
-        <div className="max-w-md mx-auto px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            {config.platforms.includes('chzzk') && (
-              <div className="flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/30 px-3 py-1.5 rounded-xl">
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
-                <span className="text-xs md:text-sm font-black text-emerald-400">치지직 채팅 연동중</span>
-              </div>
-            )}
-            {config.platforms.includes('soop') && (
-              <div className="flex items-center gap-1.5 bg-blue-500/10 border border-blue-500/30 px-3 py-1.5 rounded-xl">
-                <span className="w-2.5 h-2.5 rounded-full bg-blue-400 animate-pulse" />
-                <span className="text-xs md:text-sm font-black text-blue-400">SOOP 채팅 연동중</span>
-              </div>
-            )}
+      {/* Sub-Header Live Bar */}
+      {!isOverlay && (
+        <div className="w-full border-b border-zinc-900/80 bg-zinc-950/60 backdrop-blur-sm shrink-0">
+          <div className="max-w-md mx-auto px-4 py-3 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              {config.platforms.includes('chzzk') && (
+                <div className="flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/30 px-3 py-1.5 rounded-xl">
+                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
+                  <span className="text-xs md:text-sm font-black text-emerald-400">치지직 채팅 연동중</span>
+                </div>
+              )}
+              {config.platforms.includes('soop') && (
+                <div className="flex items-center gap-1.5 bg-blue-500/10 border border-blue-500/30 px-3 py-1.5 rounded-xl">
+                  <span className="w-2.5 h-2.5 rounded-full bg-blue-400 animate-pulse" />
+                  <span className="text-xs md:text-sm font-black text-blue-400">SOOP 채팅 연동중</span>
+                </div>
+              )}
+            </div>
+
+            <button
+              onClick={() => setShowHostGuide(true)}
+              className="flex items-center gap-1 text-xs md:text-sm font-black text-amber-400 bg-amber-500/10 border border-amber-500/30 px-3 py-1.5 rounded-xl hover:bg-amber-500/20 transition cursor-pointer"
+              title="진행 가이드 열기"
+            >
+              <span>💡 가이드</span>
+            </button>
           </div>
-
-          <button
-            onClick={() => setShowHostGuide(true)}
-            className="flex items-center gap-1 text-xs md:text-sm font-black text-amber-400 bg-amber-500/10 border border-amber-500/30 px-3 py-1.5 rounded-xl hover:bg-amber-500/20 transition cursor-pointer"
-            title="진행 가이드 열기"
-          >
-            <span>💡 가이드</span>
-          </button>
         </div>
-      </div>
+      )}
 
       {/* FINISHED STATE VIEW */}
       {status === 'FINISHED' ? (
-        <main className="w-full max-w-md mx-auto p-4 flex-1 flex flex-col justify-center space-y-6 my-auto">
+        <main className={`w-full ${isOverlay ? 'max-w-[95%]' : 'max-w-md'} mx-auto p-4 flex-1 flex flex-col justify-center space-y-6 my-auto`}>
           <div className="space-y-6">
             <div className="text-center space-y-2">
               <h1 className="text-3xl md:text-4xl lg:text-5xl font-black tracking-tight text-white">🏆 최종 결과</h1>
@@ -547,27 +653,29 @@ export default function ChatStreamerGameClient() {
             </div>
           </div>
 
-          <div className="pt-2 space-y-3">
-            <Link
-              href="/play"
-              className="w-full py-4 rounded-2xl bg-gradient-to-r from-brand-yellow via-amber-400 to-yellow-500 text-zinc-950 font-black text-base md:text-lg shadow-2xl hover:brightness-110 transition-all flex items-center justify-center gap-2 cursor-pointer border border-yellow-300"
-            >
-              <span>👤 혼자 플레이하기 (싱글 모드)</span>
-              <ArrowRight className="w-5 h-5" />
-            </Link>
+          {!isOverlay && (
+            <div className="pt-2 space-y-3">
+              <Link
+                href="/play"
+                className="w-full py-4 rounded-2xl bg-gradient-to-r from-brand-yellow via-amber-400 to-yellow-500 text-zinc-950 font-black text-base md:text-lg shadow-2xl hover:brightness-110 transition-all flex items-center justify-center gap-2 cursor-pointer border border-yellow-300"
+              >
+                <span>👤 혼자 플레이하기 (싱글 모드)</span>
+                <ArrowRight className="w-5 h-5" />
+              </Link>
 
-            <Link
-              href="/"
-              className="w-full py-3.5 rounded-2xl bg-zinc-900 border border-zinc-800 text-neutral-300 hover:text-white hover:bg-zinc-850 font-black text-sm md:text-base transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md"
-            >
-              <Home className="w-4 h-4 text-neutral-400" />
-              <span>메인화면으로 돌아가기</span>
-            </Link>
-          </div>
+              <Link
+                href="/"
+                className="w-full py-3.5 rounded-2xl bg-zinc-900 border border-zinc-800 text-neutral-300 hover:text-white hover:bg-zinc-850 font-black text-sm md:text-base transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md"
+              >
+                <Home className="w-4 h-4 text-neutral-400" />
+                <span>메인화면으로 돌아가기</span>
+              </Link>
+            </div>
+          )}
         </main>
       ) : (
         /* ACTIVE GAMEPLAY SCREEN */
-        <main className="w-full max-w-md mx-auto p-4 flex-1 flex flex-col justify-center space-y-6 my-auto">
+        <main className={`w-full ${isOverlay ? 'max-w-[95%]' : 'max-w-md'} mx-auto p-4 flex-1 flex flex-col justify-center space-y-6 my-auto`}>
           <div className="bg-zinc-950/40 border border-zinc-900 rounded-3xl p-5 md:p-7 backdrop-blur-xl shadow-2xl space-y-5">
             
             {/* Header Line: [Question Index] [Category] */}
@@ -591,7 +699,7 @@ export default function ChatStreamerGameClient() {
               </div>
             )}
 
-            {/* Total Votes Badge (Request 4: Removed prompt text) */}
+            {/* Total Votes Badge */}
             <div className="space-y-3 my-2">
               <div className="flex justify-center">
                 <span className={`text-xs md:text-sm font-black px-4 py-1.5 rounded-full border shadow-sm ${
@@ -606,20 +714,20 @@ export default function ChatStreamerGameClient() {
               </div>
             </div>
 
-            {/* Option A & B Cards (Request 2: Live Bar Graph Fill Animation during VOTING, LOCKED & RESULT) */}
+            {/* Option A & B Cards */}
             {currentQuestion && (
               <div className="grid grid-cols-1 gap-4 pt-1">
                 {/* Option 1 (A) - Amber / Yellow */}
                 <button
-                  disabled={status === 'RESULT'}
+                  disabled={status === 'RESULT' || isOverlay}
                   onClick={() => status === 'LOCKED' && handleSelectStreamerPick('A')}
                   className={`relative flex w-full min-h-[95px] flex-col items-center justify-center overflow-hidden rounded-2xl py-4 px-5 transition-all duration-300 text-left border ${
                     streamerPick === 'A'
                       ? 'bg-gradient-to-br from-amber-500/30 via-zinc-900 to-amber-950/40 border-4 border-amber-400 shadow-[0_0_40px_rgba(245,158,11,0.7)] ring-4 ring-yellow-300/40 scale-[1.03]'
                       : 'bg-zinc-900/50 border-zinc-800/80 hover:bg-zinc-900/80 hover:border-zinc-700'
-                  } ${status === 'RESULT' ? 'opacity-95 cursor-default' : 'cursor-pointer'}`}
+                  } ${status === 'RESULT' || isOverlay ? 'opacity-95 cursor-default' : 'cursor-pointer'}`}
                 >
-                  {/* Realtime Fill Animation during VOTING, LOCKED & RESULT (Request 2) */}
+                  {/* Realtime Fill Animation */}
                   <motion.div
                     initial={{ scaleX: 0 }}
                     animate={{ scaleX: percentA / 100 }}
@@ -655,7 +763,7 @@ export default function ChatStreamerGameClient() {
                       </p>
                     </div>
 
-                    {/* Realtime Live Percentage & Vote Count (Request 2) */}
+                    {/* Realtime Live Percentage & Vote Count */}
                     <div className="flex items-baseline justify-center gap-1.5 mt-1">
                       <span className="text-xl md:text-2xl font-black text-amber-400">
                         {percentA.toFixed(1)}%
@@ -667,15 +775,15 @@ export default function ChatStreamerGameClient() {
 
                 {/* Option 2 (B) - Emerald / Teal */}
                 <button
-                  disabled={status === 'RESULT'}
+                  disabled={status === 'RESULT' || isOverlay}
                   onClick={() => status === 'LOCKED' && handleSelectStreamerPick('B')}
                   className={`relative flex w-full min-h-[95px] flex-col items-center justify-center overflow-hidden rounded-2xl py-4 px-5 transition-all duration-300 text-left border ${
                     streamerPick === 'B'
                       ? 'bg-gradient-to-br from-amber-500/30 via-zinc-900 to-amber-950/40 border-4 border-amber-400 shadow-[0_0_40px_rgba(245,158,11,0.7)] ring-4 ring-yellow-300/40 scale-[1.03]'
                       : 'bg-zinc-900/50 border-zinc-800/80 hover:bg-zinc-900/80 hover:border-zinc-700'
-                  } ${status === 'RESULT' ? 'opacity-95 cursor-default' : 'cursor-pointer'}`}
+                  } ${status === 'RESULT' || isOverlay ? 'opacity-95 cursor-default' : 'cursor-pointer'}`}
                 >
-                  {/* Realtime Fill Animation during VOTING, LOCKED & RESULT (Request 2) */}
+                  {/* Realtime Fill Animation */}
                   <motion.div
                     initial={{ scaleX: 0 }}
                     animate={{ scaleX: percentB / 100 }}
@@ -711,7 +819,7 @@ export default function ChatStreamerGameClient() {
                       </p>
                     </div>
 
-                    {/* Realtime Live Percentage & Vote Count (Request 2) */}
+                    {/* Realtime Live Percentage & Vote Count */}
                     <div className="flex items-baseline justify-center gap-1.5 mt-1">
                       <span className="text-xl md:text-2xl font-black text-emerald-400">
                         {percentB.toFixed(1)}%
@@ -724,7 +832,7 @@ export default function ChatStreamerGameClient() {
             )}
 
             {/* Detailed Stats Button Revealed AFTER Streamer Pick (RESULT status) */}
-            {status === 'RESULT' && (
+            {status === 'RESULT' && !isOverlay && (
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -743,8 +851,8 @@ export default function ChatStreamerGameClient() {
         </main>
       )}
 
-      {/* Streamer Host Control Panel (Request 1: Exact match with StreamerMode) */}
-      {status !== 'FINISHED' && (
+      {/* Streamer Host Control Panel */}
+      {!isOverlay && status !== 'FINISHED' && (
         <div className="w-full max-w-md mx-auto p-4 shrink-0">
           <div className="w-full bg-gradient-to-b from-amber-500/15 via-zinc-950 to-zinc-950 border-2 border-amber-400/60 shadow-[0_0_35px_rgba(245,158,11,0.25)] rounded-3xl p-5 space-y-4">
             <div className="flex items-center justify-between text-sm md:text-base font-black text-neutral-300 border-b border-amber-500/20 pb-3">
@@ -785,7 +893,7 @@ export default function ChatStreamerGameClient() {
               </button>
             )}
 
-            {/* Phase 2: Pick Option A or B (Request 1: Exact Option Texts matching StreamerMode) */}
+            {/* Phase 2: Pick Option A or B */}
             {status === 'LOCKED' && (
               <div className="space-y-2.5">
                 <span className="text-xs md:text-sm text-amber-300 font-black block text-center bg-amber-500/10 py-1.5 px-3 rounded-xl border border-amber-500/30 animate-pulse">
