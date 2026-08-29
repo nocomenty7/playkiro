@@ -473,19 +473,6 @@ export default function ChatStreamerGameClient() {
 
         return nextVotes;
       });
-
-      // Record viewer vote in vote_stats multi category (Request 6)
-      if (currentQuestion?.id) {
-        fetch('/api/play/vote', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            questionId: currentQuestion.id,
-            option: choice,
-            isMulti: true,
-          }),
-        }).catch(() => {});
-      }
     }
   };
 
