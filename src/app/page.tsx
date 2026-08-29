@@ -4,7 +4,7 @@ import React, { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, Trophy, Users, ShieldAlert, BrainCircuit, BarChart3, Loader2, Tv } from 'lucide-react';
+import { Sparkles, Trophy, Users, ShieldAlert, BrainCircuit, BarChart3, Loader2, Tv, RotateCcw } from 'lucide-react';
 import Navigation from '../components/Navigation';
 import StreamerModal from '../components/StreamerModal';
 import NoticePopup from '../components/NoticePopup';
@@ -28,7 +28,9 @@ function LandingClient() {
       if (saved) {
         try {
           return JSON.parse(saved);
-        } catch (e) {}
+        } catch (e) {
+          return ['전체'];
+        }
       }
     }
     return ['전체'];
@@ -70,18 +72,18 @@ function LandingClient() {
   // Sample dilemmas for the premium infinite marquee animation
   const sampleDilemmasRow1 = [
     { a: "평생 두통", b: "평생 치통", cat: "극한 밸런스게임" },
-    { a: "로또 10억 일시불", b: "연금 월 500만원", cat: "돈" },
-    { a: "100% 확률로 1억", b: "50% 확률로 100억", cat: "돈" },
-    { a: "스마트폰 평생 사용 금지", b: "해외여행 평생 금지", cat: "여가" },
-    { a: "매일 짜장면 먹기", b: "매일 짬뽕 먹기", cat: "음식" }
+    { a: "10년 전으로 복귀", b: "10억 받기", cat: "돈" },
+    { a: "재입대하기", b: "모든 기기 환불하기", cat: "극한 밸런스게임" },
+    { a: "투명인간 되기", b: "시간추월 가능하기", cat: "상상" },
+    { a: "평생 사과만 먹기", b: "평생 바나나만 먹기", cat: "음식" },
   ];
 
   const sampleDilemmasRow2 = [
-    { a: "사막에서 패딩 입기", b: "남극에서 반팔 입기", cat: "극한 밸런스게임" },
-    { a: "모든 과거 기억 잃기", b: "모든 미래 예견하기", cat: "상상" },
-    { a: "매일 카톡 100개 연인", b: "일주일 무연락 연인", cat: "관계" },
-    { a: "완벽한 민머리", b: "평생 더벅머리", cat: "스타일" },
-    { a: "하루종일 침대 속", b: "하루종일 야외 모험", cat: "일상" }
+    { a: "연인과 매일 연락", b: "주 1회 연락", cat: "관계" },
+    { a: "여름만 10년", b: "겨울만 10년", cat: "일상" },
+    { a: "삭발로 살기", b: "장발로 살기", cat: "스타일" },
+    { a: "평생 독서", b: "평생 운동", cat: "여가" },
+    { a: "민초 고수", b: "반민초 파", cat: "음식" },
   ];
 
   return (
@@ -118,12 +120,12 @@ function LandingClient() {
             끝없는 밸런스게임, <span className="text-brand-yellow font-['MaruBuriBold']">'기로'</span>
           </motion.h1>
 
-          {/* Modern SaaS Value Propositions (Stacked Vertically) */}
+          {/* Modern SaaS Value Propositions */}
           <motion.div 
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.15 }}
-            className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-6 text-sm font-extrabold text-neutral-300"
+            className="flex flex-col sm:flex-row flex-wrap items-center justify-center gap-2 sm:gap-5 text-xs sm:text-sm font-extrabold text-neutral-300"
           >
             <span className="flex items-center gap-1">⚡️ 가입없이 0초 실행</span>
             <span className="flex items-center gap-1">🔒 100% 익명 통계</span>
@@ -203,6 +205,16 @@ function LandingClient() {
         {/* Vercel Style Spacious Feature Cards */}
         <section className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
           
+          <div className="group rounded-3xl border border-zinc-900 bg-zinc-900/10 p-8 space-y-4 hover:border-zinc-800 transition-all duration-300">
+            <div className="h-12 w-12 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400">
+              <RotateCcw className="h-6 w-6" />
+            </div>
+            <h3 className="text-xl font-extrabold text-neutral-100">중복 문제 없는 100% 릴레이 출제</h3>
+            <p className="text-sm text-neutral-450 leading-relaxed">
+              브라우저의 데이터나 캐시를 삭제하지 않는 한, 언제 접속하셔도 중복 없이 항상 고유의 문제를 끝없이 이어서 풀 수 있습니다.
+            </p>
+          </div>
+
           <div className="group rounded-3xl border border-zinc-900 bg-zinc-900/10 p-8 space-y-4 hover:border-zinc-800 transition-all duration-300">
             <div className="h-12 w-12 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400">
               <BrainCircuit className="h-6 w-6" />
