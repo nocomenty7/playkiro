@@ -31,6 +31,8 @@ import ThemeToggle from './ThemeToggle';
 import StatsBottomSheet from './StatsBottomSheet';
 
 interface ChatRoomConfig {
+  pin?: string;
+  roomId?: string;
   nickname: string;
   hostGender?: string;
   hostAgeGroup?: string;
@@ -66,7 +68,9 @@ export default function ChatStreamerGameClient() {
   const searchParams = useSearchParams();
 
   const isOverlay = searchParams.get('overlay') === 'true';
+  const urlPin = searchParams.get('pin');
 
+  const [room, setRoom] = useState<any>(null);
   const [config, setConfig] = useState<ChatRoomConfig | null>(null);
   const [questions, setQuestions] = useState<any[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -87,13 +91,13 @@ export default function ChatStreamerGameClient() {
   const [toastMessage, setToastMessage] = useState('');
   const [copiedOverlay, setCopiedOverlay] = useState(false);
   const [showHostGuide, setShowHostGuide] = useState(false);
-  const [showObsHelp, setShowObsHelp] = useState(false);
   const [showStatsModal, setShowStatsModal] = useState(false);
 
   // Audio / Sound FX
   const [isMuted, setIsMuted] = useState(false);
   const chzzkSocketRef = useRef<WebSocket | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const channelRef = useRef<any>(null);
 
   // Transparent background for OBS Overlay Mode
   useEffect(() => {
@@ -107,106 +111,167 @@ export default function ChatStreamerGameClient() {
     };
   }, [isOverlay]);
 
-  // 1. Read Room Config from sessionStorage OR URL SearchParams (For OBS Browser Source)
+  // 1. Initial Room & Questions Load from DB (Syncing OBS Overlay & Host Streamer)
   useEffect(() => {
-    let parsedConfig: ChatRoomConfig | null = null;
+    let rawConfig: any = null;
+    try {
+      const stored = sessionStorage.getItem('kiro_chat_room_config');
+      if (stored) rawConfig = JSON.parse(stored);
+    } catch (e) {}
 
-    // Check if URL parameters exist (OBS Overlay Mode)
-    const chzzkIdParam = searchParams.get('chzzkId');
-    const soopIdParam = searchParams.get('soopId');
-    const platformsParam = searchParams.get('platforms');
-
-    if (chzzkIdParam || soopIdParam || isOverlay) {
-      const platforms: ('chzzk' | 'soop')[] = platformsParam
-        ? (platformsParam.split(',') as ('chzzk' | 'soop')[])
-        : chzzkIdParam
-        ? ['chzzk']
-        : ['soop'];
-
-      parsedConfig = {
-        nickname: searchParams.get('nickname') || '스트리머',
-        platforms,
-        chzzk: chzzkIdParam ? { channelId: chzzkIdParam, chatChannelId: '' } : undefined,
-        soop: soopIdParam ? { channelId: soopIdParam } : undefined,
-        chzzkChannelId: chzzkIdParam || '',
-        soopBjId: soopIdParam || '',
-        categories: searchParams.get('categories')?.split(',') || ['전체'],
-        totalQuestions: Number(searchParams.get('totalQuestions') || 10),
-      };
-    } else {
-      // Fallback to sessionStorage for host browser
-      const raw = sessionStorage.getItem('kiro_chat_room_config');
-      if (raw) {
-        try {
-          parsedConfig = JSON.parse(raw);
-        } catch (e) {}
-      }
-    }
-
-    if (!parsedConfig) {
+    const targetPin = urlPin || rawConfig?.pin;
+    if (!targetPin) {
       if (!isOverlay) router.replace('/');
       return;
     }
 
-    setConfig(parsedConfig);
-    if (!isOverlay) setShowHostGuide(true);
+    const initRoomData = async () => {
+      try {
+        setLoading(true);
 
-    const targetCategories = parsedConfig.categories || ['전체'];
-    const targetQCount = parsedConfig.totalQuestions || 10;
+        // Fetch room from Supabase `rooms` table
+        const { data: roomData, error: roomErr } = await supabase
+          .from('rooms')
+          .select('*')
+          .eq('pin', targetPin)
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .maybeSingle();
 
-    // Fetch Questions
-    const fetchQuestions = async () => {
-      let query = supabase.from('questions').select('*');
-      if (targetCategories && !targetCategories.includes('전체') && targetCategories.length > 0) {
-        query = query.in('category', targetCategories);
-      }
-
-      const { data, error } = await query;
-      if (error || !data || data.length === 0) {
-        const { data: fallback } = await supabase.from('questions').select('*');
-        if (fallback) {
-          const shuffled = [...fallback].sort(() => Math.random() - 0.5).slice(0, targetQCount);
-          setQuestions(shuffled);
+        if (roomErr || !roomData) {
+          if (!isOverlay) router.replace('/');
+          return;
         }
-      } else {
-        const shuffled = [...data].sort(() => Math.random() - 0.5).slice(0, targetQCount);
-        setQuestions(shuffled);
-      }
-      setLoading(false);
-    };
 
-    // Fetch Chzzk metadata if chatChannelId is missing
-    const resolveChzzkMetadata = async () => {
-      const chId = parsedConfig?.chzzk?.channelId || parsedConfig?.chzzkChannelId;
-      if (chId && !parsedConfig?.chzzk?.chatChannelId) {
-        try {
-          const res = await fetch('/api/chat/connect', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ platform: 'chzzk', channelId: chId }),
-          });
-          const resData = await res.json();
-          if (res.ok && resData.success && resData.chatChannelId) {
-            setConfig((prev) =>
-              prev
-                ? {
-                    ...prev,
-                    chzzk: {
-                      ...prev.chzzk,
-                      chatChannelId: resData.chatChannelId,
-                      accessToken: resData.accessToken || '',
-                    },
-                  }
-                : null
-            );
+        setRoom(roomData);
+        setCurrentIndex(roomData.current_question_index || 0);
+        setStatus(roomData.status || 'VOTING');
+        setStreamerPick(roomData.host_pick || null);
+
+        // Build config
+        const platforms: ('chzzk' | 'soop')[] = searchParams.get('platforms')
+          ? (searchParams.get('platforms')!.split(',') as ('chzzk' | 'soop')[])
+          : rawConfig?.platforms || ['chzzk'];
+
+        const chId = searchParams.get('chzzkId') || rawConfig?.chzzkChannelId || rawConfig?.chzzk?.channelId;
+        const soopId = searchParams.get('soopId') || rawConfig?.soopBjId || rawConfig?.soop?.channelId;
+
+        const resolvedConfig: ChatRoomConfig = {
+          pin: roomData.pin,
+          roomId: roomData.id,
+          nickname: roomData.host_nickname || searchParams.get('nickname') || rawConfig?.nickname || '스트리머',
+          hostGender: roomData.host_gender || 'male',
+          hostAgeGroup: roomData.host_age_group || '20s',
+          platforms,
+          chzzkChannelId: chId || '',
+          soopBjId: soopId || '',
+          categories: roomData.categories || ['전체'],
+          totalQuestions: roomData.total_questions || 10,
+        };
+
+        setConfig(resolvedConfig);
+        if (!isOverlay && roomData.current_question_index === 0) {
+          setShowHostGuide(true);
+        }
+
+        // Fetch exact ordered questions by ID array from DB
+        if (roomData.question_ids && roomData.question_ids.length > 0) {
+          const { data: qData } = await supabase
+            .from('questions')
+            .select('*')
+            .in('id', roomData.question_ids);
+
+          if (qData) {
+            // Map to exact ordered array
+            const qMap = new Map(qData.map((q: any) => [q.id, q]));
+            const orderedQuestions = roomData.question_ids.map((id: string) => qMap.get(id)).filter(Boolean);
+            setQuestions(orderedQuestions);
           }
-        } catch (e) {}
+        }
+
+        // Resolve Chzzk chatChannelId if missing
+        if (chId && (!resolvedConfig.chzzk || !resolvedConfig.chzzk.chatChannelId)) {
+          try {
+            const res = await fetch('/api/chat/connect', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ platform: 'chzzk', channelId: chId }),
+            });
+            const resData = await res.json();
+            if (res.ok && resData.success && resData.chatChannelId) {
+              setConfig((prev) =>
+                prev
+                  ? {
+                      ...prev,
+                      chzzk: {
+                        channelId: chId,
+                        chatChannelId: resData.chatChannelId,
+                        accessToken: resData.accessToken || '',
+                      },
+                    }
+                  : null
+              );
+            }
+          } catch (e) {}
+        }
+      } catch (e) {
+        console.error('Failed to init chat streamer room:', e);
+      } finally {
+        setLoading(false);
       }
     };
 
-    fetchQuestions();
-    resolveChzzkMetadata();
-  }, [searchParams, isOverlay, router]);
+    initRoomData();
+  }, [urlPin, isOverlay, router]);
+
+  // 2. Realtime Room Subscription for OBS & Host Sync
+  useEffect(() => {
+    if (!room?.id) return;
+
+    const channel = supabase
+      .channel(`chat_room_${room.id}`)
+      .on(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'rooms', filter: `id=eq.${room.id}` },
+        async (payload: any) => {
+          const newRoom = payload.new;
+          if (newRoom) {
+            setRoom(newRoom);
+            setStatus(newRoom.status);
+            setStreamerPick(newRoom.host_pick);
+
+            // Question Index changed
+            if (newRoom.current_question_index !== currentIndex) {
+              setCurrentIndex(newRoom.current_question_index);
+              setLiveVotes({});
+            }
+
+            // Question IDs array updated (e.g. Question Pass)
+            if (JSON.stringify(newRoom.question_ids) !== JSON.stringify(room.question_ids)) {
+              const { data: qData } = await supabase
+                .from('questions')
+                .select('*')
+                .in('id', newRoom.question_ids);
+
+              if (qData) {
+                const qMap = new Map(qData.map((q: any) => [q.id, q]));
+                const orderedQuestions = newRoom.question_ids.map((id: string) => qMap.get(id)).filter(Boolean);
+                setQuestions(orderedQuestions);
+              }
+            }
+          }
+        }
+      )
+      .subscribe();
+
+    channelRef.current = channel;
+
+    return () => {
+      if (channelRef.current) {
+        supabase.removeChannel(channelRef.current);
+      }
+    };
+  }, [room?.id, currentIndex]);
 
   // Helper: Play SFX
   const playSound = (src: string) => {
@@ -226,7 +291,7 @@ export default function ChatStreamerGameClient() {
     setTimeout(() => setShowToast(false), 2000);
   };
 
-  // 2. Connect Platform Chat WebSockets (Chzzk & SOOP)
+  // 3. Connect Platform Chat WebSockets (Chzzk & SOOP)
   useEffect(() => {
     if (!config) return;
 
@@ -326,10 +391,18 @@ export default function ChatStreamerGameClient() {
   const percentB = totalVotes > 0 ? 100 - percentA : 50;
 
   // Streamer Pick Handler
-  const handleSelectStreamerPick = (choice: 'A' | 'B') => {
+  const handleSelectStreamerPick = async (choice: 'A' | 'B') => {
     setStreamerPick(choice);
     setStatus('RESULT');
     playSound('https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3');
+
+    // Update Room State in Supabase for OBS Sync
+    if (room?.id) {
+      await supabase
+        .from('rooms')
+        .update({ status: 'RESULT', host_pick: choice })
+        .eq('id', room.id);
+    }
 
     // Record vote stats in background
     if (currentQuestion) {
@@ -363,58 +436,86 @@ export default function ChatStreamerGameClient() {
   };
 
   // Lock Votes Action
-  const handleLockVoting = () => {
+  const handleLockVoting = async () => {
     setStatus('LOCKED');
     playSound('https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3');
+    if (room?.id) {
+      await supabase.from('rooms').update({ status: 'LOCKED' }).eq('id', room.id);
+    }
   };
 
-  // Next Question
-  const handleNextQuestion = () => {
-    if (currentIndex + 1 >= questions.length) {
+  // Next Question Action
+  const handleNextQuestion = async () => {
+    if (!room) return;
+    const nextIdx = currentIndex + 1;
+    if (nextIdx >= questions.length) {
       setStatus('FINISHED');
+      await supabase.from('rooms').update({ status: 'FINISHED' }).eq('id', room.id);
     } else {
-      setCurrentIndex((prev) => prev + 1);
+      setCurrentIndex(nextIdx);
       setLiveVotes({});
       setStatus('VOTING');
       setStreamerPick(null);
+      await supabase
+        .from('rooms')
+        .update({
+          current_question_index: nextIdx,
+          status: 'VOTING',
+          host_pick: null,
+        })
+        .eq('id', room.id);
     }
   };
 
-  // Pass Question
-  const handlePassQuestion = () => {
-    if (questions.length > currentIndex + 1) {
-      setCurrentIndex((prev) => prev + 1);
-      setLiveVotes({});
-      setStatus('VOTING');
-      setStreamerPick(null);
+  // Pass Question Action
+  const handlePassQuestion = async () => {
+    if (!room || !currentQuestion) return;
+
+    try {
+      // Fetch a replacement question from pool
+      let query = supabase.from('questions').select('id, category');
+      if (config?.categories && !config.categories.includes('전체') && config.categories.length > 0) {
+        query = query.in('category', config.categories);
+      }
+      const { data: poolData } = await query;
+      const candidates = (poolData || []).filter((q: any) => !room.question_ids.includes(q.id));
+      const replacement = candidates.length > 0 ? candidates[Math.floor(Math.random() * candidates.length)] : poolData?.[0];
+
+      if (replacement) {
+        const newQuestionIds = [...room.question_ids];
+        newQuestionIds[currentIndex] = replacement.id;
+
+        setLiveVotes({});
+        setStatus('VOTING');
+        setStreamerPick(null);
+
+        await supabase
+          .from('rooms')
+          .update({
+            question_ids: newQuestionIds,
+            status: 'VOTING',
+            host_pick: null,
+          })
+          .eq('id', room.id);
+      }
+    } catch (e) {}
+  };
+
+  // Finish Room Action
+  const handleFinishRoom = async () => {
+    if (confirm('정말로 방을 종료하시겠습니까?')) {
+      setStatus('FINISHED');
+      if (room?.id) {
+        await supabase.from('rooms').update({ status: 'FINISHED' }).eq('id', room.id);
+      }
     }
   };
 
-  // Generate Self-Contained OBS Overlay URL
+  // Copy OBS Overlay URL
   const handleCopyOverlayUrl = () => {
     if (typeof window === 'undefined' || !config) return;
 
-    const params = new URLSearchParams();
-    params.set('overlay', 'true');
-
-    if (config.platforms && config.platforms.length > 0) {
-      params.set('platforms', config.platforms.join(','));
-    }
-    const chId = config.chzzk?.channelId || config.chzzkChannelId;
-    if (chId) params.set('chzzkId', chId);
-
-    const soopId = config.soop?.channelId || config.soopBjId;
-    if (soopId) params.set('soopId', soopId);
-
-    if (config.nickname) params.set('nickname', config.nickname);
-    if (config.categories && config.categories.length > 0) {
-      params.set('categories', config.categories.join(','));
-    }
-    if (config.totalQuestions) {
-      params.set('totalQuestions', String(config.totalQuestions));
-    }
-
-    const overlayUrl = `${window.location.origin}/streamer/chat?${params.toString()}`;
+    const overlayUrl = `${window.location.origin}/streamer/chat?pin=${config.pin || room?.pin}&overlay=true`;
     navigator.clipboard.writeText(overlayUrl);
     setCopiedOverlay(true);
     triggerToast('📋 OBS 오버레이 URL이 클립보드에 복사되었습니다.');
@@ -682,7 +783,7 @@ export default function ChatStreamerGameClient() {
             <div className="flex items-center justify-between text-xs md:text-sm px-1">
               <div className="flex items-center gap-2">
                 <span className="font-black text-neutral-300 bg-zinc-900 px-3 py-1.5 rounded-xl border border-zinc-800 text-xs md:text-sm">
-                  Q {currentIndex + 1} / {questions.length}
+                  Q {currentIndex + 1} / {questions.length || config.totalQuestions}
                 </span>
                 <span className="font-extrabold text-neutral-300 bg-zinc-900 px-3.5 py-1.5 rounded-full border border-zinc-800">
                   {currentQuestion?.category || '밸런스게임'}
@@ -872,7 +973,7 @@ export default function ChatStreamerGameClient() {
                 )}
 
                 <button
-                  onClick={() => setStatus('FINISHED')}
+                  onClick={handleFinishRoom}
                   className="flex items-center gap-1 text-xs md:text-sm text-rose-400 hover:text-rose-300 font-bold cursor-pointer"
                   title="방 종료하기"
                 >

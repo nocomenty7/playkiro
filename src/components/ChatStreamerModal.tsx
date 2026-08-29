@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Tv, MessageSquare, Loader2, Sparkles, AlertCircle, Check } from 'lucide-react';
+import { X, MessageSquare, Loader2, Sparkles, AlertCircle, Check } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
 interface ChatStreamerModalProps {
@@ -90,20 +90,22 @@ export default function ChatStreamerModal({ isOpen, onClose }: ChatStreamerModal
     }
   };
 
-  const handleStartChatStream = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleStartChatStream = async (e?: React.FormEvent, isDemoMode = false) => {
+    if (e) e.preventDefault();
     setErrorMsg('');
 
-    const nickname = streamerNickname.trim() || '스트리머';
+    const nickname = streamerNickname.trim() || (isDemoMode ? '테스트스트리머' : '스트리머');
 
-    if (selectedPlatforms.includes('chzzk') && !chzzkChannelId.trim()) {
-      setErrorMsg('치지직 채널 ID 또는 방송 URL을 입력해 주세요.');
-      return;
-    }
+    if (!isDemoMode) {
+      if (selectedPlatforms.includes('chzzk') && !chzzkChannelId.trim()) {
+        setErrorMsg('치지직 채널 ID 또는 방송 URL을 입력해 주세요.');
+        return;
+      }
 
-    if (selectedPlatforms.includes('soop') && !soopBjId.trim()) {
-      setErrorMsg('SOOP BJ 아이디 또는 방송 URL을 입력해 주세요.');
-      return;
+      if (selectedPlatforms.includes('soop') && !soopBjId.trim()) {
+        setErrorMsg('SOOP BJ 아이디 또는 방송 URL을 입력해 주세요.');
+        return;
+      }
     }
 
     setLoading(true);
@@ -112,61 +114,90 @@ export default function ChatStreamerModal({ isOpen, onClose }: ChatStreamerModal
       let chzzkData: any = null;
       let soopData: any = null;
 
-      if (selectedPlatforms.includes('chzzk')) {
-        const res = await fetch('/api/chat/connect', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            platform: 'chzzk',
-            channelId: chzzkChannelId.trim(),
-          }),
-        });
-        const data = await res.json();
-        if (!res.ok || !data.success) {
-          throw new Error(`[치지직] ${data.error || '채널 정보를 확인할 수 없습니다.'}`);
+      if (!isDemoMode) {
+        if (selectedPlatforms.includes('chzzk')) {
+          const res = await fetch('/api/chat/connect', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              platform: 'chzzk',
+              channelId: chzzkChannelId.trim(),
+            }),
+          });
+          const data = await res.json();
+          if (!res.ok || !data.success) {
+            throw new Error(`[치지직] ${data.error || '채널 정보를 확인할 수 없습니다.'}`);
+          }
+          chzzkData = data;
         }
-        chzzkData = data;
+
+        if (selectedPlatforms.includes('soop')) {
+          const res = await fetch('/api/chat/connect', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              platform: 'soop',
+              channelId: soopBjId.trim(),
+            }),
+          });
+          const data = await res.json();
+          if (!res.ok || !data.success) {
+            throw new Error(`[SOOP] ${data.error || 'BJ 정보를 확인할 수 없습니다.'}`);
+          }
+          soopData = data;
+        }
       }
 
-      if (selectedPlatforms.includes('soop')) {
-        const res = await fetch('/api/chat/connect', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            platform: 'soop',
-            channelId: soopBjId.trim(),
-          }),
-        });
-        const data = await res.json();
-        if (!res.ok || !data.success) {
-          throw new Error(`[SOOP] ${data.error || 'BJ 정보를 확인할 수 없습니다.'}`);
-        }
-        soopData = data;
+      // Session ID
+      let hostSessionId = localStorage.getItem('kiro_streamer_session_id');
+      if (!hostSessionId) {
+        hostSessionId = 'session_' + Math.random().toString(36).substring(2, 9);
+        localStorage.setItem('kiro_streamer_session_id', hostSessionId);
+      }
+
+      // Create Room Entry in DB to sync questions and room state with OBS Overlay
+      const createRes = await fetch('/api/streamer/create-room', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          hostNickname: nickname,
+          hostGender,
+          hostAgeGroup,
+          hostSessionId,
+          categories: selectedCategories,
+          totalQuestions,
+        }),
+      });
+
+      const roomResult = await createRes.json();
+      if (!createRes.ok || !roomResult.success || !roomResult.pin) {
+        throw new Error(roomResult.error || '방 생성에 실패했습니다.');
       }
 
       const config = {
+        pin: roomResult.pin,
+        roomId: roomResult.roomId,
         nickname,
         hostGender,
         hostAgeGroup,
         platforms: selectedPlatforms,
         chzzk: chzzkData,
         soop: soopData,
-        chzzkChannelId: chzzkData?.channelId || chzzkChannelId.trim(),
-        soopBjId: soopData?.channelId || soopBjId.trim(),
+        chzzkChannelId: isDemoMode ? 'test_channel' : chzzkData?.channelId || chzzkChannelId.trim(),
+        soopBjId: isDemoMode ? 'test_bj' : soopData?.channelId || soopBjId.trim(),
         categories: selectedCategories,
         totalQuestions,
       };
 
       sessionStorage.setItem('kiro_chat_room_config', JSON.stringify(config));
 
-      // Build Unique Streamer URL
+      // Build Unique Streamer URL with PIN
       const queryParams = new URLSearchParams();
+      queryParams.set('pin', roomResult.pin);
       queryParams.set('platforms', selectedPlatforms.join(','));
       if (chzzkChannelId.trim()) queryParams.set('chzzkId', chzzkChannelId.trim());
       if (soopBjId.trim()) queryParams.set('soopId', soopBjId.trim());
       if (nickname) queryParams.set('nickname', nickname);
-      if (selectedCategories.length > 0) queryParams.set('categories', selectedCategories.join(','));
-      queryParams.set('totalQuestions', String(totalQuestions));
 
       onClose();
       router.push(`/streamer/chat?${queryParams.toString()}`);
@@ -224,7 +255,7 @@ export default function ChatStreamerModal({ isOpen, onClose }: ChatStreamerModal
             </div>
           )}
 
-          <form onSubmit={handleStartChatStream} className="space-y-4">
+          <form onSubmit={(e) => handleStartChatStream(e, false)} className="space-y-4">
             {/* Streamer Nickname */}
             <div>
               <label className="block text-xs font-extrabold text-neutral-300 mb-1.5">스트리머 닉네임</label>
@@ -436,33 +467,12 @@ export default function ChatStreamerModal({ isOpen, onClose }: ChatStreamerModal
               )}
             </button>
 
-            {/* Instant Offline Test Mode Button with Unique Streamer URL */}
+            {/* Instant Offline Test Mode Button */}
             <button
               type="button"
-              onClick={() => {
-                const nickname = streamerNickname.trim() || '테스트스트리머';
-                const config = {
-                  nickname,
-                  hostGender,
-                  hostAgeGroup,
-                  platforms: selectedPlatforms,
-                  chzzk: { isDemo: true },
-                  categories: selectedCategories,
-                  totalQuestions,
-                };
-                sessionStorage.setItem('kiro_chat_room_config', JSON.stringify(config));
-
-                const queryParams = new URLSearchParams({
-                  platforms: selectedPlatforms.join(','),
-                  chzzkId: 'test_channel',
-                  nickname,
-                  categories: selectedCategories.join(','),
-                  totalQuestions: String(totalQuestions),
-                });
-                onClose();
-                router.push(`/streamer/chat?${queryParams.toString()}`);
-              }}
-              className="w-full py-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-neutral-400 hover:text-white font-extrabold text-xs transition-all flex items-center justify-center gap-2 cursor-pointer mt-2"
+              disabled={loading}
+              onClick={() => handleStartChatStream(undefined, true)}
+              className="w-full py-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-neutral-400 hover:text-white font-extrabold text-xs transition-all flex items-center justify-center gap-2 cursor-pointer mt-2 disabled:opacity-50"
             >
               <span>🧪 방송 없이 테스트 화면 바로가기</span>
             </button>
