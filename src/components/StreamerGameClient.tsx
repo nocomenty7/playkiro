@@ -1176,6 +1176,12 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
                   </span>
                 </div>
 
+                {!isHost && !isOverlay && (
+                  <div className="w-full bg-zinc-900/80 border border-zinc-800 rounded-2xl py-2.5 px-4 text-center text-neutral-300 text-xs md:text-sm font-extrabold backdrop-blur-sm shadow-inner mt-2">
+                    <span className="inline-block animate-pulse mr-1.5 text-sm md:text-base">🎯</span>
+                    아래 두 선택지 중 하나를 픽해주세요.
+                  </div>
+                )}
               </div>
             )}
 
