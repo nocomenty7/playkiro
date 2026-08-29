@@ -9,6 +9,7 @@ import Navigation from '../components/Navigation';
 import StreamerModal from '../components/StreamerModal';
 import NoticePopup from '../components/NoticePopup';
 import AdsenseBanner from '../components/AdsenseBanner';
+import PlayModeSelectModal from '../components/PlayModeSelectModal';
 
 function LandingClient() {
   const searchParams = useSearchParams();
@@ -17,6 +18,7 @@ function LandingClient() {
 
   const [showDrawer, setShowDrawer] = useState(false);
   const [showStreamerModal, setShowStreamerModal] = useState(false);
+  const [showPlayModeModal, setShowPlayModeModal] = useState(false);
   const [isNavigating, setIsNavigating] = useState(false);
   const [selectedCategories, setSelectedCategories] = useState<string[]>(() => {
     if (typeof window !== 'undefined') {
@@ -177,10 +179,10 @@ function LandingClient() {
             </button>
 
             <button
-              onClick={() => setShowStreamerModal(true)}
+              onClick={() => setShowPlayModeModal(true)}
               className="w-full flex items-center justify-center gap-2 rounded-2xl bg-zinc-900 border border-zinc-700 hover:bg-zinc-800 text-white font-black text-sm px-6 h-12 transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
             >
-              <span>📺 함께 플레이하기 (스트리머 모드)</span>
+              <span>📺 함께 플레이하기</span>
             </button>
           </motion.div>
 
@@ -248,9 +250,9 @@ function LandingClient() {
             <div className="h-12 w-12 rounded-2xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400">
               <Tv className="h-6 w-6" />
             </div>
-            <h3 className="text-xl font-extrabold text-neutral-100">함께 플레이하기 (스트리머 모드)</h3>
+            <h3 className="text-xl font-extrabold text-neutral-100">함께 플레이하기</h3>
             <p className="text-sm text-neutral-450 leading-relaxed">
-              스트리머가 방을 만들고, 시청자가 6자리 PIN 코드로 접속하는 시참 모드입니다. 시청자가 스트리머의 진짜 취향과 선택을 예측하는 동안, 스트리머는 다양한 썰을 풀며 즐거운 소통의 시간을 보낼 수 있습니다. (OBS 오버레이 제공(선택사항))
+              치지직/SOOP 방송 채팅 연동 및 PIN 코드 접속 등 다양한 시참 방식을 제공합니다. 시청자가 스트리머의 취향과 선택을 예측하며 소통의 즐거움을 극대화해보세요. (OBS 오버레이 제공)
             </p>
           </div>
 

@@ -264,7 +264,7 @@ export default function StreamerModal({ isOpen, onClose }: StreamerModalProps) {
               <Tv className="w-6 h-6" />
             </div>
             <div>
-              <h2 className="text-xl font-black text-white tracking-tight">함께 플레이하기 (스트리머 모드)</h2>
+              <h2 className="text-xl font-black text-white tracking-tight">함께 플레이하기 (방을 만들고 시청자가 입장)</h2>
               <p className="text-xs text-neutral-400">실시간으로 스트리머의 취향을 예측해보세요!</p>
             </div>
           </div>
