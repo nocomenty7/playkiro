@@ -22,20 +22,19 @@ import { supabase } from '../lib/supabase';
 
 interface ChatRoomConfig {
   nickname: string;
-  platform: 'chzzk' | 'soop';
-  channelId: string;
-  chatChannelId: string;
-  bno: string;
-  channelName: string;
+  hostGender: string;
+  hostAgeGroup: string;
+  platforms: ('chzzk' | 'soop')[];
+  chzzk?: any;
+  soop?: any;
   categories: string[];
   totalQuestions: number;
-  accessToken?: string;
 }
 
 interface ViewerScore {
   nickname: string;
   score: number;
-  lastChoice?: 'A' | 'B';
+  platform?: string;
 }
 
 export default function ChatStreamerGameClient() {
@@ -46,8 +45,8 @@ export default function ChatStreamerGameClient() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState(true);
 
-  // Voting State per Question
-  const [liveVotes, setLiveVotes] = useState<{ [userKey: string]: { nickname: string; choice: 'A' | 'B' } }>({});
+  // Voting State per Question (Key: 'chzzk:uid' or 'soop:uid')
+  const [liveVotes, setLiveVotes] = useState<{ [userKey: string]: { nickname: string; platform: string; choice: 'A' | 'B' } }>({});
   const [isVotingClosed, setIsVotingClosed] = useState(false);
   const [streamerPick, setStreamerPick] = useState<'A' | 'B' | null>(null);
 
@@ -56,7 +55,7 @@ export default function ChatStreamerGameClient() {
 
   // Audio / Sound FX
   const [isMuted, setIsMuted] = useState(false);
-  const socketRef = useRef<WebSocket | null>(null);
+  const chzzkSocketRef = useRef<WebSocket | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   // 1. Read Room Config & Fetch Questions
@@ -107,26 +106,25 @@ export default function ChatStreamerGameClient() {
     } catch (e) {}
   };
 
-  // 2. Connect Platform Chat WebSocket (Chzzk / SOOP)
+  // 2. Connect Platform Chat WebSockets (Chzzk & SOOP simultaneously)
   useEffect(() => {
-    if (!config || !config.chatChannelId && config.platform === 'chzzk') return;
+    if (!config) return;
 
-    if (config.platform === 'chzzk' && config.chatChannelId) {
+    // A. Chzzk Socket Connection
+    if (config.platforms.includes('chzzk') && config.chzzk?.chatChannelId) {
       try {
-        // Connect to Chzzk Chat WebSocket Server
         const wsUrl = 'wss://kr-ss1.chat.naver.com/chat';
         const ws = new WebSocket(wsUrl);
-        socketRef.current = ws;
+        chzzkSocketRef.current = ws;
 
         ws.onopen = () => {
-          // Handshake packet
           const handshake = {
             ver: '2',
             cmd: 10100,
             svcid: 'game',
-            cid: config.chatChannelId,
+            cid: config.chzzk.chatChannelId,
             bdy: {
-              accTkn: config.accessToken || '',
+              accTkn: config.chzzk.accessToken || '',
               auth: 'SEND',
               devType: 2001,
             },
@@ -138,47 +136,38 @@ export default function ChatStreamerGameClient() {
         ws.onmessage = (event) => {
           try {
             const msg = JSON.parse(event.data);
-
-            // Ping/Pong keeping alive
             if (msg.cmd === 0) {
               ws.send(JSON.stringify({ ver: '2', cmd: 10000 }));
               return;
             }
-
-            // Chat Message Packet (cmd: 93101)
             if (msg.cmd === 93101 && Array.isArray(msg.bdy)) {
               msg.bdy.forEach((item: any) => {
                 const chatText = item.msg?.trim() || '';
-                let nickname = '시청자';
+                let nickname = '치지직시청자';
                 let userId = item.uid || item.nickname || Math.random().toString();
-
                 if (item.profile) {
                   try {
                     const prof = JSON.parse(item.profile);
                     if (prof.nickname) nickname = prof.nickname;
                   } catch (e) {}
                 }
-
-                // Check for !1, !2, 1, 2 votes
-                parseChatVote(userId, nickname, chatText);
+                parseChatVote('chzzk', userId, nickname, chatText);
               });
             }
           } catch (e) {}
         };
-      } catch (e) {
-        console.warn('Chzzk WebSocket connection warning:', e);
-      }
+      } catch (e) {}
     }
 
     return () => {
-      if (socketRef.current) {
-        socketRef.current.close();
+      if (chzzkSocketRef.current) {
+        chzzkSocketRef.current.close();
       }
     };
   }, [config, isVotingClosed]);
 
   // Vote Parser Handler
-  const parseChatVote = (userId: string, nickname: string, text: string) => {
+  const parseChatVote = (platform: 'chzzk' | 'soop', userId: string, nickname: string, text: string) => {
     if (isVotingClosed) return;
 
     let choice: 'A' | 'B' | null = null;
@@ -190,19 +179,23 @@ export default function ChatStreamerGameClient() {
 
     if (choice) {
       playSound('https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3');
+      const uniqueKey = `${platform}:${userId}`;
+      const platformBadge = platform === 'chzzk' ? '치지직' : 'SOOP';
       setLiveVotes((prev) => ({
         ...prev,
-        [userId]: { nickname, choice: choice! },
+        [uniqueKey]: { nickname: `${nickname} (${platformBadge})`, platform, choice: choice! },
       }));
     }
   };
 
-  // Test Vote Simulator (For offline testing)
-  const simulateTestVote = (choice: 'A' | 'B') => {
+  // Test Vote Simulator
+  const simulateTestVote = (choice: 'A' | 'B', platform: 'chzzk' | 'soop' = 'chzzk') => {
     if (isVotingClosed) return;
-    const testNames = ['치지직애청자', '숲러버', '나이스샷', '민초파', '기로마스터', '비둘기', '침착맨', '풍월량', '우왁뜬', '한동숙'];
-    const randomName = testNames[Math.floor(Math.random() * testNames.length)] + '_' + Math.floor(Math.random() * 99);
-    parseChatVote(randomName, randomName, `!${choice === 'A' ? '1' : '2'}`);
+    const chzzkNames = ['치지직애청자', '민초파', '침착맨', '한동숙', '우왁뜬'];
+    const soopNames = ['숲러버', '풍월량', '기가맥힘', '나이스샷', '기로짱'];
+    const list = platform === 'chzzk' ? chzzkNames : soopNames;
+    const randomName = list[Math.floor(Math.random() * list.length)] + '_' + Math.floor(Math.random() * 99);
+    parseChatVote(platform, randomName, randomName, `!${choice === 'A' ? '1' : '2'}`);
   };
 
   // Vote Calculations
@@ -220,15 +213,32 @@ export default function ChatStreamerGameClient() {
     setStreamerPick(choice);
     playSound('https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3');
 
+    // Record vote stats in background
+    if (currentQuestion) {
+      try {
+        const genderKey = config?.hostGender === 'female' ? 'female' : 'male';
+        const ageKey = config?.hostAgeGroup || '20s';
+        fetch('/api/play/vote', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            questionId: currentQuestion.id,
+            option: choice,
+            genderKey,
+            ageKey,
+          }),
+        }).catch(() => {});
+      } catch (e) {}
+    }
+
     // Calculate score points for viewers who predicted correctly
     const newScores = { ...scores };
     Object.entries(liveVotes).forEach(([userKey, voteData]) => {
       if (voteData.choice === choice) {
         if (!newScores[userKey]) {
-          newScores[userKey] = { nickname: voteData.nickname, score: 0 };
+          newScores[userKey] = { nickname: voteData.nickname, score: 0, platform: voteData.platform };
         }
         newScores[userKey].score += 100;
-        newScores[userKey].lastChoice = choice;
       }
     });
     setScores(newScores);
@@ -237,7 +247,6 @@ export default function ChatStreamerGameClient() {
   // Next Question
   const handleNextQuestion = () => {
     if (currentIndex + 1 >= questions.length) {
-      // Finish game
       setCurrentIndex(questions.length);
     } else {
       setCurrentIndex((prev) => prev + 1);
@@ -250,7 +259,7 @@ export default function ChatStreamerGameClient() {
   if (loading || !config) {
     return (
       <div className="flex h-[100dvh] w-full flex-col items-center justify-center bg-[#080911] text-white font-sans space-y-4">
-        <div className="h-10 w-10 animate-spin rounded-full border-4 border-t-transparent border-purple-500" />
+        <div className="h-10 w-10 animate-spin rounded-full border-4 border-t-transparent border-brand-yellow" />
         <p className="text-sm font-semibold text-neutral-400">방송 채팅 소켓 연결 중...</p>
       </div>
     );
@@ -263,13 +272,21 @@ export default function ChatStreamerGameClient() {
   const sortedLeaderboard = Object.values(scores).sort((a, b) => b.score - a.score);
 
   return (
-    <div className="relative flex min-h-[100dvh] w-full max-w-4xl mx-auto flex-col justify-between overflow-x-hidden bg-[#080911] bg-[radial-gradient(circle_at_top,_rgba(168,85,247,0.12),_transparent_60%)] text-white font-sans p-4 md:p-6">
+    <div className="relative flex min-h-[100dvh] w-full max-w-4xl mx-auto flex-col justify-between overflow-x-hidden bg-[#080911] bg-[radial-gradient(circle_at_top,_rgba(245,195,82,0.1),_transparent_60%)] text-white font-sans p-4 md:p-6">
       {/* Header Bar */}
       <header className="w-full flex items-center justify-between py-3 px-4 rounded-2xl border border-zinc-800 bg-zinc-900/60 backdrop-blur-md mb-4">
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/30 text-purple-300 text-xs font-black">
-            <Radio className="w-3.5 h-3.5 text-purple-400 animate-pulse" />
-            <span>{config.platform === 'chzzk' ? '치지직 채팅 연동' : 'SOOP 방송 연동'}</span>
+          <div className="flex items-center gap-2">
+            {config.platforms.includes('chzzk') && (
+              <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs font-black">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" /> 치지직
+              </span>
+            )}
+            {config.platforms.includes('soop') && (
+              <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-blue-500/10 border border-blue-500/30 text-blue-300 text-xs font-black">
+                <span className="w-2 h-2 rounded-full bg-blue-400 animate-pulse" /> SOOP
+              </span>
+            )}
           </div>
           <span className="text-xs text-neutral-400 font-extrabold hidden sm:inline">
             스트리머: <strong className="text-white">{config.nickname}</strong>
@@ -280,7 +297,7 @@ export default function ChatStreamerGameClient() {
           {/* Audio toggle */}
           <button
             onClick={() => setIsMuted(!isMuted)}
-            className="p-2 rounded-xl bg-zinc-800 text-neutral-400 hover:text-white transition"
+            className="p-2 rounded-xl bg-zinc-800 text-neutral-400 hover:text-white transition cursor-pointer"
           >
             {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
           </button>
@@ -339,7 +356,7 @@ export default function ChatStreamerGameClient() {
             {/* Live Chat Status Notice */}
             <div className="flex items-center justify-between text-xs text-neutral-400 pt-1">
               <div className="flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-purple-400 animate-ping" />
+                <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping" />
                 <span className="font-extrabold text-neutral-300">
                   방송 채팅창에 <span className="text-amber-400">!1</span> 또는 <span className="text-emerald-400">!2</span> 입력 중!
                 </span>
@@ -414,25 +431,25 @@ export default function ChatStreamerGameClient() {
 
               {/* Developer Test Simulators */}
               <button
-                onClick={() => simulateTestVote('A')}
+                onClick={() => simulateTestVote('A', 'chzzk')}
                 className="px-3 py-2.5 rounded-xl border border-amber-500/30 bg-amber-500/10 text-amber-300 text-xs font-bold hover:bg-amber-500/20 cursor-pointer"
-                title="테스트 1표 A 추가"
+                title="치지직 +1표(A) 테스트"
               >
-                +1표(A)
+                +1표(치지직A)
               </button>
               <button
-                onClick={() => simulateTestVote('B')}
-                className="px-3 py-2.5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-300 text-xs font-bold hover:bg-emerald-500/20 cursor-pointer"
-                title="테스트 1표 B 추가"
+                onClick={() => simulateTestVote('B', 'soop')}
+                className="px-3 py-2.5 rounded-xl border border-blue-500/30 bg-blue-500/10 text-blue-300 text-xs font-bold hover:bg-blue-500/20 cursor-pointer"
+                title="SOOP +1표(B) 테스트"
               >
-                +1표(B)
+                +1표(SOOP B)
               </button>
             </div>
 
             <button
               onClick={handleNextQuestion}
               disabled={!streamerPick}
-              className="w-full sm:w-auto px-6 py-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-black text-sm transition-all shadow-lg flex items-center justify-center gap-2 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+              className="w-full sm:w-auto px-6 py-3 rounded-xl bg-brand-yellow hover:bg-[#e0b240] text-zinc-950 font-black text-sm transition-all shadow-lg flex items-center justify-center gap-2 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
             >
               <span>다음 라운드로 이동</span>
               <ChevronRight className="w-4 h-4" />
