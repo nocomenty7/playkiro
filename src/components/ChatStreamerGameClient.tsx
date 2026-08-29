@@ -175,6 +175,8 @@ export default function ChatStreamerGameClient() {
           soopBjId: soopId || '',
           categories: roomData.categories || ['전체'],
           totalQuestions: roomData.total_questions || 10,
+          soop: soopId ? { channelId: soopId } : undefined,
+          chzzk: rawConfig?.chzzk || undefined,
         };
 
         setConfig(resolvedConfig);
@@ -487,14 +489,6 @@ export default function ChatStreamerGameClient() {
     setStreamerPick(choice);
     setStatus('RESULT');
     playSound('https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3');
-
-    // Update Room State in Supabase for OBS Sync
-    if (room?.id) {
-      await supabase
-        .from('rooms')
-        .update({ status: 'RESULT', host_pick: choice })
-        .eq('id', room.id);
-    }
 
     // Record streamer pick vote in vote_stats multi category (Request 6)
     if (currentQuestion?.id) {

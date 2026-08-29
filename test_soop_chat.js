@@ -5,24 +5,14 @@ async function test() {
   
   let count = 0;
   chat.on("chatMessage", (event) => {
-    console.log("MSG:", event.data.senderNickname, ":", event.data.message);
+    console.log("RAW EVENT:", JSON.stringify(event.data));
     count++;
-    if (count >= 5) {
+    if (count >= 1) {
       chat.disconnect();
       process.exit(0);
     }
   });
 
-  chat.on("error", (e) => console.error("Error:", e));
-  
-  console.log("Connecting...");
   await chat.connect();
-  console.log("Connected!");
-  
-  setTimeout(() => {
-    console.log("Timeout!");
-    chat.disconnect();
-    process.exit(0);
-  }, 10000);
 }
 test().catch(console.error);
