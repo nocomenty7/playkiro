@@ -18,7 +18,7 @@ export default function ChatStreamerModal({ isOpen, onClose }: ChatStreamerModal
   const [hostGender, setHostGender] = useState('male');
   const [hostAgeGroup, setHostAgeGroup] = useState('20s');
 
-  // Multi-platform selection (Chzzk and SOOP can be selected simultaneously)
+  // Multi-platform selection
   const [selectedPlatforms, setSelectedPlatforms] = useState<('chzzk' | 'soop')[]>(['chzzk']);
   const [chzzkChannelId, setChzzkChannelId] = useState('');
   const [soopBjId, setSoopBjId] = useState('');
@@ -42,7 +42,6 @@ export default function ChatStreamerModal({ isOpen, onClose }: ChatStreamerModal
     { name: '극한 밸런스게임', activeClass: 'border-neutral-500 bg-neutral-500 text-white', inactiveClass: 'border-neutral-500/30 bg-neutral-500/5 text-neutral-400 hover:border-neutral-500/50' }
   ];
 
-  // Fetch question counts dynamically
   useEffect(() => {
     if (!isOpen) return;
     const fetchCounts = async () => {
@@ -70,7 +69,7 @@ export default function ChatStreamerModal({ isOpen, onClose }: ChatStreamerModal
 
   const togglePlatform = (p: 'chzzk' | 'soop') => {
     if (selectedPlatforms.includes(p)) {
-      if (selectedPlatforms.length === 1) return; // Must keep at least 1
+      if (selectedPlatforms.length === 1) return;
       setSelectedPlatforms(selectedPlatforms.filter((item) => item !== p));
     } else {
       setSelectedPlatforms([...selectedPlatforms, p]);
@@ -113,7 +112,6 @@ export default function ChatStreamerModal({ isOpen, onClose }: ChatStreamerModal
       let chzzkData: any = null;
       let soopData: any = null;
 
-      // Connect check for Chzzk if selected
       if (selectedPlatforms.includes('chzzk')) {
         const res = await fetch('/api/chat/connect', {
           method: 'POST',
@@ -130,7 +128,6 @@ export default function ChatStreamerModal({ isOpen, onClose }: ChatStreamerModal
         chzzkData = data;
       }
 
-      // Connect check for SOOP if selected
       if (selectedPlatforms.includes('soop')) {
         const res = await fetch('/api/chat/connect', {
           method: 'POST',
@@ -147,7 +144,6 @@ export default function ChatStreamerModal({ isOpen, onClose }: ChatStreamerModal
         soopData = data;
       }
 
-      // Store multi-platform chat room config in sessionStorage
       const config = {
         nickname,
         hostGender,
@@ -155,14 +151,25 @@ export default function ChatStreamerModal({ isOpen, onClose }: ChatStreamerModal
         platforms: selectedPlatforms,
         chzzk: chzzkData,
         soop: soopData,
+        chzzkChannelId: chzzkData?.channelId || chzzkChannelId.trim(),
+        soopBjId: soopData?.channelId || soopBjId.trim(),
         categories: selectedCategories,
         totalQuestions,
       };
 
       sessionStorage.setItem('kiro_chat_room_config', JSON.stringify(config));
 
+      // Build Unique Streamer URL
+      const queryParams = new URLSearchParams();
+      queryParams.set('platforms', selectedPlatforms.join(','));
+      if (chzzkChannelId.trim()) queryParams.set('chzzkId', chzzkChannelId.trim());
+      if (soopBjId.trim()) queryParams.set('soopId', soopBjId.trim());
+      if (nickname) queryParams.set('nickname', nickname);
+      if (selectedCategories.length > 0) queryParams.set('categories', selectedCategories.join(','));
+      queryParams.set('totalQuestions', String(totalQuestions));
+
       onClose();
-      router.push('/streamer/chat');
+      router.push(`/streamer/chat?${queryParams.toString()}`);
     } catch (err: any) {
       setErrorMsg(err.message || '채팅 연동 처리 중 오류가 발생했습니다.');
       setLoading(false);
@@ -183,7 +190,7 @@ export default function ChatStreamerModal({ isOpen, onClose }: ChatStreamerModal
           className="absolute inset-0 bg-black/80 backdrop-blur-sm"
         />
 
-        {/* Modal Container (Exact styling matching StreamerModal) */}
+        {/* Modal Container */}
         <motion.div
           initial={{ opacity: 0, scale: 0.95, y: 15 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -230,7 +237,7 @@ export default function ChatStreamerModal({ isOpen, onClose }: ChatStreamerModal
               />
             </div>
 
-            {/* Gender and Age Group (Exact match with screenshot) */}
+            {/* Gender and Age Group */}
             <div className="grid grid-cols-2 gap-2">
               <div>
                 <label className="block text-xs font-extrabold text-neutral-300 mb-1.5">성별</label>
@@ -259,12 +266,11 @@ export default function ChatStreamerModal({ isOpen, onClose }: ChatStreamerModal
                 </select>
               </div>
             </div>
-            {/* Enlarged statistic notice text */}
             <p className="text-xs text-neutral-300 font-bold leading-relaxed mt-1.5">
               * 해당 정보는 단순 통계 저장용도로 사용됩니다.
             </p>
 
-            {/* Multi-Platform Selection (Checkboxes / Multi-select) */}
+            {/* Multi-Platform Selection */}
             <div className="border-t border-zinc-900/80 pt-3">
               <label className="flex items-center justify-between text-xs font-extrabold text-neutral-300 mb-2">
                 <span>방송 플랫폼 연동</span>
@@ -344,7 +350,7 @@ export default function ChatStreamerModal({ isOpen, onClose }: ChatStreamerModal
               </p>
             </div>
 
-            {/* Total Questions (Exact match with screenshot: '총 문제 수') */}
+            {/* Total Questions */}
             <div className="border-t border-zinc-900/80 pt-3">
               <label className="block text-xs font-extrabold text-neutral-300 mb-1.5">총 문제 수</label>
               <div className="grid grid-cols-3 gap-2">
@@ -365,14 +371,13 @@ export default function ChatStreamerModal({ isOpen, onClose }: ChatStreamerModal
               </div>
             </div>
 
-            {/* Category Filter (Exact match with screenshot) */}
+            {/* Category Filter */}
             <div className="border-t border-zinc-900/80 pt-3">
               <label className="flex items-center justify-between text-xs font-extrabold text-neutral-300 mb-2">
                 <span>카테고리 필터</span>
                 <span className="text-amber-400/90 text-xs font-bold">(복수 선택 가능)</span>
               </label>
 
-              {/* '전체' Full-width button */}
               <div className="mb-2.5">
                 {categoriesConfig.filter(c => c.name === '전체').map((cat) => {
                   const isActive = selectedCategories.includes(cat.name);
@@ -392,7 +397,6 @@ export default function ChatStreamerModal({ isOpen, onClose }: ChatStreamerModal
                 })}
               </div>
 
-              {/* Specific Categories */}
               <div className="flex flex-wrap gap-2">
                 {categoriesConfig.filter(c => c.name !== '전체').map((cat) => {
                   const isActive = selectedCategories.includes(cat.name);
@@ -413,7 +417,7 @@ export default function ChatStreamerModal({ isOpen, onClose }: ChatStreamerModal
               </div>
             </div>
 
-            {/* Submit Button (Purple Concept: '게임 시작') */}
+            {/* Submit Button */}
             <button
               type="submit"
               disabled={loading}
@@ -432,7 +436,7 @@ export default function ChatStreamerModal({ isOpen, onClose }: ChatStreamerModal
               )}
             </button>
 
-            {/* Instant Offline Test Mode Button */}
+            {/* Instant Offline Test Mode Button with Unique Streamer URL */}
             <button
               type="button"
               onClick={() => {
@@ -447,8 +451,16 @@ export default function ChatStreamerModal({ isOpen, onClose }: ChatStreamerModal
                   totalQuestions,
                 };
                 sessionStorage.setItem('kiro_chat_room_config', JSON.stringify(config));
+
+                const queryParams = new URLSearchParams({
+                  platforms: selectedPlatforms.join(','),
+                  chzzkId: 'test_channel',
+                  nickname,
+                  categories: selectedCategories.join(','),
+                  totalQuestions: String(totalQuestions),
+                });
                 onClose();
-                router.push('/streamer/chat');
+                router.push(`/streamer/chat?${queryParams.toString()}`);
               }}
               className="w-full py-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-neutral-400 hover:text-white font-extrabold text-xs transition-all flex items-center justify-center gap-2 cursor-pointer mt-2"
             >
