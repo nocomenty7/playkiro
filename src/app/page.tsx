@@ -130,6 +130,7 @@ function LandingClient() {
             <span className="flex items-center gap-1">⚡️ 가입없이 0초 실행</span>
             <span className="flex items-center gap-1">🔒 100% 익명 통계</span>
             <span className="flex items-center gap-1">🔥 500+ 양자택일 선택지</span>
+            <span className="flex items-center gap-1">🔁 중복문제 없이 플레이</span>
           </motion.div>
 
           {/* Dynamic Infinite Marquee Section (Moved Up to create Marquee -> CTA order) */}
