@@ -209,7 +209,7 @@ function LandingClient() {
             </div>
             <h3 className="text-xl font-extrabold text-neutral-100">8가지 고유 카테고리 필터링</h3>
             <p className="text-sm text-neutral-450 leading-relaxed mb-2">
-              음식, 일상, 스타일, 여가, 관계, 돈, 상상, 그리고 초매운맛 극한 밸런스게임까지. 서랍 메뉴에서 원하는 카테고리만 쏙 골라 즐길 수 있습니다.
+              전체 혹은 음식, 일상, 스타일, 여가, 관계, 돈, 상상, 그리고 초매운맛 극한 밸런스게임까지. 원하는 카테고리만 쏙 골라 즐길 수 있습니다.
             </p>
             {/* Embedded Category Preview Showcase */}
             <div className="pt-2 rounded-2xl overflow-hidden border border-zinc-850 bg-zinc-950/60 shadow-inner">
