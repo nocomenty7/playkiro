@@ -4,7 +4,7 @@ import { supabase } from '@/lib/supabase';
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { roomId, hostSessionId, hostPick, questionId, winnerParticipantIds: clientWinners = [] } = body;
+    const { roomId, hostSessionId, hostPick, questionId, winnerParticipantIds: clientWinners = [], viewerVotesA = 0, viewerVotesB = 0 } = body;
 
     if (!roomId || !hostPick || !['A', 'B'].includes(hostPick)) {
       return NextResponse.json({ error: 'Invalid parameters' }, { status: 400 });
@@ -74,15 +74,28 @@ export async function POST(request: Request) {
       })
       .eq('id', roomId);
 
-    // 4. Multi-Player DB Sync: Streamer's pick is recorded into `multi_a` / `multi_b` stats
-    const statKey = hostPick === 'A' ? 'multi_a' : 'multi_b';
-
+    // 4. Multi-Player DB Sync
     (async () => {
       try {
-        await supabase.rpc('increment_vote_stat', {
-          q_id: currentQId,
-          stat_key: statKey,
-        });
+        const streamerVoteA = hostPick === 'A' ? 1 : 0;
+        const streamerVoteB = hostPick === 'B' ? 1 : 0;
+        
+        let scaledViewerA = 0;
+        let scaledViewerB = 0;
+        const totalViewers = viewerVotesA + viewerVotesB;
+        
+        if (totalViewers > 0) {
+          if (totalViewers <= 10) {
+            scaledViewerA = viewerVotesA;
+            scaledViewerB = viewerVotesB;
+          } else {
+            scaledViewerA = Math.round((viewerVotesA / totalViewers) * 10);
+            scaledViewerB = 10 - scaledViewerA;
+          }
+        }
+        
+        const addA = streamerVoteA + scaledViewerA;
+        const addB = streamerVoteB + scaledViewerB;
 
         const { data: existingRow } = await supabase
           .from('vote_stats')
@@ -92,21 +105,30 @@ export async function POST(request: Request) {
 
         if (existingRow) {
           const currentStats = (existingRow.stats as Record<string, number>) || {};
-          const currentCount = Number(currentStats[statKey] || 0);
-          const nextMultiA = statKey === 'multi_a' ? Number(currentStats['multi_a'] || 0) + 1 : Number(currentStats['multi_a'] || 0);
-          const nextMultiB = statKey === 'multi_b' ? Number(currentStats['multi_b'] || 0) + 1 : Number(currentStats['multi_b'] || 0);
+          const currentMultiA = Number(currentStats['multi_a'] || 0);
+          const currentMultiB = Number(currentStats['multi_b'] || 0);
 
           const updatedStats = {
             ...currentStats,
-            [statKey]: currentCount + 1,
-            multi_a: nextMultiA,
-            multi_b: nextMultiB,
+            multi_a: currentMultiA + addA,
+            multi_b: currentMultiB + addB,
           };
 
           await supabase
             .from('vote_stats')
             .update({ stats: updatedStats, updated_at: new Date().toISOString() })
             .eq('question_id', currentQId);
+        } else {
+          // If no existing stats, create new
+          await supabase
+            .from('vote_stats')
+            .insert({
+              question_id: currentQId,
+              stats: {
+                multi_a: addA,
+                multi_b: addB,
+              },
+            });
         }
       } catch (err) {
         console.error('Background streamer pick stat processing error:', err);

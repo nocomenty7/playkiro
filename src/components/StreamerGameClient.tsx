@@ -598,6 +598,9 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
         .filter(([_, vote]) => vote === hostPick)
         .map(([pId, _]) => pId);
 
+      const viewerVotesA = Object.values(liveVotesMapRef.current).filter((v) => v === 'A').length;
+      const viewerVotesB = Object.values(liveVotesMapRef.current).filter((v) => v === 'B').length;
+
       await fetch('/api/streamer/submit-pick', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -609,6 +612,8 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
           gender: room.host_gender,
           ageGroup: room.host_age_group,
           winnerParticipantIds,
+          viewerVotesA,
+          viewerVotesB,
         }),
       });
     } catch (e) {

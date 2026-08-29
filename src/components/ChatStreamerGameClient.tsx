@@ -476,6 +476,8 @@ export default function ChatStreamerGameClient() {
             hostSessionId: localStorage.getItem('kiro_streamer_session_id'),
             hostPick: choice,
             questionId: currentQuestion.id,
+            viewerVotesA: votesA,
+            viewerVotesB: votesB,
           }),
         }).catch(() => {});
       } catch (e) {}
