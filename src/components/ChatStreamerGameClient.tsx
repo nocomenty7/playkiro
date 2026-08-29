@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import { SoopChat } from 'soop-chat/browser';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -94,6 +95,7 @@ export default function ChatStreamerGameClient() {
   // Audio / Sound FX
   const [isMuted, setIsMuted] = useState(false);
   const chzzkSocketRef = useRef<WebSocket | null>(null);
+  const soopSocketRef = useRef<any | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const channelRef = useRef<any>(null);
   const liveVotesRef = useRef(liveVotes);
@@ -378,9 +380,38 @@ export default function ChatStreamerGameClient() {
       } catch (e) {}
     }
 
+    const soopChannelId = config.soop?.channelId;
+    if (config.platforms.includes('soop') && soopChannelId) {
+      try {
+        const soopChat = new SoopChat({
+          streamerId: soopChannelId,
+          resolveChannel: async (id, context) => {
+            const res = await fetch(`/api/soop/resolve?bjid=${id}`, { signal: context.signal });
+            if (!res.ok) throw new Error('Failed to resolve channel');
+            return await res.json();
+          }
+        });
+        soopSocketRef.current = soopChat;
+
+        soopChat.on('chatMessage', (event: any) => {
+          const chatText = event.data?.message?.trim() || '';
+          const nickname = event.data?.senderNickname || '숲시청자';
+          const userId = event.data?.senderId || Math.random().toString();
+          parseChatVote('soop', userId, nickname, chatText);
+        });
+
+        soopChat.connect().catch((e: any) => console.error('SOOP connection error:', e));
+      } catch (e) {
+        console.error('SOOP init error:', e);
+      }
+    }
+
     return () => {
       if (chzzkSocketRef.current) {
         chzzkSocketRef.current.close();
+      }
+      if (soopSocketRef.current) {
+        soopSocketRef.current.disconnect?.();
       }
     };
   }, [config, status]);
