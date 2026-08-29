@@ -223,7 +223,7 @@ export default function ChatStreamerModal({ isOpen, onClose }: ChatStreamerModal
               <label className="block text-xs font-extrabold text-neutral-300 mb-1.5">스트리머 닉네임</label>
               <input
                 type="text"
-                placeholder="본인 닉네임을 입력하세요."
+                placeholder="본인 닉네임을 입력하세요 (방송 화면 표시용)"
                 value={streamerNickname}
                 onChange={(e) => setStreamerNickname(e.target.value)}
                 className="w-full rounded-xl border border-zinc-800 bg-zinc-900/80 px-4 py-3 text-xs text-white placeholder-zinc-500 focus:border-purple-500 focus:outline-none"
@@ -430,6 +430,29 @@ export default function ChatStreamerModal({ isOpen, onClose }: ChatStreamerModal
                   <span>게임 시작</span>
                 </>
               )}
+            </button>
+
+            {/* Instant Offline Test Mode Button */}
+            <button
+              type="button"
+              onClick={() => {
+                const nickname = streamerNickname.trim() || '테스트스트리머';
+                const config = {
+                  nickname,
+                  hostGender,
+                  hostAgeGroup,
+                  platforms: selectedPlatforms,
+                  chzzk: { isDemo: true },
+                  categories: selectedCategories,
+                  totalQuestions,
+                };
+                sessionStorage.setItem('kiro_chat_room_config', JSON.stringify(config));
+                onClose();
+                router.push('/streamer/chat');
+              }}
+              className="w-full py-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-neutral-400 hover:text-white font-extrabold text-xs transition-all flex items-center justify-center gap-2 cursor-pointer mt-2"
+            >
+              <span>🧪 방송 없이 테스트 화면 바로가기</span>
             </button>
           </form>
         </motion.div>
