@@ -1046,7 +1046,7 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
 
       {/* FINISHED STATE VIEW */}
       {room.status === 'FINISHED' ? (
-        <main className={`w-full ${isOverlay ? 'max-w-[95%]' : 'max-w-md'} mx-auto p-4 flex-1 flex flex-col justify-center space-y-6 my-auto`}>
+        <main className={`w-full ${isOverlay ? 'max-w-[95%]' : 'max-w-md md:max-w-xl lg:max-w-2xl'} mx-auto p-4 flex-1 flex flex-col justify-center space-y-6 my-auto`}>
           <div className="space-y-6">
             <div className="text-center space-y-2">
               <h1 className="text-3xl md:text-4xl lg:text-5xl font-black tracking-tight text-white">🏆 최종 결과</h1>
@@ -1123,7 +1123,7 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
         </main>
       ) : (
         /* ACTIVE GAMEPLAY SCREEN */
-        <main className={`w-full ${isOverlay ? 'max-w-[95%]' : 'max-w-md'} mx-auto p-4 flex-1 flex flex-col justify-center space-y-6 my-auto`}>
+        <main className={`w-full ${isOverlay ? 'max-w-[95%]' : 'max-w-md md:max-w-xl lg:max-w-2xl'} mx-auto p-4 flex-1 flex flex-col justify-center space-y-6 my-auto`}>
           <div className="bg-zinc-950/40 border border-zinc-900 rounded-3xl p-5 md:p-7 backdrop-blur-xl shadow-2xl space-y-5">
             
             {/* Header Line: [Question Index] [Category] ------- [Viewer Score (Viewers Only)] */}

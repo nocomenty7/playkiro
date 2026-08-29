@@ -258,7 +258,7 @@ export default function ChatStreamerModal({ isOpen, onClose }: ChatStreamerModal
             {/* Streamer Nickname (Mandatory) */}
             <div>
               <label className="block text-xs font-extrabold text-neutral-300 mb-1.5">
-                스트리머 닉네임 <span className="text-purple-400">*필수</span>
+                스트리머 닉네임
               </label>
               <input
                 type="text"

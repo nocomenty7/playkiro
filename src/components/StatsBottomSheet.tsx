@@ -373,7 +373,7 @@ export default function StatsBottomSheet({ questionId, onClose, isOpen, currentT
                 <div className="flex flex-col gap-1.5 text-sm">
                   <div className="flex justify-between items-center px-0.5">
                     <span className="text-neutral-200 font-extrabold text-xs">
-                      🎮 같이 플레이하기 (멀티모드) 전체 집계 ({formatVoteCount(stats.multiTotal)}표)
+                      🎮 멀티모드 유저 ({formatVoteCount(stats.multiTotal)}표)
                     </span>
                     {stats.multiTotal > 0 ? (
                       <div className="text-[11px] font-black space-x-1.5">
