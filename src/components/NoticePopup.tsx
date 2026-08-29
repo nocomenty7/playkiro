@@ -5,9 +5,12 @@ import Image from 'next/image';
 import { X } from 'lucide-react';
 
 export default function NoticePopup() {
+  const ENABLE_NOTICE_POPUP = false; // 공지사항 팝업 활성화 여부 (재활용 시 true로 변경)
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
+    if (!ENABLE_NOTICE_POPUP) return;
+
     // 로컬 스토리지에서 'hideNoticeUntil_260824' 값을 확인하여 팝업 표시 여부 결정
     const hideUntil = localStorage.getItem('hideNoticeUntil_260824');
     if (hideUntil) {
