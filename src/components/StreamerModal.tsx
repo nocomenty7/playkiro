@@ -137,6 +137,16 @@ export default function StreamerModal({ isOpen, onClose }: StreamerModalProps) {
 
     try {
       const sessionId = getSessionId();
+      let usedQuestionIds: string[] = [];
+      try {
+        const storedUsed = localStorage.getItem('kiro_streamer_used_questions');
+        if (storedUsed) {
+          usedQuestionIds = JSON.parse(storedUsed);
+        }
+      } catch (e) {
+        usedQuestionIds = [];
+      }
+
       const res = await fetch('/api/streamer/create-room', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -147,12 +157,22 @@ export default function StreamerModal({ isOpen, onClose }: StreamerModalProps) {
           hostSessionId: sessionId,
           categories: selectedCategories,
           totalQuestions,
+          usedQuestionIds,
         }),
       });
 
       const data = await res.json();
       if (!res.ok || !data.success) {
         throw new Error(data.error || '방 생성에 실패했습니다.');
+      }
+
+      // Record selected questions into streamer used questions history
+      try {
+        const newIds: string[] = data.selectedQuestionIds || [];
+        const nextUsed = data.wasReset ? newIds : Array.from(new Set([...usedQuestionIds, ...newIds]));
+        localStorage.setItem('kiro_streamer_used_questions', JSON.stringify(nextUsed));
+      } catch (e) {
+        // ignore storage errors
       }
 
       onClose();

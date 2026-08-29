@@ -11,6 +11,7 @@ export async function POST(request: Request) {
       hostSessionId,
       categories = ['전체'],
       totalQuestions = 10,
+      usedQuestionIds = [],
     } = body;
 
     if (!hostSessionId) {
@@ -49,8 +50,18 @@ export async function POST(request: Request) {
       targetPool = questions;
     }
 
-    // True Unbiased Fisher-Yates (Knuth) Shuffle Algorithm
-    const shuffled = [...targetPool];
+    // Deduplication: Filter out previously played questions for this streamer
+    let availablePool = targetPool.filter((q) => !usedQuestionIds.includes(q.id));
+    let wasReset = false;
+
+    // Fallback: If unplayed questions are fewer than totalQuestions requested, auto-reset history
+    if (availablePool.length < totalQuestions) {
+      availablePool = targetPool;
+      wasReset = true;
+    }
+
+    // True Unbiased Fisher-Yates (Knuth) Shuffle Algorithm on availablePool
+    const shuffled = [...availablePool];
     for (let i = shuffled.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
@@ -123,6 +134,8 @@ export async function POST(request: Request) {
       pin: room.pin,
       roomId: room.id,
       totalQuestions: room.total_questions,
+      selectedQuestionIds: room.question_ids,
+      wasReset,
     });
   } catch (error: any) {
     console.error('Create room API exception:', error);
