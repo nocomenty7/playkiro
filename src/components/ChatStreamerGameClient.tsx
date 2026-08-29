@@ -163,8 +163,18 @@ export default function ChatStreamerGameClient() {
           ? (searchParams.get('platforms')!.split(',') as ('chzzk' | 'soop')[])
           : rawConfig?.platforms || ['chzzk'];
 
-        const chId = searchParams.get('chzzkId') || rawConfig?.chzzkChannelId || rawConfig?.chzzk?.channelId;
-        const soopId = searchParams.get('soopId') || rawConfig?.soopBjId || rawConfig?.soop?.channelId;
+        const chIdRaw = searchParams.get('chzzkId') || rawConfig?.chzzkChannelId || rawConfig?.chzzk?.channelId || '';
+        let soopIdRaw = searchParams.get('soopId') || rawConfig?.soopBjId || rawConfig?.soop?.channelId || '';
+
+        // Emergency sanitize in case DB holds a full URL from earlier bugs
+        if (soopIdRaw.includes('play.sooplive.')) {
+          soopIdRaw = soopIdRaw.split(/play\.sooplive\.(?:co\.kr|com)\//)[1]?.split('/')[0]?.split('?')[0] || soopIdRaw;
+        } else if (soopIdRaw.includes('sooplive.')) {
+          soopIdRaw = soopIdRaw.split(/sooplive\.(?:co\.kr|com)\//)[1]?.split('/')[0]?.split('?')[0] || soopIdRaw;
+        }
+
+        const chId = chIdRaw;
+        const soopId = soopIdRaw;
 
         const resolvedConfig: ChatRoomConfig = {
           pin: roomData.pin,
@@ -389,7 +399,10 @@ export default function ChatStreamerGameClient() {
           streamerId: soopChannelId,
           resolveChannel: async (id, context) => {
             const res = await fetch(`/api/soop/resolve?bjid=${id}`, { signal: context.signal });
-            if (!res.ok) throw new Error('Failed to resolve channel');
+            if (!res.ok) {
+              const errData = await res.json().catch(() => ({}));
+              throw new Error(errData.error || 'Failed to resolve channel');
+            }
             return await res.json();
           }
         });
