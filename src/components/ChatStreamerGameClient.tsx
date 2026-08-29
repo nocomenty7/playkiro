@@ -92,6 +92,12 @@ export default function ChatStreamerGameClient() {
   const [showHostGuide, setShowHostGuide] = useState(false);
   const [showStatsModal, setShowStatsModal] = useState(false);
 
+  // Keep a ref of the latest status to avoid stale closures in websocket event listeners
+  const statusRef = useRef(status);
+  useEffect(() => {
+    statusRef.current = status;
+  }, [status]);
+
   // Audio / Sound FX
   const [isMuted, setIsMuted] = useState(false);
   const chzzkSocketRef = useRef<WebSocket | null>(null);
@@ -438,11 +444,11 @@ export default function ChatStreamerGameClient() {
         soopSocketRef.current.disconnect?.();
       }
     };
-  }, [config, status]);
+  }, [config]);
 
   // Vote Parser Handler (Revoting & 1-vote deduplication support + Broadcast to OBS + Record multi vote stat)
   const parseChatVote = (platform: 'chzzk' | 'soop', userId: string, nickname: string, text: string) => {
-    if (status !== 'VOTING') return;
+    if (statusRef.current !== 'VOTING') return;
 
     let choice: 'A' | 'B' | null = null;
     if (text === '!1' || text === '1' || text === '!A' || text === 'A' || text.startsWith('!1 ')) {
