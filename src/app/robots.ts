@@ -6,6 +6,6 @@ export default function robots(): MetadataRoute.Robots {
       userAgent: '*',
       allow: '/',
     },
-    sitemap: 'https://playkiro.com/sitemap.xml',
+    sitemap: 'https://playkiro.kr/sitemap.xml',
   };
 }
