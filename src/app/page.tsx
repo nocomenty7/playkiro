@@ -4,7 +4,7 @@ import React, { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, Trophy, Users, ShieldAlert, BrainCircuit, BarChart3, Loader2, Tv, RotateCcw } from 'lucide-react';
+import { Sparkles, Trophy, Users, ShieldAlert, BrainCircuit, BarChart3, Loader2, Tv, RotateCcw, HelpCircle, BookOpen } from 'lucide-react';
 import Navigation from '../components/Navigation';
 import StreamerModal from '../components/StreamerModal';
 import NoticePopup from '../components/NoticePopup';
@@ -229,7 +229,7 @@ function LandingClient() {
             {/* Embedded Category Preview Showcase */}
             <div className="pt-2 rounded-2xl overflow-hidden border border-zinc-850 bg-zinc-950/60 shadow-inner">
               <img
-                src="/category-preview.png"
+                src="/images/previews/category-preview.png"
                 alt="Notion Category Filter Preview"
                 className="w-full h-auto object-cover opacity-95"
               />
@@ -248,14 +248,14 @@ function LandingClient() {
             <div className="pt-2 flex flex-col gap-3 rounded-2xl overflow-hidden shadow-inner">
               <div className="border border-zinc-850 bg-zinc-950/60 rounded-2xl overflow-hidden">
                 <img
-                  src="/stats-preview.png"
+                  src="/images/previews/stats-preview.png"
                   alt="Realtime Stats Preview 1"
                   className="w-full h-auto object-cover opacity-95"
                 />
               </div>
               <div className="border border-zinc-850 bg-zinc-950/60 rounded-2xl overflow-hidden">
                 <img
-                  src="/stats-preview2.png"
+                  src="/images/previews/stats-preview2.png"
                   alt="Realtime Stats Preview 2"
                   className="w-full h-auto object-cover opacity-95"
                 />
@@ -269,8 +269,26 @@ function LandingClient() {
             </div>
             <h3 className="text-xl font-extrabold text-neutral-100">함께 플레이하기</h3>
             <p className="text-sm text-neutral-450 leading-relaxed">
-              치지직/SOOP 방송 채팅 연동 및 PIN 코드 접속 등 다양한 시참 방식을 제공합니다. 시청자가 스트리머의 취향과 선택을 예측하며 소통의 즐거움을 극대화해보세요. (OBS 오버레이 제공)
+              치지직/SOOP 방송 채팅 연동 및 PIN 코드 접속 등 다양한 시참 방식을 제공합니다. 시청자가 스트리머의 취향과 선택을 예측하거나, 본인의 의견으로 투표하여 소통의 즐거움을 극대화해보세요. (OBS 오버레이 제공(선택사항))
             </p>
+            
+            {/* Embedded Multi-mode Preview Showcase */}
+            <div className="pt-2 flex flex-col gap-3 rounded-2xl overflow-hidden shadow-inner">
+              <div className="border border-zinc-850 bg-zinc-950/60 rounded-2xl overflow-hidden">
+                <img
+                  src="/images/previews/multi1.png"
+                  alt="Multi Mode Preview 1"
+                  className="w-full h-auto object-cover opacity-95"
+                />
+              </div>
+              <div className="border border-zinc-850 bg-zinc-950/60 rounded-2xl overflow-hidden">
+                <img
+                  src="/images/previews/multi2.png"
+                  alt="Multi Mode Preview 2"
+                  className="w-full h-auto object-cover opacity-95"
+                />
+              </div>
+            </div>
           </div>
 
           <div className="group rounded-3xl border border-zinc-900 bg-zinc-900/10 p-8 space-y-4 hover:border-zinc-800 transition-all duration-300">
@@ -300,13 +318,54 @@ function LandingClient() {
             </p>
           </div>
 
-          <div className="rounded-2xl border border-zinc-900 bg-red-500/5 p-6 space-y-3">
-            <h4 className="text-base font-extrabold text-red-400 flex items-center gap-2">
-              <ShieldAlert className="h-4.5 w-4.5" /> 개인정보 걱정 없는 깔끔한 익명 환경
+          {/* New AdSense Text-Rich Section: Playkiro Guide */}
+          <div className="rounded-2xl border border-zinc-900 bg-blue-500/5 p-6 space-y-4 mt-8">
+            <h4 className="text-lg font-extrabold text-blue-400 flex items-center gap-2 border-b border-zinc-900/50 pb-3">
+              <BookOpen className="h-5 w-5" /> 기로(Playkiro) 상세 이용 가이드
             </h4>
-            <p className="text-xs md:text-sm text-neutral-400 leading-relaxed">
-              이 모든 테스트는 익명으로 안전하게 진행됩니다. 사용자가 입력한 나이대와 성별 이외의 식별 데이터는 일절 수집하거나 연동하지 않습니다. 안심하고 솔직한 마음으로 당신의 한계를 시험할 밸런스 게임을 시작하세요!
-            </p>
+            <div className="space-y-4 text-xs md:text-sm text-neutral-400 leading-loose">
+              <div>
+                <strong className="text-neutral-200 text-sm">1. 싱글 모드 (솔로 플레이)</strong>
+                <p>가장 대중적이고 기본적인 밸런스 게임 모드입니다. 주제 카테고리를 선택하면 무작위로 극한의 딜레마 질문들이 쏟아집니다. 주어진 두 가지 선택지 중 당신의 직감에 가장 가까운 답변을 클릭해 보세요. 선택 즉시 다른 사람들이 어떤 답변을 주로 선택했는지 확인할 수 있으며, 연령대별 및 성별 투표 통계가 화려한 시각적 그래프로 즉각 제공됩니다. 다른 사람들과 나의 가치관이 어떻게 다르고 비슷한지 분석해보며 통찰을 얻을 수 있습니다.</p>
+              </div>
+              <div>
+                <strong className="text-neutral-200 text-sm">2. 방 만들기 모드 (시참형 멀티플레이)</strong>
+                <p>스트리머나 모임의 호스트가 '방 만들기' 버튼을 눌러 고유의 PIN 코드를 생성하는 방식입니다. 시청자들이나 지인들은 별도의 앱 설치나 로그인 없이 스마트폰 브라우저를 통해 기로 웹사이트에 접속한 뒤, 호스트가 공유한 PIN 코드를 입력하기만 하면 즉시 플레이 룸에 입장할 수 있습니다. 호스트가 질문을 넘길 때마다 참가자들의 화면도 자동으로 동기화되며, 모두가 실시간으로 투표한 결과가 호스트의 메인 화면에 취합되어 득점 게이지 형태로 역동적인 연출과 함께 공개됩니다.</p>
+              </div>
+              <div>
+                <strong className="text-neutral-200 text-sm">3. 채팅 연동 모드 (치지직/SOOP 시참)</strong>
+                <p>방송을 진행하는 스트리머를 위한 최적의 라이브 연동 솔루션입니다. 본인의 치지직 채널 ID 또는 SOOP(구 아프리카TV) 방송 주소를 입력하면, 기로 서버가 방송의 실시간 채팅창을 즉시 분석하여 연동합니다. 시청자들이 채팅창에 `!1` 혹은 `!2` 라고 타이핑하는 것만으로 투표가 집계되며, 이 모든 과정은 방송 화면에 띄울 수 있는 깔끔한 OBS 전용 오버레이 투명 배경 화면을 통해 생생하게 송출됩니다. 번거로운 코드 공유조차 필요 없는 혁신적인 양방향 소통을 경험하세요.</p>
+              </div>
+            </div>
+          </div>
+
+          {/* New AdSense Text-Rich Section: FAQ */}
+          <div className="rounded-2xl border border-zinc-900 bg-zinc-900/30 p-6 space-y-4 mt-8">
+            <h4 className="text-lg font-extrabold text-neutral-200 flex items-center gap-2 border-b border-zinc-900/50 pb-3">
+              <HelpCircle className="h-5 w-5 text-emerald-400" /> 자주 묻는 질문 (FAQ)
+            </h4>
+            <div className="space-y-4 text-xs md:text-sm text-neutral-400 leading-relaxed">
+              <div className="space-y-1">
+                <strong className="text-neutral-300 block">Q. 밸런스 게임 질문들은 어떻게 선정되나요?</strong>
+                <p>기로의 데이터베이스에 등록된 500개 이상의 질문들은 대중성, 토론의 여지, 그리고 유머러스함을 기준으로 엄격하게 선정됩니다. 전문 큐레이터들이 지속적으로 트렌드를 분석하여 매주 새로운 질문들을 업데이트하며, 유저들이 너무 불쾌감을 느끼거나 과도하게 논란이 될 수 있는 주제들은 내부 가이드라인에 따라 필터링하고 있습니다.</p>
+              </div>
+              <div className="space-y-1">
+                <strong className="text-neutral-300 block">Q. 내 투표 결과는 어떻게 저장되며, 개인정보를 수집하나요?</strong>
+                <p>기로는 회원가입이 완전히 생략된 익명 플랫폼입니다. 싱글 모드 투표 시 사용자의 브라우저 내 '로컬 스토리지(Local Storage)' 기술을 활용하여 참여 내역만을 기록하므로 중복 투표를 방지합니다. 사용자가 선택적으로 입력하는 연령대나 성별 정보 외에 어떠한 개인 식별 정보(전화번호, 이메일, IP 등)도 수집, 추적 혹은 판매하지 않으므로 안심하고 이용하실 수 있습니다.</p>
+              </div>
+              <div className="space-y-1">
+                <strong className="text-neutral-300 block">Q. 스트리머 모드에서 치지직과 SOOP 채팅을 동시에 연동할 수 있나요?</strong>
+                <p>네, 가능합니다! 기로의 다중 플랫폼 연동 기술을 통해 치지직(Chzzk)과 SOOP(구 아프리카TV) 양쪽의 플랫폼 정보를 동시에 입력하고 게임을 시작할 수 있습니다. 두 플랫폼에서 올라오는 시청자들의 실시간 투표 데이터를 하나의 통계 게이지바로 실시간 합산하여 보여주므로, 동시 송출을 진행하는 스트리머 분들도 시청자들의 여론을 한 번에 모아서 확인하실 수 있습니다.</p>
+              </div>
+              <div className="space-y-1">
+                <strong className="text-neutral-300 block">Q. 결과 통계에서 성별과 연령대 데이터는 왜 중요한가요?</strong>
+                <p>단순히 A와 B의 비율을 아는 것을 넘어, 남녀 간의 가치관 차이나 10대와 30대의 관점 차이를 확인하는 것은 밸런스 게임의 묘미를 극대화합니다. '사랑 vs 우정' 이나 '돈 vs 명예' 같은 클래식한 질문들에서도 연령대별로 뚜렷하게 나뉘는 사회학적 선호도를 시각화된 차트로 분석해 보면 매우 흥미로운 대화 주제가 탄생합니다.</p>
+              </div>
+              <div className="space-y-1">
+                <strong className="text-neutral-300 block">Q. 모바일 기기로도 쾌적하게 플레이가 가능한가요?</strong>
+                <p>물론입니다. 기로는 모바일 우선(Mobile-First) 디자인 원칙을 적용하여 개발되었습니다. 반응형 웹 기술이 적용되어 있어 아이폰, 안드로이드 스마트폰, 태블릿 등 어떤 디바이스 환경에서도 PC와 동일한 부드러운 애니메이션 효과와 직관적인 터치 인터페이스를 제공받으실 수 있습니다.</p>
+              </div>
+            </div>
           </div>
 
         </section>

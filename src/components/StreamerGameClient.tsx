@@ -1000,7 +1000,7 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
         <header className="w-full h-16 shrink-0 flex items-center justify-between px-6 border-b border-zinc-900 bg-[#080911]/85 backdrop-blur-md sticky top-0 z-40">
           <Link href="/" className="relative h-11 w-32 flex items-center">
             <img
-              src="/logo.png?v=2"
+              src="/icons/logo.png?v=2"
               alt="기로 로고"
               className="h-10 w-auto object-contain pt-[2px]"
             />

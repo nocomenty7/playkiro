@@ -55,7 +55,7 @@ export default function AboutPage() {
             className="relative h-24 w-60 overflow-hidden mb-6 rounded-3xl bg-neutral-900/40 border border-neutral-800/80 p-4 shadow-[0_0_30px_rgba(99,102,241,0.1)] flex items-center justify-center backdrop-blur-md"
           >
             <img
-              src="/logo.png?v=2"
+              src="/icons/logo.png?v=2"
               alt="기로 로고"
               className="max-h-full max-w-full object-contain p-2"
             />

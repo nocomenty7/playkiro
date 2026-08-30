@@ -81,7 +81,7 @@ export default function Navigation({
         <div className="w-full max-w-xl md:max-w-4xl lg:max-w-6xl mx-auto flex items-center justify-between">
           <Link href="/" className="relative h-11 w-32 flex items-center">
             <img
-              src="/logo.png?v=2"
+              src="/icons/logo.png?v=2"
               alt="기로 로고"
               className="h-10 w-auto object-contain pt-[2px]"
             />

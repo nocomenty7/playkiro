@@ -111,7 +111,7 @@ export default function PlayModeSelectModal({
                       </span>
                     </div>
                     <p className="text-xs text-neutral-400 mt-1 leading-relaxed break-keep">
-                      방을 생성한 뒤 PIN 코드를 공유하여 시청자들이 직접 접속해 예측 게임을 플레이합니다.
+                      방을 생성한 뒤 PIN 코드를 공유하여 시청자들이 직접 접속해 게임을 플레이합니다.
                     </p>
                   </div>
                 </div>

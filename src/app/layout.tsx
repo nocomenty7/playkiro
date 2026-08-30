@@ -17,7 +17,7 @@ export const metadata: Metadata = {
     siteName: "기로",
     images: [
       {
-        url: "https://playkiro.kr/og-image.png",
+        url: "https://playkiro.kr/icons/og-image.png",
         width: 1200,
         height: 630,
         alt: "기로 밸런스 게임 대표 이미지",
@@ -30,7 +30,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "기로 - 세상의 모든 극한 밸런스게임과 취향 분석 테스트",
     description: "실시간 밸런스게임 '기로'! 로그인 없이 극한 딜레마에 투표하고 성별/연령대별 취향 통계 분석 결과를 0초 만에 확인해 보세요.",
-    images: ["https://playkiro.kr/og-image.png"],
+    images: ["https://playkiro.kr/icons/og-image.png"],
   },
 };
 
@@ -53,9 +53,9 @@ export default function RootLayout({
         
         {/* Favicon configuration optimized for Google Search Crawler (multiples of 48px) */}
         <link rel="shortcut icon" href="/favicon.ico" />
-        <link rel="icon" href="/favicon-48x48.png" sizes="48x48" type="image/png" />
-        <link rel="icon" href="/favicon-192x192.png" sizes="192x192" type="image/png" />
-        <link rel="apple-touch-icon" href="/favicon-180x180.png" />
+        <link rel="icon" href="/icons/favicon-48x48.png" sizes="48x48" type="image/png" />
+        <link rel="icon" href="/icons/favicon-192x192.png" sizes="192x192" type="image/png" />
+        <link rel="apple-touch-icon" href="/icons/favicon-180x180.png" />
         <meta name="theme-color" content="#ffffff" />
 
         <link

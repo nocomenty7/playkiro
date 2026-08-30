@@ -52,7 +52,7 @@ export default function NoticePopup() {
         {/* 공지사항 이미지 (비율은 원본에 맞게 object-contain 지원) */}
         <div className="relative w-full aspect-[4/5] bg-zinc-950 flex items-center justify-center">
           <Image
-            src="/260824.png"
+            src="/images/notices/260824.png"
             alt="공지사항"
             fill
             className="object-contain"

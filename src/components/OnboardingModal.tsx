@@ -36,7 +36,7 @@ export default function OnboardingModal({ onComplete }: OnboardingModalProps) {
         <div className="mb-5 flex flex-col items-center">
           <div className="relative h-11 w-32 mb-2 flex items-center justify-center mx-auto">
             <img
-              src="/logo.png?v=2"
+              src="/icons/logo.png?v=2"
               alt="기로 로고"
               className="max-h-full object-contain"
             />

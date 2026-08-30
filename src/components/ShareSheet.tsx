@@ -41,7 +41,7 @@ export default function ShareSheet({ onClose, shareUrl, questionTitle }: ShareSh
           content: {
             title: '기로 - 세상의 모든 극한 밸런스게임',
             description: questionTitle,
-            imageUrl: 'https://playkiro.kr/og-image.png',
+            imageUrl: 'https://playkiro.kr/icons/og-image.png',
             link: {
               mobileWebUrl: currentUrl,
               webUrl: currentUrl,
