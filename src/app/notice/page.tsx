@@ -85,7 +85,7 @@ export default function NoticePage() {
     {
       id: 1,
       title: "새로운 밸런스 게임의 기준, 기로(Playkiro) 정식 오픈 안내",
-      date: "2026. 08. 01",
+      date: "2026. 07. 12",
       icon: <Bell className="h-5 w-5 text-amber-400" />,
       tag: "공지",
       tagColor: "bg-amber-500/10 text-amber-400 border border-amber-500/20",
