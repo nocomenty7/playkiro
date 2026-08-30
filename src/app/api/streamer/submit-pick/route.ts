@@ -25,8 +25,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Unauthorized host action' }, { status: 403 });
     }
 
-    if (room.status === 'RESULT') {
-      return NextResponse.json({ error: 'Score already calculated for this question' }, { status: 400 });
+    if (room.status !== 'LOCKED') {
+      return NextResponse.json({ error: 'Invalid room state for submitting pick (must be LOCKED)' }, { status: 400 });
     }
 
     // 2. Score calculation: Award +100 points to participants whose vote matched hostPick

@@ -504,14 +504,12 @@ export default function ChatStreamerGameClient() {
   const handleSelectStreamerPick = async (choice: 'A' | 'B') => {
     if (isSubmitting) return;
     setIsSubmitting(true);
-    setStreamerPick(choice);
-    setStatus('RESULT');
     playSound('https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3');
 
     // Record streamer pick vote in vote_stats multi category (Request 6)
     if (currentQuestion?.id) {
       try {
-        fetch('/api/streamer/submit-pick', {
+        await fetch('/api/streamer/submit-pick', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -522,9 +520,12 @@ export default function ChatStreamerGameClient() {
             viewerVotesA: votesA,
             viewerVotesB: votesB,
           }),
-        }).catch(() => {});
+        });
       } catch (e) {}
     }
+
+    setStreamerPick(choice);
+    setStatus('RESULT');
 
     // Score points for viewers who predicted correctly
     const newScores = { ...scores };
