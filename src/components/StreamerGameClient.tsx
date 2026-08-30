@@ -1207,7 +1207,7 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
                 {/* Option 1 (A) - Yellow / Amber */}
                 <button
                   disabled={room.status !== 'VOTING' || isHost || isOverlay}
-                  onClick={() => handleVoteSubmit('A')}
+                  onClick={() => !isHost && handleVoteSubmit('A')}
                   className={`relative flex w-full min-h-[95px] flex-col items-center justify-center overflow-hidden rounded-2xl py-4 px-5 transition-all duration-300 text-left border ${
                     room.host_pick === 'A'
                       ? myVote === 'A' && !isOverlay
@@ -1284,7 +1284,7 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
                 {/* Option 2 (B) - Mint / Emerald / Highlighted */}
                 <button
                   disabled={room.status !== 'VOTING' || isHost || isOverlay}
-                  onClick={() => handleVoteSubmit('B')}
+                  onClick={() => !isHost && handleVoteSubmit('B')}
                   className={`relative flex w-full min-h-[95px] flex-col items-center justify-center overflow-hidden rounded-2xl py-4 px-5 transition-all duration-300 text-left border ${
                     room.host_pick === 'B'
                       ? myVote === 'B' && !isOverlay

@@ -347,13 +347,23 @@ export default function ChatStreamerGameClient() {
     setTimeout(() => setShowToast(false), 2000);
   };
 
-  // 3. Connect Platform Chat WebSockets (Chzzk & SOOP)
+  // 3. Connect Platform Chat WebSockets (Chzzk & SOOP) with Auto-Reconnect
   useEffect(() => {
     if (!config) return;
 
-    const chzzkChatChannelId = config.chzzk?.chatChannelId;
-    if (config.platforms.includes('chzzk') && chzzkChatChannelId) {
+    let chzzkReconnectTimer: NodeJS.Timeout;
+    let soopReconnectTimer: NodeJS.Timeout;
+    let isUnmounted = false;
+
+    const connectChzzk = () => {
+      if (isUnmounted) return;
+      const chzzkChatChannelId = config.chzzk?.chatChannelId;
+      if (!config.platforms.includes('chzzk') || !chzzkChatChannelId) return;
+
       try {
+        if (chzzkSocketRef.current) {
+          chzzkSocketRef.current.close();
+        }
         const wsUrl = 'wss://kr-ss1.chat.naver.com/chat';
         const ws = new WebSocket(wsUrl);
         chzzkSocketRef.current = ws;
@@ -397,12 +407,35 @@ export default function ChatStreamerGameClient() {
             }
           } catch (e) {}
         };
-      } catch (e) {}
-    }
 
-    const soopChannelId = config.soop?.channelId;
-    if (config.platforms.includes('soop') && soopChannelId) {
+        ws.onclose = () => {
+          if (!isUnmounted) {
+            clearTimeout(chzzkReconnectTimer);
+            chzzkReconnectTimer = setTimeout(connectChzzk, 3000);
+          }
+        };
+
+        ws.onerror = () => {
+          ws.close(); // trigger onclose
+        };
+      } catch (e) {
+        if (!isUnmounted) {
+          clearTimeout(chzzkReconnectTimer);
+          chzzkReconnectTimer = setTimeout(connectChzzk, 3000);
+        }
+      }
+    };
+
+    const connectSoop = () => {
+      if (isUnmounted) return;
+      const soopChannelId = config.soop?.channelId;
+      if (!config.platforms.includes('soop') || !soopChannelId) return;
+
       try {
+        if (soopSocketRef.current) {
+          soopSocketRef.current.disconnect?.();
+        }
+        
         const soopChat = new SoopChat({
           streamerId: soopChannelId,
           resolveChannel: async (id, context) => {
@@ -423,22 +456,40 @@ export default function ChatStreamerGameClient() {
           parseChatVote('soop', userId, nickname, chatText);
         });
 
+        const handleSoopDisconnect = () => {
+          if (!isUnmounted) {
+            clearTimeout(soopReconnectTimer);
+            soopReconnectTimer = setTimeout(connectSoop, 3000);
+          }
+        };
+
         soopChat.on('error', (e: any) => {
-          console.error('SOOP WS Error:', e);
-          triggerToast(`SOOP 연결 에러: ${e?.message || e}`);
+          handleSoopDisconnect();
         });
+        
+        // Listen to potential close/disconnect events just in case
+        soopChat.on('ended', handleSoopDisconnect);
 
         soopChat.connect().catch((e) => {
-          console.error('SOOP connection error:', e);
+          handleSoopDisconnect();
         });
       } catch (e: any) {
-        console.error('SOOP init error:', e);
-        triggerToast(`SOOP 초기화 에러: ${e?.message || e}`);
+        if (!isUnmounted) {
+          clearTimeout(soopReconnectTimer);
+          soopReconnectTimer = setTimeout(connectSoop, 3000);
+        }
       }
-    }
+    };
+
+    connectChzzk();
+    connectSoop();
 
     return () => {
+      isUnmounted = true;
+      clearTimeout(chzzkReconnectTimer);
+      clearTimeout(soopReconnectTimer);
       if (chzzkSocketRef.current) {
+        chzzkSocketRef.current.onclose = null; // prevent reconnect
         chzzkSocketRef.current.close();
       }
       if (soopSocketRef.current) {
@@ -972,8 +1023,7 @@ export default function ChatStreamerGameClient() {
               <div className="grid grid-cols-1 gap-4 pt-1">
                 {/* Option 1 (A) - Amber / Yellow */}
                 <button
-                  disabled={status === 'RESULT' || isOverlay}
-                  onClick={() => status === 'LOCKED' && handleSelectStreamerPick('A')}
+                  disabled={true}
                   className={`relative flex w-full min-h-[95px] flex-col items-center justify-center overflow-hidden rounded-2xl py-4 px-5 transition-all duration-300 text-left border ${
                     streamerPick === 'A'
                       ? 'bg-gradient-to-br from-amber-500/30 via-zinc-900 to-amber-950/40 border-4 border-amber-400 shadow-[0_0_40px_rgba(245,158,11,0.7)] ring-4 ring-yellow-300/40 scale-[1.03]'
@@ -1028,8 +1078,7 @@ export default function ChatStreamerGameClient() {
 
                 {/* Option 2 (B) - Emerald / Teal */}
                 <button
-                  disabled={status === 'RESULT' || isOverlay}
-                  onClick={() => status === 'LOCKED' && handleSelectStreamerPick('B')}
+                  disabled={true}
                   className={`relative flex w-full min-h-[95px] flex-col items-center justify-center overflow-hidden rounded-2xl py-4 px-5 transition-all duration-300 text-left border ${
                     streamerPick === 'B'
                       ? 'bg-gradient-to-br from-amber-500/30 via-zinc-900 to-amber-950/40 border-4 border-amber-400 shadow-[0_0_40px_rgba(245,158,11,0.7)] ring-4 ring-yellow-300/40 scale-[1.03]'
