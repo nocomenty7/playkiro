@@ -609,8 +609,6 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
           hostSessionId: mySessionId,
           hostPick,
           questionId: currentQId,
-          gender: room.host_gender,
-          ageGroup: room.host_age_group,
           winnerParticipantIds,
           viewerVotesA,
           viewerVotesB,

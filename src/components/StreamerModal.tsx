@@ -25,8 +25,6 @@ export default function StreamerModal({ isOpen, onClose }: StreamerModalProps) {
   const [activeTab, setActiveTab] = useState<'create' | 'join'>('join');
 
   const [hostNickname, setHostNickname] = useState('');
-  const [hostGender, setHostGender] = useState('male');
-  const [hostAgeGroup, setHostAgeGroup] = useState('20s');
   const [totalQuestions, setTotalQuestions] = useState(10);
   const [selectedCategories, setSelectedCategories] = useState<string[]>(['전체']);
   const [creating, setCreating] = useState(false);
@@ -159,12 +157,11 @@ export default function StreamerModal({ isOpen, onClose }: StreamerModalProps) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           hostNickname: trimmedNickname,
-          hostGender,
-          hostAgeGroup,
           hostSessionId: sessionId,
           categories: selectedCategories,
           totalQuestions,
           usedQuestionIds,
+          roomMode: 'pin',
         }),
       });
 

@@ -6,12 +6,12 @@ export async function POST(request: Request) {
     const body = await request.json();
     const {
       hostNickname = '스트리머',
-      hostGender = 'male',
-      hostAgeGroup = '20s',
       hostSessionId,
       categories = ['전체'],
       totalQuestions = 10,
       usedQuestionIds = [],
+      roomMode = 'pin',
+      platforms = null,
     } = body;
 
     if (!hostSessionId) {
@@ -114,8 +114,8 @@ export async function POST(request: Request) {
           pin,
           host_id: hostSessionId,
           host_nickname: hostNickname,
-          host_gender: hostGender,
-          host_age_group: hostAgeGroup,
+          room_mode: roomMode,
+          platforms: platforms,
           categories,
           total_questions: totalQuestions, // Maintain requested goal for UI (e.g. 50), even if actual db pool is smaller
           question_ids: selectedQuestionIds,

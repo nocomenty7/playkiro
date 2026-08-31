@@ -171,6 +171,8 @@ export default function ChatStreamerModal({ isOpen, onClose }: ChatStreamerModal
           hostSessionId,
           categories: selectedCategories,
           totalQuestions,
+          roomMode: 'chat',
+          platforms: selectedPlatforms.join(','),
         }),
       });
 
