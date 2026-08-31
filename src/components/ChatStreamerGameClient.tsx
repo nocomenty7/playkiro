@@ -498,6 +498,37 @@ export default function ChatStreamerGameClient() {
     };
   }, [config]);
 
+  const pendingVotesRef = useRef<Record<string, { nickname: string; platform: 'chzzk' | 'soop'; choice: 'A' | 'B' }>>({});
+  const lastSoundRef = useRef<number>(0);
+
+  // Batching Interval for rendering votes and broadcasting to OBS
+  useEffect(() => {
+    if (status !== 'VOTING') return;
+
+    const interval = setInterval(() => {
+      const currentPending = pendingVotesRef.current;
+      if (Object.keys(currentPending).length > 0) {
+        setLiveVotes((prev) => {
+          const nextVotes = { ...prev, ...currentPending };
+          
+          if (channelRef.current && !isOverlay) {
+            channelRef.current.send({
+              type: 'broadcast',
+              event: 'VOTE_UPDATE',
+              payload: { liveVotes: nextVotes },
+            });
+          }
+          
+          return nextVotes;
+        });
+        
+        pendingVotesRef.current = {};
+      }
+    }, 500);
+
+    return () => clearInterval(interval);
+  }, [status, isOverlay]);
+
   // Vote Parser Handler (Revoting & 1-vote deduplication support + Broadcast to OBS + Record multi vote stat)
   const parseChatVote = (platform: 'chzzk' | 'soop', userId: string, nickname: string, text: string) => {
     if (statusRef.current !== 'VOTING') return;
@@ -510,27 +541,17 @@ export default function ChatStreamerGameClient() {
     }
 
     if (choice) {
-      playSound('https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3');
+      const now = Date.now();
+      if (now - lastSoundRef.current > 100) {
+        playSound('https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3');
+        lastSoundRef.current = now;
+      }
+
       const uniqueKey = `${platform}:${userId}`;
       const platformBadge = platform === 'chzzk' ? '치지직' : 'SOOP';
       
-      setLiveVotes((prev) => {
-        const nextVotes = {
-          ...prev,
-          [uniqueKey]: { nickname: `${nickname} (${platformBadge})`, platform, choice: choice! },
-        };
-
-        // Broadcast to OBS overlay in real-time
-        if (channelRef.current && !isOverlay) {
-          channelRef.current.send({
-            type: 'broadcast',
-            event: 'VOTE_UPDATE',
-            payload: { liveVotes: nextVotes },
-          });
-        }
-
-        return nextVotes;
-      });
+      // Store in pending ref instead of triggering immediate state update
+      pendingVotesRef.current[uniqueKey] = { nickname: `${nickname} (${platformBadge})`, platform, choice: choice! };
     }
   };
 
@@ -630,6 +651,7 @@ export default function ChatStreamerGameClient() {
     } else {
       setCurrentIndex(nextIdx);
       setLiveVotes({});
+      pendingVotesRef.current = {};
       setStatus('VOTING');
       setStreamerPick(null);
       await supabase
