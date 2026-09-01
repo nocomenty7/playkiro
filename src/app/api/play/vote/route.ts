@@ -74,46 +74,13 @@ export async function POST(request: Request) {
     // Fire-and-forget background execution
     (async () => {
       try {
-        await supabase.rpc('increment_vote_stat', {
+        const { error } = await supabase.rpc('increment_vote_stat', {
           q_id: questionId,
           stat_key: statKey,
         });
-
-        const { data: existingRow } = await supabase
-          .from('vote_stats')
-          .select('stats')
-          .eq('question_id', questionId)
-          .maybeSingle();
-
-        if (existingRow) {
-          const currentStats = (existingRow.stats as Record<string, number>) || {};
-          const currentCount = Number(currentStats[statKey] || 0);
-          const nextMultiA = statKey === 'multi_a' ? Number(currentStats['multi_a'] || 0) + 1 : Number(currentStats['multi_a'] || 0);
-          const nextMultiB = statKey === 'multi_b' ? Number(currentStats['multi_b'] || 0) + 1 : Number(currentStats['multi_b'] || 0);
-
-          const updatedStats = {
-            ...currentStats,
-            [statKey]: currentCount + 1,
-            multi_a: nextMultiA,
-            multi_b: nextMultiB,
-          };
-
-          await supabase
-            .from('vote_stats')
-            .update({ stats: updatedStats, updated_at: new Date().toISOString() })
-            .eq('question_id', questionId);
-        } else {
-          const initialMultiA = statKey === 'multi_a' ? 1 : 0;
-          const initialMultiB = statKey === 'multi_b' ? 1 : 0;
-          await supabase.from('vote_stats').insert({
-            question_id: questionId,
-            stats: {
-              [statKey]: 1,
-              multi_a: initialMultiA,
-              multi_b: initialMultiB,
-            },
-            updated_at: new Date().toISOString(),
-          });
+        
+        if (error) {
+          console.error('RPC increment_vote_stat failed:', error);
         }
       } catch (err) {
         console.error('Background vote processing error:', err);
