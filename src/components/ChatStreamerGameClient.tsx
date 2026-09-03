@@ -534,9 +534,9 @@ export default function ChatStreamerGameClient() {
     if (statusRef.current !== 'VOTING') return;
 
     let choice: 'A' | 'B' | null = null;
-    if (text === '!1' || text === '1' || text === '!A' || text === 'A' || text.startsWith('!1 ')) {
+    if (text === '!1') {
       choice = 'A';
-    } else if (text === '!2' || text === '2' || text === '!B' || text === 'B' || text.startsWith('!2 ')) {
+    } else if (text === '!2') {
       choice = 'B';
     }
 
