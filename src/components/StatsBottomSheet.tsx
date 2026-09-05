@@ -241,8 +241,8 @@ export default function StatsBottomSheet({ questionId, onClose, isOpen, currentT
         ) : stats ? (
           <div className="flex-1 overflow-y-auto overscroll-contain touch-pan-y space-y-6 pr-1 pb-6 min-h-0 text-white">
             <div className="text-center pt-2 pb-5 space-y-1 relative">
-              <div className="absolute left-0 top-1">
-                <button onClick={onClose} className="p-2 bg-zinc-900 rounded-full text-neutral-400 hover:text-white transition-colors">
+              <div className="absolute left-0 top-1 z-10">
+                <button onClick={onClose} className="p-2 bg-zinc-900 rounded-full text-neutral-400 hover:text-white transition-colors cursor-pointer">
                   <X className="w-5 h-5" />
                 </button>
               </div>
