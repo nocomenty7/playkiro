@@ -18,26 +18,31 @@ export default function TotalVotesCounter() {
           const data = await res.json();
           const actualTotal = data.total || 0;
           
-          if (actualTotal > 30) {
-            totalRef.current = actualTotal - 30;
+          // Subtract a much smaller random number so a refresh isn't obvious
+          const initialOffset = Math.floor(Math.random() * 3) + 2; // 2 to 4
+          
+          if (actualTotal > initialOffset) {
+            totalRef.current = actualTotal - initialOffset;
           } else {
             totalRef.current = actualTotal;
           }
           
           setTotal(totalRef.current);
 
-          // Start the fake real-time counter
+          // Start the fake real-time counter (slower and more natural)
           const updateCounter = () => {
-            const increment = Math.floor(Math.random() * 3) + 1; // 1 to 3
+            // Mostly increment by 1, rarely by 2
+            const increment = Math.random() > 0.85 ? 2 : 1;
             totalRef.current += increment;
             setTotal(totalRef.current);
             
-            // Random interval between 200ms and 1500ms for natural feel
-            const nextInterval = Math.floor(Math.random() * 1300) + 200;
+            // Random interval between 3s (3000ms) and 9s (9000ms) for a slow, natural feel
+            const nextInterval = Math.floor(Math.random() * 6000) + 3000;
             timerId = setTimeout(updateCounter, nextInterval);
           };
 
-          timerId = setTimeout(updateCounter, 1000); // start after 1s
+          // Start after a random delay (1s to 4s)
+          timerId = setTimeout(updateCounter, Math.floor(Math.random() * 3000) + 1000);
         }
       } catch (err) {
         console.error('Failed to fetch total votes', err);
