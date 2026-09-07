@@ -1430,7 +1430,7 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
             <div className="bg-purple-950/25 border border-purple-500/30 rounded-2xl p-3.5 space-y-2.5 text-xs">
               <div className="flex items-center justify-between">
                 <span className="font-extrabold text-purple-300 flex items-center gap-1">
-                  🎥 OBS / 프릭샷 오버레이
+                  (선택사항) 🎥 OBS / 프릭샷 오버레이
                 </span>
                 <div className="flex items-center gap-1.5 shrink-0">
                   <button

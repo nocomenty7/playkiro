@@ -111,7 +111,7 @@ export default function ChatStreamerModal({ isOpen, onClose }: ChatStreamerModal
       }
 
       if (selectedPlatforms.includes('soop') && !soopBjId.trim()) {
-        setErrorMsg('SOOP BJ 아이디 또는 방송 URL을 입력해 주세요.');
+        setErrorMsg('SOOP BJ 아이디 또는 생방송 URL을 입력해 주세요.');
         return;
       }
     }
@@ -336,11 +336,11 @@ export default function ChatStreamerModal({ isOpen, onClose }: ChatStreamerModal
                 {selectedPlatforms.includes('soop') && (
                   <div>
                     <label className="block text-xs font-bold text-blue-300 mb-1">
-                      SOOP BJ 아이디 (또는 방송 URL)
+                      SOOP BJ 아이디 (또는 생방송 URL)
                     </label>
                     <input
                       type="text"
-                      placeholder="예: bjhandletest (방송 주소 복사 붙여넣기 가능)"
+                      placeholder="예: bjhandletest (생방송 주소 복사 붙여넣기 가능)"
                       value={soopBjId}
                       onChange={(e) => setSoopBjId(e.target.value)}
                       className="w-full rounded-xl border border-blue-500/30 bg-zinc-900/90 px-4 py-2.5 text-xs text-white placeholder-zinc-500 focus:border-blue-400 focus:outline-none"

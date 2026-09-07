@@ -797,7 +797,7 @@ export default function ChatStreamerGameClient() {
 
               {/* OBS Quick Copy Widget inside Guide */}
               <div className="bg-zinc-950 border border-purple-500/30 rounded-2xl p-4 text-center space-y-2">
-                <span className="text-xs font-extrabold text-purple-300 block">🎥 OBS / 프릭샷 오버레이 URL</span>
+                <span className="text-xs font-extrabold text-purple-300 block">(선택사항) 🎥 OBS / 프릭샷 오버레이 URL</span>
                 <button
                   onClick={handleCopyOverlayUrl}
                   className="w-full py-2.5 px-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-black transition cursor-pointer flex items-center justify-center gap-1.5 shadow-md"
@@ -1258,7 +1258,7 @@ export default function ChatStreamerGameClient() {
             {/* OBS Widget */}
             <div className="bg-purple-950/25 border border-purple-500/30 rounded-2xl p-3 space-y-2 text-xs">
               <div className="flex items-center justify-between">
-                <span className="font-extrabold text-purple-300">🎥 OBS / 프릭샷 오버레이 URL</span>
+                <span className="font-extrabold text-purple-300">(선택사항) 🎥 OBS / 프릭샷 오버레이 URL</span>
                 <button
                   onClick={handleCopyOverlayUrl}
                   className="py-1 px-2.5 rounded-lg bg-purple-600 hover:bg-purple-500 text-white font-black text-[11px] transition cursor-pointer flex items-center gap-1"
