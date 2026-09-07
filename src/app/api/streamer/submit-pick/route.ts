@@ -31,20 +31,7 @@ export async function POST(request: Request) {
 
     // 2. Score calculation: Award +100 points to participants whose vote matched hostPick
     const currentQId = questionId || room.question_ids[room.current_question_index];
-    let winnerParticipantIds: string[] = clientWinners || [];
-
-    if (winnerParticipantIds.length === 0) {
-      const { data: matchingVotes } = await supabase
-        .from('room_votes')
-        .select('participant_id')
-        .eq('room_id', roomId)
-        .eq('question_id', currentQId)
-        .eq('vote', hostPick);
-
-      if (matchingVotes) {
-        winnerParticipantIds = matchingVotes.map((v) => v.participant_id);
-      }
-    }
+    const winnerParticipantIds: string[] = clientWinners || [];
 
     if (winnerParticipantIds && winnerParticipantIds.length > 0) {
       const { data: winnerParticipants } = await supabase

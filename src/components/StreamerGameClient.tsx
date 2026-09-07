@@ -323,42 +323,6 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
     if (data) setParticipants(data);
   };
 
-  // Fetch Room Votes count for current question
-  const fetchRoomVotes = async (roomId: string, qId: string) => {
-    if (!roomId || !qId) return;
-    const { data } = await supabase
-      .from('room_votes')
-      .select('participant_id, vote')
-      .eq('room_id', roomId)
-      .eq('question_id', qId);
-
-    if (data) {
-      let countA = 0;
-      let countB = 0;
-      data.forEach((v) => {
-        if (v.vote === 'A') countA++;
-        else if (v.vote === 'B') countB++;
-      });
-      setVotesA(countA);
-      setVotesB(countB);
-
-      // Check my vote
-      if (myParticipantId) {
-        const myVoteEntry = data.find((v) => v.participant_id === myParticipantId);
-        if (myVoteEntry) setMyVote(myVoteEntry.vote as 'A' | 'B');
-        else setMyVote(null);
-      }
-    }
-  };
-
-  // Throttled Vote Fetching for Zero CPU Latency under heavy traffic
-  const throttledFetchRoomVotes = (roomId: string, qId: string) => {
-    if (fetchThrottleRef.current) return;
-    fetchThrottleRef.current = setTimeout(() => {
-      fetchRoomVotes(roomId, qId);
-      fetchThrottleRef.current = null;
-    }, 150);
-  };
 
   // Supabase Realtime Channel Subscription (Seamless Room State Sync for All Viewers)
   useEffect(() => {
@@ -477,10 +441,6 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
         if (updatedRoom) {
           setRoom(updatedRoom);
 
-          const currentQId = updatedRoom.question_ids?.[updatedRoom.current_question_index];
-          if (currentQId) {
-            throttledFetchRoomVotes(updatedRoom.id, currentQId);
-          }
 
           if (['RESULT', 'FINISHED'].includes(updatedRoom.status)) {
             await fetchParticipants(updatedRoom.id);
@@ -719,12 +679,6 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
       const updatedQuestionIds = [...room.question_ids];
       updatedQuestionIds[room.current_question_index] = newQuestion.id;
 
-      // Reset votes for current question index
-      await supabase
-        .from('room_votes')
-        .delete()
-        .eq('room_id', room.id)
-        .eq('question_id', currentQId);
 
       // Instant Optimistic UI Update (0ms)
       setMyVote(null);
