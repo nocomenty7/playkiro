@@ -251,7 +251,6 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
 
         // Load Question Data for current_question_index
         await fetchQuestionForIndex(roomData.question_ids[roomData.current_question_index]);
-        await fetchRoomVotes(roomData.id, roomData.question_ids[roomData.current_question_index]);
         await fetchParticipants(roomData.id);
 
         setLoading(false);
