@@ -17,7 +17,7 @@ export const metadata: Metadata = {
     siteName: "기로",
     images: [
       {
-        url: "https://playkiro.kr/icons/og-image.png",
+        url: "https://playkiro.kr/icons/og-image-v2.png",
         width: 1200,
         height: 630,
         alt: "기로 밸런스 게임 대표 이미지",
@@ -30,7 +30,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "기로 - 세상의 모든 극한 밸런스게임과 취향 분석 테스트",
     description: "실시간 밸런스게임 '기로'! 로그인 없이 극한 딜레마에 투표하고 성별/연령대별 취향 통계 분석 결과를 0초 만에 확인해 보세요.",
-    images: ["https://playkiro.kr/icons/og-image.png"],
+    images: ["https://playkiro.kr/icons/og-image-v2.png"],
   },
 };
 
