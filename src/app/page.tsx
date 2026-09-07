@@ -12,6 +12,7 @@ import AdsenseBanner from '../components/AdsenseBanner';
 import PlayModeSelectModal from '../components/PlayModeSelectModal';
 import SingleCategoryModal from '../components/SingleCategoryModal';
 import ChatStreamerModal from '../components/ChatStreamerModal';
+import TotalVotesCounter from '../components/TotalVotesCounter';
 
 function LandingClient() {
   const searchParams = useSearchParams();
@@ -176,8 +177,9 @@ function LandingClient() {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.2 }}
-            className="pt-2 max-w-sm md:max-w-md mx-auto space-y-3"
+            className="pt-2 max-w-sm md:max-w-md mx-auto space-y-3 relative"
           >
+            <TotalVotesCounter />
             <button
               onClick={() => setShowSingleCategoryModal(true)}
               className="w-full flex items-center justify-center gap-2 rounded-2xl bg-brand-yellow hover:bg-[#e0b240] text-zinc-950 font-black text-base px-6 h-14 shadow-[0_0_30px_rgba(245,195,82,0.3)] transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
