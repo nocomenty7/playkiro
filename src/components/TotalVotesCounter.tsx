@@ -64,11 +64,11 @@ export default function TotalVotesCounter() {
     <motion.div 
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="flex items-center justify-center gap-2 mb-3"
+      className="flex items-center justify-center gap-2 mb-3 -mt-2"
     >
       <div className="flex items-center gap-1.5 text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 rounded-full shadow-[0_0_15px_rgba(16,185,129,0.15)]">
         <Users className="w-3.5 h-3.5" />
-        <span className="text-xs font-black tracking-wide">누적 참여 횟수</span>
+        <span className="text-xs font-black tracking-wide">누적 투표수</span>
       </div>
       <div className="font-mono text-lg font-black text-white tracking-wider flex items-center">
         {total.toLocaleString()}
