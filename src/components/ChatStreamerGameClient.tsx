@@ -805,6 +805,20 @@ export default function ChatStreamerGameClient() {
                   {copiedOverlay ? <Check className="w-3.5 h-3.5 text-emerald-300" /> : <Copy className="w-3.5 h-3.5" />}
                   <span>OBS 오버레이 URL 복사</span>
                 </button>
+
+                {/* Collapsible OBS tip inside Guide Modal */}
+                <div className="border-t border-purple-500/20 pt-3 mt-1 text-left">
+                  <details className="group cursor-pointer">
+                    <summary className="text-[11px] md:text-xs text-purple-400 font-extrabold select-none list-none no-scrollbar flex items-center gap-1.5 justify-center">
+                      <span className="transition-transform group-open:rotate-90">👉</span> OBS / 프릭샷 등 방송에 투표창 띄우는 방법
+                    </summary>
+                    <div className="mt-2 space-y-1.5 text-[11px] md:text-xs text-neutral-400 leading-relaxed pl-2 cursor-default">
+                      <p>• <strong className="font-bold text-white">브라우저 소스</strong> 추가 후 복사한 오버레이 URL 입력</p>
+                      <p>• 권장 크기: <strong className="font-bold text-white">3:4 비율</strong> (예시: 450x600, 600x800 등)</p>
+                      <p>• 투명 배경: 커스텀 CSS 칸에 <code className="bg-zinc-900 px-1 py-0.5 rounded text-[10px] font-mono">{"body { background: transparent !important; }"}</code>를 기입하세요.</p>
+                    </div>
+                  </details>
+                </div>
               </div>
 
               {/* Simple Guidance */}
@@ -839,19 +853,7 @@ export default function ChatStreamerGameClient() {
                   </p>
                 </div>
 
-                {/* Collapsible OBS tip inside Guide Modal */}
-                <div className="border-t border-zinc-800/80 pt-2.5 mt-1">
-                  <details className="group cursor-pointer">
-                    <summary className="text-xs md:text-[13px] text-purple-400 font-extrabold select-none list-none no-scrollbar flex items-center gap-1.5">
-                      <span className="transition-transform group-open:rotate-90">👉</span> OBS / 프릭샷 등 방송에 투표창 띄우는 방법
-                    </summary>
-                    <div className="mt-2 space-y-1.5 text-[11px] md:text-xs text-neutral-400 leading-relaxed pl-2 cursor-default">
-                      <p>• <strong className="font-bold text-white">브라우저 소스</strong> 추가 후 복사한 오버레이 URL 입력</p>
-                      <p>• 권장 크기: <strong className="font-bold text-white">3:4 비율</strong> (예시: 450x600, 600x800 등)</p>
-                      <p>• 투명 배경: 커스텀 CSS 칸에 <code className="bg-zinc-900 px-1 py-0.5 rounded text-[10px] font-mono">{"body { background: transparent !important; }"}</code>를 기입하세요.</p>
-                    </div>
-                  </details>
-                </div>
+                {/* (OBS tip was moved up) */}
               </div>
 
               <button
