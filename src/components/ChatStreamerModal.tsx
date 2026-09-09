@@ -348,16 +348,11 @@ export default function ChatStreamerModal({ isOpen, onClose }: ChatStreamerModal
                   </div>
                 )}
                 
-                {selectedPlatforms.length > 0 && (
-                  <p className="text-[11px] text-neutral-400 pt-1">
-                    * URL을 그대로 붙여넣으시면 자동으로 인식 및 연동됩니다.
-                  </p>
-                )}
               </div>
 
               {/* Enlarged Notice Text */}
               <p className="text-xs text-neutral-300 font-bold leading-relaxed pt-2">
-                * 방송 주소를 그대로 붙여넣으셔도 자동으로 인식합니다. (별도 API 키 필요 없음)
+                * URL을 그대로 붙여넣으시면 자동으로 인식 및 연동됩니다.
               </p>
             </div>
 
