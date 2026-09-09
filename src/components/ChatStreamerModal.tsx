@@ -321,11 +321,11 @@ export default function ChatStreamerModal({ isOpen, onClose }: ChatStreamerModal
                 {selectedPlatforms.includes('chzzk') && (
                   <div>
                     <label className="block text-xs font-bold text-emerald-300 mb-1">
-                      치지직 채널 ID (또는 채널 URL)
+                      치지직 채널 URL
                     </label>
                     <input
                       type="text"
-                      placeholder="예: c4c0bc06b00000000000000000 (치지직 채널 주소 복사 붙여넣기 가능)"
+                      placeholder="예: https://chzzk.naver.com/4de764d9dad3b25602284be6db3ac648"
                       value={chzzkChannelId}
                       onChange={(e) => setChzzkChannelId(e.target.value)}
                       className="w-full rounded-xl border border-emerald-500/30 bg-zinc-900/90 px-4 py-2.5 text-xs text-white placeholder-zinc-500 focus:border-emerald-400 focus:outline-none"
@@ -336,16 +336,22 @@ export default function ChatStreamerModal({ isOpen, onClose }: ChatStreamerModal
                 {selectedPlatforms.includes('soop') && (
                   <div>
                     <label className="block text-xs font-bold text-blue-300 mb-1">
-                      SOOP BJ 아이디 (또는 생방송 URL)
+                      SOOP 생방송 URL
                     </label>
                     <input
                       type="text"
-                      placeholder="예: bjhandletest (생방송 주소 복사 붙여넣기 가능)"
+                      placeholder="예: https://play.sooplive.com/abcdef/297001341"
                       value={soopBjId}
                       onChange={(e) => setSoopBjId(e.target.value)}
                       className="w-full rounded-xl border border-blue-500/30 bg-zinc-900/90 px-4 py-2.5 text-xs text-white placeholder-zinc-500 focus:border-blue-400 focus:outline-none"
                     />
                   </div>
+                )}
+                
+                {selectedPlatforms.length > 0 && (
+                  <p className="text-[11px] text-neutral-400 pt-1">
+                    * URL을 그대로 붙여넣으시면 자동으로 인식 및 연동됩니다.
+                  </p>
                 )}
               </div>
 
