@@ -84,38 +84,15 @@ export async function POST(request: Request) {
         const addA = streamerVoteA + scaledViewerA;
         const addB = streamerVoteB + scaledViewerB;
 
-        const { data: existingRow } = await supabase
-          .from('vote_stats')
-          .select('stats')
-          .eq('question_id', currentQId)
-          .maybeSingle();
+        // Use RPC to atomically upsert and bypass RLS (Security Definer)
+        const { error: rpcError } = await supabase.rpc('update_multi_vote_stats', {
+          q_id: currentQId,
+          add_a: addA,
+          add_b: addB,
+        });
 
-        if (existingRow) {
-          const currentStats = (existingRow.stats as Record<string, number>) || {};
-          const currentMultiA = Number(currentStats['multi_a'] || 0);
-          const currentMultiB = Number(currentStats['multi_b'] || 0);
-
-          const updatedStats = {
-            ...currentStats,
-            multi_a: currentMultiA + addA,
-            multi_b: currentMultiB + addB,
-          };
-
-          await supabase
-            .from('vote_stats')
-            .update({ stats: updatedStats, updated_at: new Date().toISOString() })
-            .eq('question_id', currentQId);
-        } else {
-          // If no existing stats, create new
-          await supabase
-            .from('vote_stats')
-            .insert({
-              question_id: currentQId,
-              stats: {
-                multi_a: addA,
-                multi_b: addB,
-              },
-            });
+        if (rpcError) {
+          console.error('[Supabase RPC Error] Failed to update multi vote stats:', rpcError);
         }
       } catch (err) {
         console.error('Background streamer pick stat processing error:', err);
