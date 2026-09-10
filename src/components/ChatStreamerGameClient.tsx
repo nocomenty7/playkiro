@@ -827,7 +827,7 @@ export default function ChatStreamerGameClient() {
                     </summary>
                     <div className="mt-2 space-y-1.5 text-[11px] md:text-xs text-neutral-400 leading-relaxed pl-2 cursor-default">
                       <p>• <strong className="font-bold text-white">브라우저 소스</strong> 추가 후 복사한 오버레이 URL 입력</p>
-                      <p>• 권장 크기: <strong className="font-bold text-white">9:16 비율</strong> (예시: 450x800, 540x960 등)</p>
+                      <p>• 권장 크기: <strong className="font-bold text-white">700x800</strong> (가로를 넓게 쓰면 글씨가 잘리지 않습니다)</p>
                       <p>• 투명 배경: 커스텀 CSS 칸에 <code className="bg-zinc-900 px-1 py-0.5 rounded text-[10px] font-mono">{"body { background: transparent !important; }"}</code>를 기입하세요.</p>
                     </div>
                   </details>
