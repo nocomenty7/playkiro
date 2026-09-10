@@ -1525,10 +1525,7 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
                   </>
                 ) : (
                   <>
-                    {room.current_question_index + 1 < room.total_questions && (
-                      <Play className="w-5 h-5 fill-current" />
-                    )}
-                    <span>{room.current_question_index + 1 >= room.total_questions ? '🏆 최종 결과 발표 보러가기' : '▶️ 다음 문제 진행하기 (클릭)'}</span>
+                    <span>{room.current_question_index + 1 >= room.total_questions ? '🏆 최종 결과 발표 보러가기' : '다음 라운드로 이동 >'}</span>
                   </>
                 )}
               </button>

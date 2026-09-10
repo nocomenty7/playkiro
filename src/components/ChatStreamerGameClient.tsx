@@ -1272,7 +1272,7 @@ export default function ChatStreamerGameClient() {
               <button
                 disabled={isSubmitting}
                 onClick={handleNextQuestion}
-                className="w-full py-4 rounded-2xl bg-gradient-to-r from-brand-yellow via-amber-400 to-yellow-500 disabled:opacity-50 text-zinc-950 font-black text-base md:text-lg shadow-2xl hover:brightness-110 transition-all flex items-center justify-center gap-2 cursor-pointer border border-yellow-300"
+                className="w-full py-4.5 rounded-2xl bg-gradient-to-r from-emerald-400 via-teal-300 to-emerald-400 hover:brightness-110 text-zinc-950 font-black text-base md:text-lg transition-all shadow-[0_0_35px_rgba(52,211,153,0.6)] ring-4 ring-emerald-300/40 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 border-2 border-emerald-200 animate-pulse my-1"
               >
                 <span>{currentIndex + 1 >= questions.length ? '🏆 최종 결과 보기' : '다음 라운드로 이동'}</span>
                 <ChevronRight className="w-5 h-5" />
