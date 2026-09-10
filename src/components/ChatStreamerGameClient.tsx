@@ -669,6 +669,10 @@ export default function ChatStreamerGameClient() {
   const handlePassQuestion = async () => {
     if (!room || !currentQuestion) return;
 
+    if (!confirm('이 문제를 패스하고 새로운 문제로 교체하시겠습니까?\n(현재 문항 번호는 유지됩니다.)')) {
+      return;
+    }
+
     try {
       let query = supabase.from('questions').select('id, category');
       if (config?.categories && !config.categories.includes('전체') && config.categories.length > 0) {
