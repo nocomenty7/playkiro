@@ -75,9 +75,6 @@ export default function PlayModeSelectModal({
                       <span className="font-black text-sm text-white group-hover:text-purple-300 transition-colors">
                         1. 채팅 연동 방식 (치지직, 숲 지원)
                       </span>
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-purple-500/20 text-purple-300 border border-purple-500/30">
-                        신규 방식
-                      </span>
                     </div>
                     <p className="text-xs text-neutral-400 mt-1 leading-relaxed break-keep">
                       치지직, SOOP 방송 채팅창에서 !1, !2를 입력받아 실시간으로 투표를 집계하는 방식입니다.
@@ -105,9 +102,6 @@ export default function PlayModeSelectModal({
                     <div className="flex items-center gap-2">
                       <span className="font-black text-sm text-white group-hover:text-amber-300 transition-colors">
                         2. 방을 만들고 시청자가 직접 입장
-                      </span>
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-400/20 text-amber-300 border border-amber-400/30">
-                        기존 방식
                       </span>
                     </div>
                     <p className="text-xs text-neutral-400 mt-1 leading-relaxed break-keep">
