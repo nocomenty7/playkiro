@@ -637,7 +637,7 @@ export default function ChatStreamerGameClient() {
     if (confirm('투표 마감을 취소하고 다시 투표를 재개하시겠습니까?')) {
       setStatus('VOTING');
       if (room?.id) {
-        await supabase.from('rooms').update({ status: 'PLAYING' }).eq('id', room.id);
+        await supabase.from('rooms').update({ status: 'VOTING' }).eq('id', room.id);
       }
     }
   };
