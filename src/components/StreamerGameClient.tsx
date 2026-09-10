@@ -861,7 +861,7 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
                     className="inline-flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-purple-500/10 border border-purple-500/40 text-purple-400 text-xs font-black hover:bg-purple-500/20 transition cursor-pointer flex-1"
                   >
                     {copiedOverlay ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-                    <span>OBS 오버레이 URL 복사</span>
+                    <span>(선택사항) 🎥 OBS / 프릭샷 오버레이 URL 복사</span>
                   </button>
                 </div>
 
@@ -873,7 +873,7 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
                     </summary>
                     <div className="mt-2 space-y-1.5 text-[11px] md:text-xs text-neutral-400 leading-relaxed pl-2 cursor-default bg-zinc-950/50 p-3 rounded-xl border border-purple-500/10">
                       <p>• <strong className="font-bold text-white">브라우저 소스</strong> 추가 후 복사한 오버레이 URL 입력</p>
-                      <p>• 권장 크기: <strong className="font-bold text-white">3:4 비율</strong> (예시: 450x600, 600x800 등)</p>
+                      <p>• 권장 크기: <strong className="font-bold text-white">9:16 비율</strong> (예시: 450x800, 540x960 등)</p>
                       <p>• 투명 배경: 커스텀 CSS 칸에 <code className="bg-zinc-900 px-1 py-0.5 rounded text-[10px] font-mono">{"body { background: transparent !important; }"}</code>를 기입하세요.</p>
                     </div>
                   </details>
@@ -1400,29 +1400,24 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
 
             {/* OBS Overlay URL Copy Widget */}
             <div className="bg-purple-950/25 border border-purple-500/30 rounded-2xl p-3.5 space-y-2.5 text-xs">
-              <div className="flex items-center justify-between">
-                <span className="font-extrabold text-purple-300 flex items-center gap-1">
-                  (선택사항) 🎥 OBS / 프릭샷 오버레이
-                </span>
-                <div className="flex items-center gap-1.5 shrink-0">
-                  <button
-                    onClick={() => setShowObsHelp(!showObsHelp)}
-                    className={`py-1.5 px-2.5 rounded-lg border font-extrabold text-[11px] transition cursor-pointer ${
-                      showObsHelp
-                        ? 'bg-purple-500/20 border-purple-500/40 text-purple-300'
-                        : 'bg-zinc-900 border-zinc-800 hover:bg-zinc-800 text-neutral-300'
-                    }`}
-                  >
-                    설정방법
-                  </button>
-                  <button
-                    onClick={handleCopyOverlayUrl}
-                    className="py-1.5 px-2.5 rounded-lg bg-purple-600 hover:bg-purple-500 text-white font-black text-[11px] transition cursor-pointer flex items-center gap-1.5"
-                  >
-                    <span>URL</span>
-                    {copiedOverlay ? <Check className="w-3.5 h-3.5 text-emerald-300" /> : <Copy className="w-3.5 h-3.5" />}
-                  </button>
-                </div>
+              <div className="flex flex-col sm:flex-row items-center gap-2">
+                <button
+                  onClick={handleCopyOverlayUrl}
+                  className="flex-1 w-full py-2.5 px-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-black text-[11px] md:text-xs transition cursor-pointer flex items-center justify-center gap-1.5 shadow-md"
+                >
+                  <span>(선택사항) 🎥 OBS / 프릭샷 오버레이 URL 복사</span>
+                  {copiedOverlay ? <Check className="w-3.5 h-3.5 text-emerald-300" /> : <Copy className="w-3.5 h-3.5" />}
+                </button>
+                <button
+                  onClick={() => setShowObsHelp(!showObsHelp)}
+                  className={`py-2.5 px-3 whitespace-nowrap rounded-xl border font-extrabold text-[11px] transition cursor-pointer w-full sm:w-auto shrink-0 ${
+                    showObsHelp
+                      ? 'bg-purple-500/20 border-purple-500/40 text-purple-300'
+                      : 'bg-zinc-900 border-zinc-800 hover:bg-zinc-800 text-neutral-300'
+                  }`}
+                >
+                  설정방법 안내 {showObsHelp ? '접기' : '보기'}
+                </button>
               </div>
 
               {/* OBS Integration Guide (Toggled view) */}
@@ -1434,7 +1429,7 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
                   </div>
                   <div className="flex gap-1.5">
                     <span className="font-black text-purple-400">2.</span>
-                    <p>크기를 <strong className="font-bold text-white">3:4 비율</strong> (예시: 450x600, 600x800 등)로 지정하세요.</p>
+                    <p>크기를 <strong className="font-bold text-white">9:16 비율</strong> (예시: 450x800, 540x960 등)로 지정하세요.</p>
                   </div>
                   <div className="flex gap-1.5">
                     <span className="font-black text-purple-400">3.</span>

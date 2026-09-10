@@ -811,13 +811,12 @@ export default function ChatStreamerGameClient() {
 
               {/* OBS Quick Copy Widget inside Guide */}
               <div className="bg-zinc-950 border border-purple-500/30 rounded-2xl p-4 text-center space-y-2">
-                <span className="text-xs font-extrabold text-purple-300 block">(선택사항) 🎥 OBS / 프릭샷 오버레이 URL</span>
                 <button
                   onClick={handleCopyOverlayUrl}
                   className="w-full py-2.5 px-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-black transition cursor-pointer flex items-center justify-center gap-1.5 shadow-md"
                 >
                   {copiedOverlay ? <Check className="w-3.5 h-3.5 text-emerald-300" /> : <Copy className="w-3.5 h-3.5" />}
-                  <span>OBS 오버레이 URL 복사</span>
+                  <span>(선택사항) 🎥 OBS / 프릭샷 오버레이 URL 복사</span>
                 </button>
 
                 {/* Collapsible OBS tip inside Guide Modal */}
@@ -828,7 +827,7 @@ export default function ChatStreamerGameClient() {
                     </summary>
                     <div className="mt-2 space-y-1.5 text-[11px] md:text-xs text-neutral-400 leading-relaxed pl-2 cursor-default">
                       <p>• <strong className="font-bold text-white">브라우저 소스</strong> 추가 후 복사한 오버레이 URL 입력</p>
-                      <p>• 권장 크기: <strong className="font-bold text-white">3:4 비율</strong> (예시: 450x600, 600x800 등)</p>
+                      <p>• 권장 크기: <strong className="font-bold text-white">9:16 비율</strong> (예시: 450x800, 540x960 등)</p>
                       <p>• 투명 배경: 커스텀 CSS 칸에 <code className="bg-zinc-900 px-1 py-0.5 rounded text-[10px] font-mono">{"body { background: transparent !important; }"}</code>를 기입하세요.</p>
                     </div>
                   </details>
@@ -1281,16 +1280,13 @@ export default function ChatStreamerGameClient() {
 
             {/* OBS Widget */}
             <div className="bg-purple-950/25 border border-purple-500/30 rounded-2xl p-3 space-y-2 text-xs">
-              <div className="flex items-center justify-between">
-                <span className="font-extrabold text-purple-300">(선택사항) 🎥 OBS / 프릭샷 오버레이 URL</span>
-                <button
-                  onClick={handleCopyOverlayUrl}
-                  className="py-1 px-2.5 rounded-lg bg-purple-600 hover:bg-purple-500 text-white font-black text-[11px] transition cursor-pointer flex items-center gap-1"
-                >
-                  <span>복사</span>
-                  {copiedOverlay ? <Check className="w-3.5 h-3.5 text-emerald-300" /> : <Copy className="w-3.5 h-3.5" />}
-                </button>
-              </div>
+              <button
+                onClick={handleCopyOverlayUrl}
+                className="w-full py-2.5 px-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-[11px] md:text-xs font-black transition cursor-pointer flex items-center justify-center gap-1.5"
+              >
+                <span>(선택사항) 🎥 OBS / 프릭샷 오버레이 URL 복사</span>
+                {copiedOverlay ? <Check className="w-3.5 h-3.5 text-emerald-300" /> : <Copy className="w-3.5 h-3.5" />}
+              </button>
             </div>
           </div>
         </div>
