@@ -540,6 +540,23 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
     }
   };
 
+  // Resume Voting Action
+  const handleResumeVoting = async () => {
+    if (!isHost || !room || actionLoading) return;
+    
+    if (confirm('투표 마감을 취소하고 다시 투표를 재개하시겠습니까?')) {
+      setActionLoading('locking');
+      setRoom((prev: any) => ({ ...prev, status: 'VOTING' }));
+      try {
+        await supabase.from('rooms').update({ status: 'VOTING' }).eq('id', room.id);
+      } catch (e) {
+        console.error('Resume voting error:', e);
+      } finally {
+        setActionLoading(null);
+      }
+    }
+  };
+
   // Optimistic UI Update + Loading Spinner for Host Pick Submit
   const handleHostPickSubmit = async (hostPick: 'A' | 'B') => {
     if (!isHost || !room || submittingPick || actionLoading) return;
@@ -1455,9 +1472,19 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
             {/* Host Pick Buttons with Instant Spinner & Immediate Visual Response */}
             {room.status === 'LOCKED' && (
               <div className="space-y-2.5">
-                <span className="text-xs md:text-sm text-amber-300 font-black block text-center bg-amber-500/10 py-1.5 px-3 rounded-xl border border-amber-500/30 animate-pulse">
-                  👉 스트리머 본인의 진짜 취향 픽을 선택해 주세요!
-                </span>
+                <div className="flex items-center justify-between bg-amber-500/10 py-1.5 px-3 rounded-xl border border-amber-500/30">
+                  <span className="text-xs md:text-sm text-amber-300 font-black animate-pulse">
+                    👉 스트리머 본인의 진짜 취향 픽을 선택해 주세요!
+                  </span>
+                  {isHost && (
+                    <button
+                      onClick={handleResumeVoting}
+                      className="text-xs font-bold text-neutral-400 hover:text-white underline underline-offset-2 transition-colors cursor-pointer shrink-0"
+                    >
+                      마감 취소
+                    </button>
+                  )}
+                </div>
                 <div className="grid grid-cols-2 gap-2.5">
                   <button
                     disabled={submittingPick || !!actionLoading}
