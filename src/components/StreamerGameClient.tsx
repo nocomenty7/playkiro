@@ -55,8 +55,7 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
   // Host Onboarding Guide Modal State
   const [showHostGuide, setShowHostGuide] = useState(false);
 
-  // OBS Setup Help toggle state
-  const [showObsHelp, setShowObsHelp] = useState(false);
+
 
   // Direct Link Viewer Nickname Setup Modal State
   const [showViewerNicknameModal, setShowViewerNicknameModal] = useState(false);
@@ -1398,47 +1397,6 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
               </div>
             </div>
 
-            {/* OBS Overlay URL Copy Widget */}
-            <div className="bg-purple-950/25 border border-purple-500/30 rounded-2xl p-3.5 space-y-2.5 text-xs">
-              <div className="flex flex-col sm:flex-row items-center gap-2">
-                <button
-                  onClick={handleCopyOverlayUrl}
-                  className="flex-1 w-full py-2.5 px-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-black text-[11px] md:text-xs transition cursor-pointer flex items-center justify-center gap-1.5 shadow-md"
-                >
-                  <span>(선택사항) 🎥 OBS / 프릭샷 오버레이 URL 복사</span>
-                  {copiedOverlay ? <Check className="w-3.5 h-3.5 text-emerald-300" /> : <Copy className="w-3.5 h-3.5" />}
-                </button>
-                <button
-                  onClick={() => setShowObsHelp(!showObsHelp)}
-                  className={`py-2.5 px-3 whitespace-nowrap rounded-xl border font-extrabold text-[11px] transition cursor-pointer w-full sm:w-auto shrink-0 ${
-                    showObsHelp
-                      ? 'bg-purple-500/20 border-purple-500/40 text-purple-300'
-                      : 'bg-zinc-900 border-zinc-800 hover:bg-zinc-800 text-neutral-300'
-                  }`}
-                >
-                  설정방법 안내 {showObsHelp ? '접기' : '보기'}
-                </button>
-              </div>
-
-              {/* OBS Integration Guide (Toggled view) */}
-              {showObsHelp && (
-                <div className="mt-2 border-t border-purple-500/20 pt-2.5 space-y-1.5 text-[10px] text-neutral-400 leading-relaxed pl-1 cursor-default">
-                  <div className="flex gap-1.5">
-                    <span className="font-black text-purple-400">1.</span>
-                    <p><strong className="font-bold text-white">[브라우저 소스]</strong>에 복사한 오버레이 URL을 입력하세요.</p>
-                  </div>
-                  <div className="flex gap-1.5">
-                    <span className="font-black text-purple-400">2.</span>
-                    <p>크기를 <strong className="font-bold text-white">700x800</strong> (가로를 넓게 쓰면 글씨가 잘리지 않습니다)로 지정하세요.</p>
-                  </div>
-                  <div className="flex gap-1.5">
-                    <span className="font-black text-purple-400">3.</span>
-                    <p>커스텀 CSS에 <code className="bg-zinc-900 px-1 py-0.5 rounded text-[9px] font-mono">{"body { background: transparent !important; }"}</code>를 적으세요.</p>
-                  </div>
-                </div>
-              )}
-            </div>
-
             {/* Lock Votes Button with Instant Spinner */}
             {room.status === 'VOTING' && (
               <button
@@ -1525,6 +1483,17 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
                 )}
               </button>
             )}
+
+            {/* OBS Widget */}
+            <div className="bg-purple-950/25 border border-purple-500/30 rounded-2xl p-3 space-y-2 text-xs">
+              <button
+                onClick={handleCopyOverlayUrl}
+                className="w-full py-2.5 px-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-[11px] md:text-xs font-black transition cursor-pointer flex items-center justify-center gap-1.5"
+              >
+                <span>(선택사항) 🎥 OBS / 프릭샷 오버레이 URL 복사</span>
+                {copiedOverlay ? <Check className="w-3.5 h-3.5 text-emerald-300" /> : <Copy className="w-3.5 h-3.5" />}
+              </button>
+            </div>
           </div>
 
         </div>
