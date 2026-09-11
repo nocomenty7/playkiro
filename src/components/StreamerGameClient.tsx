@@ -846,36 +846,15 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
 
               <div className="bg-zinc-950 border border-brand-yellow/30 rounded-2xl p-4 text-center space-y-2">
                 <span className="text-xs font-extrabold text-neutral-400 block">초대 PIN 코드</span>
-                <span className="text-3xl font-black tracking-widest text-brand-yellow block">{pin}</span>
-                <div className="flex flex-col sm:flex-row gap-2 justify-center pt-1">
+                <div className="flex items-center justify-center gap-3 pt-1">
+                  <span className="text-3xl font-black tracking-widest text-brand-yellow block">{pin}</span>
                   <button
                     onClick={handleCopyPin}
-                    className="inline-flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-brand-yellow/10 border border-brand-yellow/40 text-brand-yellow text-xs font-black hover:bg-brand-yellow/20 transition cursor-pointer flex-1"
+                    className="inline-flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-xl bg-brand-yellow/10 border border-brand-yellow/40 text-brand-yellow text-xs font-black hover:bg-brand-yellow/20 transition cursor-pointer"
                   >
                     {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-                    <span>PIN 복사</span>
+                    <span>복사</span>
                   </button>
-                  <button
-                    onClick={handleCopyOverlayUrl}
-                    className="inline-flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-purple-500/10 border border-purple-500/40 text-purple-400 text-xs font-black hover:bg-purple-500/20 transition cursor-pointer flex-1"
-                  >
-                    {copiedOverlay ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-                    <span>(선택사항) 🎥 OBS / 프릭샷 오버레이 URL 복사</span>
-                  </button>
-                </div>
-
-                {/* Collapsible OBS tip inside Guide Modal */}
-                <div className="pt-3 text-left">
-                  <details className="group cursor-pointer">
-                    <summary className="text-[11px] md:text-xs text-purple-400 font-extrabold select-none list-none no-scrollbar flex items-center gap-1.5 justify-center">
-                      <span className="transition-transform group-open:rotate-90">👉</span> OBS / 프릭샷 등 방송에 투표창 띄우는 방법
-                    </summary>
-                    <div className="mt-2 space-y-1.5 text-[11px] md:text-xs text-neutral-400 leading-relaxed pl-2 cursor-default bg-zinc-950/50 p-3 rounded-xl border border-purple-500/10">
-                      <p>• <strong className="font-bold text-white">브라우저 소스</strong> 추가 후 복사한 오버레이 URL 입력</p>
-                      <p>• 권장 크기: <strong className="font-bold text-white">700x800</strong> (가로를 넓게 쓰면 글씨가 잘리지 않습니다)</p>
-                      <p>• 투명 배경: 커스텀 CSS 칸에 <code className="bg-zinc-900 px-1 py-0.5 rounded text-[10px] font-mono">{"body { background: transparent !important; }"}</code>를 기입하세요.</p>
-                    </div>
-                  </details>
                 </div>
               </div>
 
@@ -904,8 +883,31 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
                   <span className="font-black text-amber-400 shrink-0">5.</span>
                   <p><strong className="font-extrabold text-indigo-400">[스트리머]</strong> 마감 이후, 본인의 <strong className="font-extrabold text-white">[진짜 취향 선택지]</strong>를 누르면 시청자의 선택지별 선택률이 실시간 공개됩니다.</p>
                 </div>
+              </div>
 
-                {/* (OBS tip was moved up) */}
+              {/* OBS Quick Copy Widget inside Guide */}
+              <div className="bg-zinc-950 border border-purple-500/30 rounded-2xl p-4 text-center space-y-2">
+                <button
+                  onClick={handleCopyOverlayUrl}
+                  className="w-full py-2.5 px-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-black transition cursor-pointer flex items-center justify-center gap-1.5 shadow-md"
+                >
+                  {copiedOverlay ? <Check className="w-3.5 h-3.5 text-emerald-300" /> : <Copy className="w-3.5 h-3.5" />}
+                  <span>(선택사항) 🎥 OBS / 프릭샷 오버레이 URL 복사</span>
+                </button>
+
+                {/* Collapsible OBS tip inside Guide Modal */}
+                <div className="border-t border-purple-500/20 pt-3 mt-1 text-left">
+                  <details className="group cursor-pointer">
+                    <summary className="text-[11px] md:text-xs text-purple-400 font-extrabold select-none list-none no-scrollbar flex items-center gap-1.5 justify-center">
+                      <span className="transition-transform group-open:rotate-90">👉</span> OBS / 프릭샷 등 방송에 투표창 띄우는 방법
+                    </summary>
+                    <div className="mt-2 space-y-1.5 text-[11px] md:text-xs text-neutral-400 leading-relaxed pl-2 cursor-default bg-zinc-950/50 p-3 rounded-xl border border-purple-500/10">
+                      <p>• <strong className="font-bold text-white">브라우저 소스</strong> 추가 후 복사한 오버레이 URL 입력</p>
+                      <p>• 권장 크기: <strong className="font-bold text-white">700x800</strong> (가로를 넓게 쓰면 글씨가 잘리지 않습니다)</p>
+                      <p>• 투명 배경: 커스텀 CSS 칸에 <code className="bg-zinc-900 px-1 py-0.5 rounded text-[10px] font-mono">{"body { background: transparent !important; }"}</code>를 기입하세요.</p>
+                    </div>
+                  </details>
+                </div>
               </div>
 
               <button
