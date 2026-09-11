@@ -809,31 +809,6 @@ export default function ChatStreamerGameClient() {
                 </p>
               </div>
 
-              {/* OBS Quick Copy Widget inside Guide */}
-              <div className="bg-zinc-950 border border-purple-500/30 rounded-2xl p-4 text-center space-y-2">
-                <button
-                  onClick={handleCopyOverlayUrl}
-                  className="w-full py-2.5 px-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-black transition cursor-pointer flex items-center justify-center gap-1.5 shadow-md"
-                >
-                  {copiedOverlay ? <Check className="w-3.5 h-3.5 text-emerald-300" /> : <Copy className="w-3.5 h-3.5" />}
-                  <span>(선택사항) 🎥 OBS / 프릭샷 오버레이 URL 복사</span>
-                </button>
-
-                {/* Collapsible OBS tip inside Guide Modal */}
-                <div className="border-t border-purple-500/20 pt-3 mt-1 text-left">
-                  <details className="group cursor-pointer">
-                    <summary className="text-[11px] md:text-xs text-purple-400 font-extrabold select-none list-none no-scrollbar flex items-center gap-1.5 justify-center">
-                      <span className="transition-transform group-open:rotate-90">👉</span> OBS / 프릭샷 등 방송에 투표창 띄우는 방법
-                    </summary>
-                    <div className="mt-2 space-y-1.5 text-[11px] md:text-xs text-neutral-400 leading-relaxed pl-2 cursor-default">
-                      <p>• <strong className="font-bold text-white">브라우저 소스</strong> 추가 후 복사한 오버레이 URL 입력</p>
-                      <p>• 권장 크기: <strong className="font-bold text-white">700x800</strong> (가로를 넓게 쓰면 글씨가 잘리지 않습니다)</p>
-                      <p>• 투명 배경: 커스텀 CSS 칸에 <code className="bg-zinc-900 px-1 py-0.5 rounded text-[10px] font-mono">{"body { background: transparent !important; }"}</code>를 기입하세요.</p>
-                    </div>
-                  </details>
-                </div>
-              </div>
-
               {/* Simple Guidance */}
               <div className="space-y-2.5 bg-zinc-900/60 p-4 rounded-2xl border border-zinc-800 text-[13px] md:text-sm">
                 <span className="font-extrabold text-neutral-300 block mb-3 text-[15px]">💡 간단 진행 가이드</span>
@@ -865,8 +840,31 @@ export default function ChatStreamerGameClient() {
                     <strong className="font-extrabold text-indigo-400">[스트리머]</strong> 마감 이후, 본인의 <strong className="font-extrabold text-white">[진짜 취향 선택지]</strong>를 누릅니다.
                   </p>
                 </div>
+              </div>
 
-                {/* (OBS tip was moved up) */}
+              {/* OBS Quick Copy Widget inside Guide */}
+              <div className="bg-zinc-950 border border-purple-500/30 rounded-2xl p-4 text-center space-y-2">
+                <button
+                  onClick={handleCopyOverlayUrl}
+                  className="w-full py-2.5 px-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-black transition cursor-pointer flex items-center justify-center gap-1.5 shadow-md"
+                >
+                  {copiedOverlay ? <Check className="w-3.5 h-3.5 text-emerald-300" /> : <Copy className="w-3.5 h-3.5" />}
+                  <span>(선택사항) 🎥 OBS / 프릭샷 오버레이 URL 복사</span>
+                </button>
+
+                {/* Collapsible OBS tip inside Guide Modal */}
+                <div className="border-t border-purple-500/20 pt-3 mt-1 text-left">
+                  <details className="group cursor-pointer">
+                    <summary className="text-[11px] md:text-xs text-purple-400 font-extrabold select-none list-none no-scrollbar flex items-center gap-1.5 justify-center">
+                      <span className="transition-transform group-open:rotate-90">👉</span> OBS / 프릭샷 등 방송에 투표창 띄우는 방법
+                    </summary>
+                    <div className="mt-2 space-y-1.5 text-[11px] md:text-xs text-neutral-400 leading-relaxed pl-2 cursor-default">
+                      <p>• <strong className="font-bold text-white">브라우저 소스</strong> 추가 후 복사한 오버레이 URL 입력</p>
+                      <p>• 권장 크기: <strong className="font-bold text-white">700x800</strong> (가로를 넓게 쓰면 글씨가 잘리지 않습니다)</p>
+                      <p>• 투명 배경: 커스텀 CSS 칸에 <code className="bg-zinc-900 px-1 py-0.5 rounded text-[10px] font-mono">{"body { background: transparent !important; }"}</code>를 기입하세요.</p>
+                    </div>
+                  </details>
+                </div>
               </div>
 
               <button
