@@ -846,7 +846,7 @@ export default function ChatStreamerGameClient() {
               <div className="bg-zinc-950 border border-purple-500/30 rounded-2xl p-4 text-center space-y-2">
                 <button
                   onClick={handleCopyOverlayUrl}
-                  className="w-full py-2.5 px-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-black transition cursor-pointer flex items-center justify-center gap-1.5 shadow-md"
+                  className="w-full py-2.5 px-3 rounded-xl bg-purple-500/20 border border-purple-500/40 hover:bg-purple-500/30 text-purple-300 text-xs font-black transition cursor-pointer flex items-center justify-center gap-1.5 shadow-md"
                 >
                   {copiedOverlay ? <Check className="w-3.5 h-3.5 text-emerald-300" /> : <Copy className="w-3.5 h-3.5" />}
                   <span>(선택사항) 🎥 OBS / 프릭샷 오버레이 URL 복사</span>
@@ -1280,7 +1280,7 @@ export default function ChatStreamerGameClient() {
             <div className="bg-purple-950/25 border border-purple-500/30 rounded-2xl p-3 space-y-2 text-xs">
               <button
                 onClick={handleCopyOverlayUrl}
-                className="w-full py-2.5 px-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-[11px] md:text-xs font-black transition cursor-pointer flex items-center justify-center gap-1.5"
+                className="w-full py-2.5 px-3 rounded-xl bg-purple-500/20 border border-purple-500/40 hover:bg-purple-500/30 text-purple-300 text-[11px] md:text-xs font-black transition cursor-pointer flex items-center justify-center gap-1.5"
               >
                 <span>(선택사항) 🎥 OBS / 프릭샷 오버레이 URL 복사</span>
                 {copiedOverlay ? <Check className="w-3.5 h-3.5 text-emerald-300" /> : <Copy className="w-3.5 h-3.5" />}
