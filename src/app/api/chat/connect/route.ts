@@ -110,6 +110,42 @@ export async function POST(req: Request) {
         bno,
         channelName,
       });
+    } else if (platform === 'youtube' || trimmedId.includes('youtube.com') || trimmedId.includes('youtu.be')) {
+      let cleanYoutubeId = trimmedId;
+      let type: 'channelId' | 'liveId' | 'handle' = 'handle';
+
+      if (cleanYoutubeId.includes('youtube.com/live/')) {
+        cleanYoutubeId = cleanYoutubeId.split('youtube.com/live/')[1]?.split('?')[0] || cleanYoutubeId;
+        type = 'liveId';
+      } else if (cleanYoutubeId.includes('youtube.com/watch?v=')) {
+        cleanYoutubeId = new URLSearchParams(cleanYoutubeId.split('?')[1] || '').get('v') || cleanYoutubeId;
+        type = 'liveId';
+      } else if (cleanYoutubeId.includes('youtu.be/')) {
+        cleanYoutubeId = cleanYoutubeId.split('youtu.be/')[1]?.split('?')[0] || cleanYoutubeId;
+        type = 'liveId';
+      } else if (cleanYoutubeId.includes('youtube.com/@')) {
+        cleanYoutubeId = '@' + (cleanYoutubeId.split('youtube.com/@')[1]?.split('/')[0]?.split('?')[0] || cleanYoutubeId);
+        type = 'handle';
+      } else if (cleanYoutubeId.includes('youtube.com/channel/')) {
+        cleanYoutubeId = cleanYoutubeId.split('youtube.com/channel/')[1]?.split('/')[0]?.split('?')[0] || cleanYoutubeId;
+        type = 'channelId';
+      } else if (!cleanYoutubeId.startsWith('@') && cleanYoutubeId.length === 24 && cleanYoutubeId.startsWith('UC')) {
+        type = 'channelId';
+      } else if (!cleanYoutubeId.startsWith('@') && cleanYoutubeId.length === 11) {
+        type = 'liveId';
+      } else if (!cleanYoutubeId.startsWith('@') && !cleanYoutubeId.includes('youtube.com') && !cleanYoutubeId.includes('youtu.be')) {
+         cleanYoutubeId = '@' + cleanYoutubeId;
+         type = 'handle';
+      }
+
+      return NextResponse.json({
+        success: true,
+        isDemo: false, // We always attempt to connect via SSE, no separate demo state needed here
+        platform: 'youtube',
+        channelId: cleanYoutubeId,
+        youtubeType: type,
+        channelName: '유튜브 스트리머',
+      });
     }
 
     return NextResponse.json({ error: '지원하지 않는 플랫폼입니다.' }, { status: 400 });

@@ -17,9 +17,10 @@ export default function ChatStreamerModal({ isOpen, onClose }: ChatStreamerModal
   const [streamerNickname, setStreamerNickname] = useState('');
 
   // Multi-platform selection
-  const [selectedPlatforms, setSelectedPlatforms] = useState<('chzzk' | 'soop')[]>([]);
+  const [selectedPlatforms, setSelectedPlatforms] = useState<('chzzk' | 'soop' | 'youtube')[]>(['chzzk']);
   const [chzzkChannelId, setChzzkChannelId] = useState('');
   const [soopBjId, setSoopBjId] = useState('');
+  const [youtubeChannelId, setYoutubeChannelId] = useState('');
 
   const [totalQuestions, setTotalQuestions] = useState(10);
   const [selectedCategories, setSelectedCategories] = useState<string[]>(['전체']);
@@ -65,7 +66,7 @@ export default function ChatStreamerModal({ isOpen, onClose }: ChatStreamerModal
     fetchCounts();
   }, [isOpen]);
 
-  const togglePlatform = (p: 'chzzk' | 'soop') => {
+  const togglePlatform = (p: 'chzzk' | 'soop' | 'youtube') => {
     if (selectedPlatforms.includes(p)) {
       setSelectedPlatforms(selectedPlatforms.filter((item) => item !== p));
     } else {
@@ -114,6 +115,11 @@ export default function ChatStreamerModal({ isOpen, onClose }: ChatStreamerModal
         setErrorMsg('SOOP BJ 아이디 또는 생방송 URL을 입력해 주세요.');
         return;
       }
+
+      if (selectedPlatforms.includes('youtube') && !youtubeChannelId.trim()) {
+        setErrorMsg('유튜브 채널 주소, 방송 주소, 또는 핸들을 입력해 주세요.');
+        return;
+      }
     }
 
     setLoading(true);
@@ -121,6 +127,7 @@ export default function ChatStreamerModal({ isOpen, onClose }: ChatStreamerModal
     try {
       let chzzkData: any = null;
       let soopData: any = null;
+      let youtubeData: any = null;
 
       if (!isDemoMode) {
         if (selectedPlatforms.includes('chzzk')) {
@@ -153,6 +160,22 @@ export default function ChatStreamerModal({ isOpen, onClose }: ChatStreamerModal
             throw new Error(`[SOOP] ${data.error || 'BJ 정보를 확인할 수 없습니다.'}`);
           }
           soopData = data;
+        }
+
+        if (selectedPlatforms.includes('youtube')) {
+          const res = await fetch('/api/chat/connect', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              platform: 'youtube',
+              channelId: youtubeChannelId.trim(),
+            }),
+          });
+          const data = await res.json();
+          if (!res.ok || !data.success) {
+            throw new Error(`[유튜브] ${data.error || '채널 정보를 확인할 수 없습니다.'}`);
+          }
+          youtubeData = data;
         }
       }
 
@@ -188,8 +211,11 @@ export default function ChatStreamerModal({ isOpen, onClose }: ChatStreamerModal
         platforms: selectedPlatforms,
         chzzk: chzzkData,
         soop: soopData,
+        youtube: youtubeData,
         chzzkChannelId: isDemoMode ? 'test_channel' : chzzkData?.channelId || chzzkChannelId.trim(),
         soopBjId: isDemoMode ? 'test_bj' : soopData?.channelId || soopBjId.trim(),
+        youtubeChannelId: isDemoMode ? 'test_youtube' : youtubeData?.channelId || youtubeChannelId.trim(),
+        youtubeType: youtubeData?.youtubeType || 'handle',
         categories: selectedCategories,
         totalQuestions,
       };
@@ -202,6 +228,8 @@ export default function ChatStreamerModal({ isOpen, onClose }: ChatStreamerModal
       queryParams.set('platforms', selectedPlatforms.join(','));
       if (chzzkChannelId.trim()) queryParams.set('chzzkId', chzzkChannelId.trim());
       if (soopBjId.trim()) queryParams.set('soopId', soopBjId.trim());
+      if (youtubeChannelId.trim()) queryParams.set('youtubeId', youtubeChannelId.trim());
+      if (youtubeData?.youtubeType) queryParams.set('youtubeType', youtubeData.youtubeType);
       queryParams.set('nickname', nickname);
 
       onClose();
@@ -282,7 +310,7 @@ export default function ChatStreamerModal({ isOpen, onClose }: ChatStreamerModal
                 <span className="text-amber-400/90 text-xs font-bold">(복수 선택 가능)</span>
               </label>
 
-              <div className="grid grid-cols-2 gap-2 mb-3">
+              <div className="grid grid-cols-3 gap-2 mb-3">
                 <button
                   type="button"
                   onClick={() => togglePlatform('chzzk')}
@@ -294,7 +322,7 @@ export default function ChatStreamerModal({ isOpen, onClose }: ChatStreamerModal
                 >
                   <div className="flex items-center gap-2">
                     <span className="w-2 h-2 rounded-full bg-emerald-400" />
-                    <span>치지직 (CHZZK)</span>
+                    <span>치지직</span>
                   </div>
                   {selectedPlatforms.includes('chzzk') && <Check className="w-4 h-4 text-emerald-400" />}
                 </button>
@@ -310,9 +338,25 @@ export default function ChatStreamerModal({ isOpen, onClose }: ChatStreamerModal
                 >
                   <div className="flex items-center gap-2">
                     <span className="w-2 h-2 rounded-full bg-blue-400" />
-                    <span>숲 (SOOP)</span>
+                    <span>숲(SOOP)</span>
                   </div>
                   {selectedPlatforms.includes('soop') && <Check className="w-4 h-4 text-blue-400" />}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => togglePlatform('youtube')}
+                  className={`py-3 px-3 rounded-xl text-xs font-black border transition-all cursor-pointer flex items-center justify-between ${
+                    selectedPlatforms.includes('youtube')
+                      ? 'border-red-500 bg-red-500/15 text-red-300 shadow-md'
+                      : 'border-zinc-800 bg-zinc-900 text-neutral-400'
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-red-400" />
+                    <span>유튜브</span>
+                  </div>
+                  {selectedPlatforms.includes('youtube') && <Check className="w-4 h-4 text-red-400" />}
                 </button>
               </div>
 
@@ -344,6 +388,21 @@ export default function ChatStreamerModal({ isOpen, onClose }: ChatStreamerModal
                       value={soopBjId}
                       onChange={(e) => setSoopBjId(e.target.value)}
                       className="w-full rounded-xl border border-blue-500/30 bg-zinc-900/90 px-4 py-2.5 text-xs text-white placeholder-zinc-500 focus:border-blue-400 focus:outline-none"
+                    />
+                  </div>
+                )}
+
+                {selectedPlatforms.includes('youtube') && (
+                  <div>
+                    <label className="block text-xs font-bold text-red-300 mb-1">
+                      유튜브 라이브 방송 URL / 채널 핸들명
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="예: https://youtube.com/live/xxxx 또는 @핸들명"
+                      value={youtubeChannelId}
+                      onChange={(e) => setYoutubeChannelId(e.target.value)}
+                      className="w-full rounded-xl border border-red-500/30 bg-zinc-900/90 px-4 py-2.5 text-xs text-white placeholder-zinc-500 focus:border-red-400 focus:outline-none"
                     />
                   </div>
                 )}
