@@ -226,9 +226,9 @@ export default function ChatStreamerModal({ isOpen, onClose }: ChatStreamerModal
       const queryParams = new URLSearchParams();
       queryParams.set('pin', roomResult.pin);
       queryParams.set('platforms', selectedPlatforms.join(','));
-      if (chzzkChannelId.trim()) queryParams.set('chzzkId', chzzkChannelId.trim());
-      if (soopBjId.trim()) queryParams.set('soopId', soopBjId.trim());
-      if (youtubeChannelId.trim()) queryParams.set('youtubeId', youtubeChannelId.trim());
+      if (chzzkChannelId.trim()) queryParams.set('chzzkId', chzzkData?.channelId || chzzkChannelId.trim());
+      if (soopBjId.trim()) queryParams.set('soopId', soopData?.channelId || soopBjId.trim());
+      if (youtubeChannelId.trim()) queryParams.set('youtubeId', youtubeData?.channelId || youtubeChannelId.trim());
       if (youtubeData?.youtubeType) queryParams.set('youtubeType', youtubeData.youtubeType);
       queryParams.set('nickname', nickname);
 

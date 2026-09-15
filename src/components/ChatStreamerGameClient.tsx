@@ -599,10 +599,11 @@ export default function ChatStreamerGameClient() {
   const parseChatVote = (platform: 'chzzk' | 'soop' | 'youtube', userId: string, nickname: string, text: string) => {
     if (statusRef.current !== 'VOTING') return;
 
+    const trimmed = text.trim();
     let choice: 'A' | 'B' | null = null;
-    if (text === '!1') {
+    if (trimmed === '!1') {
       choice = 'A';
-    } else if (text === '!2') {
+    } else if (trimmed === '!2') {
       choice = 'B';
     }
 
