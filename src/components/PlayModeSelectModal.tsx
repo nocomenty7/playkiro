@@ -73,11 +73,11 @@ export default function PlayModeSelectModal({
                   <div>
                     <div className="flex items-center gap-2">
                       <span className="font-black text-sm text-white group-hover:text-purple-300 transition-colors">
-                        1. 채팅 연동 방식 (치지직, 숲, 유튜브 지원)
+                        1. 채팅 연동 방식 (치지직, 숲 지원)
                       </span>
                     </div>
                     <p className="text-xs text-neutral-400 mt-1 leading-relaxed break-keep">
-                      치지직, SOOP, 유튜브 방송 채팅창에서 !1, !2를 입력받아 실시간으로 투표를 집계하는 방식입니다.
+                      치지직, SOOP 방송 채팅창에서 !1, !2를 입력받아 실시간으로 투표를 집계하는 방식입니다.
                     </p>
                   </div>
                 </div>

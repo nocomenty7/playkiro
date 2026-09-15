@@ -35,14 +35,11 @@ interface ChatRoomConfig {
   pin?: string;
   roomId?: string;
   nickname: string;
-  platforms: ('chzzk' | 'soop' | 'youtube')[];
+  platforms: ('chzzk' | 'soop')[];
   chzzk?: any;
   soop?: any;
-  youtube?: any;
   chzzkChannelId?: string;
   soopBjId?: string;
-  youtubeChannelId?: string;
-  youtubeType?: 'channelId' | 'liveId' | 'handle';
   categories: string[];
   totalQuestions: number;
 }
@@ -107,7 +104,6 @@ export default function ChatStreamerGameClient() {
   const [isMuted, setIsMuted] = useState(false);
   const chzzkSocketRef = useRef<WebSocket | null>(null);
   const soopSocketRef = useRef<any | null>(null);
-  const youtubeEventSourceRef = useRef<EventSource | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const channelRef = useRef<any>(null);
   const liveVotesRef = useRef(liveVotes);
@@ -171,14 +167,12 @@ export default function ChatStreamerGameClient() {
         setStreamerPick(roomData.host_pick || null);
 
         // Build config
-        const platforms: ('chzzk' | 'soop' | 'youtube')[] = searchParams.get('platforms')
-          ? (searchParams.get('platforms')!.split(',') as ('chzzk' | 'soop' | 'youtube')[])
+        const platforms: ('chzzk' | 'soop')[] = searchParams.get('platforms')
+          ? (searchParams.get('platforms')!.split(',') as ('chzzk' | 'soop')[])
           : rawConfig?.platforms || ['chzzk'];
 
         const chIdRaw = searchParams.get('chzzkId') || rawConfig?.chzzkChannelId || rawConfig?.chzzk?.channelId || '';
         let soopIdRaw = searchParams.get('soopId') || rawConfig?.soopBjId || rawConfig?.soop?.channelId || '';
-        const youtubeIdRaw = searchParams.get('youtubeId') || rawConfig?.youtubeChannelId || rawConfig?.youtube?.channelId || '';
-        const youtubeTypeRaw = searchParams.get('youtubeType') || rawConfig?.youtubeType || 'handle';
 
         // Emergency sanitize in case DB holds a full URL from earlier bugs
         if (soopIdRaw.includes('play.sooplive.')) {
@@ -189,7 +183,6 @@ export default function ChatStreamerGameClient() {
 
         const chId = chIdRaw;
         const soopId = soopIdRaw;
-        const youtubeId = youtubeIdRaw;
 
         const resolvedConfig: ChatRoomConfig = {
           pin: roomData.pin,
@@ -198,13 +191,10 @@ export default function ChatStreamerGameClient() {
           platforms,
           chzzkChannelId: chId || '',
           soopBjId: soopId || '',
-          youtubeChannelId: youtubeId || '',
-          youtubeType: youtubeTypeRaw as any,
           categories: roomData.categories || ['전체'],
           totalQuestions: roomData.total_questions || 10,
           soop: soopId ? { channelId: soopId } : undefined,
           chzzk: rawConfig?.chzzk || undefined,
-          youtube: rawConfig?.youtube || undefined,
         };
 
         setConfig(resolvedConfig);
@@ -363,7 +353,6 @@ export default function ChatStreamerGameClient() {
 
     let chzzkReconnectTimer: NodeJS.Timeout;
     let soopReconnectTimer: NodeJS.Timeout;
-    let youtubeReconnectTimer: NodeJS.Timeout;
     let isUnmounted = false;
 
     const connectChzzk = () => {
@@ -492,76 +481,14 @@ export default function ChatStreamerGameClient() {
       }
     };
 
-    const connectYoutube = () => {
-      if (isUnmounted) return;
-      const ytId = config.youtubeChannelId;
-      if (!config.platforms.includes('youtube') || !ytId) return;
-
-      try {
-        if (youtubeEventSourceRef.current) {
-          youtubeEventSourceRef.current.close();
-        }
-
-        const ytType = config.youtubeType || 'handle';
-        const sseUrl = `/api/chat/youtube?id=${encodeURIComponent(ytId)}&type=${ytType}`;
-        const es = new EventSource(sseUrl);
-        youtubeEventSourceRef.current = es;
-
-        es.onmessage = (event) => {
-          try {
-            const chatItem = JSON.parse(event.data);
-            const chatText = chatItem.message?.map((m: any) => m.text || m.emojiText || '').join('') || '';
-            const nickname = chatItem.author?.name || '유튜브시청자';
-            const userId = chatItem.author?.channelId || Math.random().toString();
-            parseChatVote('youtube', userId, nickname, chatText);
-          } catch (e) {}
-        };
-
-        es.addEventListener('error', (event: any) => {
-          if (event.data) {
-            triggerToast(`[유튜브] 연결 오류: ${event.data}`);
-          }
-          es.close();
-          if (!isUnmounted) {
-            clearTimeout(youtubeReconnectTimer);
-            youtubeReconnectTimer = setTimeout(connectYoutube, 3000);
-          }
-        });
-
-        es.onerror = () => {
-          es.close();
-          if (!isUnmounted) {
-            clearTimeout(youtubeReconnectTimer);
-            youtubeReconnectTimer = setTimeout(connectYoutube, 3000);
-          }
-        };
-
-        // Note: EventSource automatically reconnects, but if server closes it with `end` or fatal error, we manually retry
-        es.addEventListener('end', () => {
-          es.close();
-          if (!isUnmounted) {
-            clearTimeout(youtubeReconnectTimer);
-            youtubeReconnectTimer = setTimeout(connectYoutube, 3000);
-          }
-        });
-
-      } catch (e) {
-        if (!isUnmounted) {
-          clearTimeout(youtubeReconnectTimer);
-          youtubeReconnectTimer = setTimeout(connectYoutube, 3000);
-        }
-      }
-    };
 
     connectChzzk();
     connectSoop();
-    connectYoutube();
 
     return () => {
       isUnmounted = true;
       clearTimeout(chzzkReconnectTimer);
       clearTimeout(soopReconnectTimer);
-      clearTimeout(youtubeReconnectTimer);
       if (chzzkSocketRef.current) {
         chzzkSocketRef.current.onclose = null; // prevent reconnect
         chzzkSocketRef.current.close();
@@ -569,13 +496,10 @@ export default function ChatStreamerGameClient() {
       if (soopSocketRef.current) {
         soopSocketRef.current.disconnect?.();
       }
-      if (youtubeEventSourceRef.current) {
-        youtubeEventSourceRef.current.close();
-      }
     };
   }, [config]);
 
-  const pendingVotesRef = useRef<Record<string, { nickname: string; platform: 'chzzk' | 'soop' | 'youtube'; choice: 'A' | 'B' }>>({});
+  const pendingVotesRef = useRef<Record<string, { nickname: string; platform: 'chzzk' | 'soop'; choice: 'A' | 'B' }>>({});
   const lastSoundRef = useRef<number>(0);
 
   // Batching Interval for rendering votes and broadcasting to OBS
@@ -607,7 +531,7 @@ export default function ChatStreamerGameClient() {
   }, [status, isOverlay]);
 
   // Vote Parser Handler (Revoting & 1-vote deduplication support + Broadcast to OBS + Record multi vote stat)
-  const parseChatVote = (platform: 'chzzk' | 'soop' | 'youtube', userId: string, nickname: string, text: string) => {
+  const parseChatVote = (platform: 'chzzk' | 'soop', userId: string, nickname: string, text: string) => {
     if (statusRef.current !== 'VOTING') return;
 
     const trimmed = text.trim();
@@ -626,7 +550,7 @@ export default function ChatStreamerGameClient() {
       }
 
       const uniqueKey = `${platform}:${userId}`;
-      const platformBadge = platform === 'chzzk' ? '치지직' : platform === 'soop' ? 'SOOP' : '유튜브';
+      const platformBadge = platform === 'chzzk' ? '치지직' : 'SOOP';
       
       // Store in pending ref instead of triggering immediate state update
       pendingVotesRef.current[uniqueKey] = { nickname: `${nickname} (${platformBadge})`, platform, choice: choice! };
@@ -634,12 +558,11 @@ export default function ChatStreamerGameClient() {
   };
 
   // Test Vote Simulator (For instant offline testing)
-  const simulateTestVote = (choice: 'A' | 'B', platform: 'chzzk' | 'soop' | 'youtube' = 'chzzk') => {
+  const simulateTestVote = (choice: 'A' | 'B', platform: 'chzzk' | 'soop' = 'chzzk') => {
     if (status !== 'VOTING') return;
     const chzzkNames = ['치지직애청자', '민초파', '침착맨', '한동숙', '우왁뜬'];
     const soopNames = ['숲러버', '풍월량', '기가맥힘', '나이스샷', '기로짱'];
-    const ytNames = ['유튭각', '침착맨(본캐)', '쯔양', '슈카월드', '침순이', '구독과좋아요'];
-    const list = platform === 'chzzk' ? chzzkNames : platform === 'soop' ? soopNames : ytNames;
+    const list = platform === 'chzzk' ? chzzkNames : soopNames;
     const randomName = list[Math.floor(Math.random() * list.length)] + '_' + Math.floor(Math.random() * 99);
     parseChatVote(platform, randomName, randomName, `!${choice === 'A' ? '1' : '2'}`);
   };
@@ -998,12 +921,7 @@ export default function ChatStreamerGameClient() {
                   <span className="text-xs md:text-sm font-black text-blue-400">SOOP 채팅 연동중</span>
                 </div>
               )}
-              {config.platforms.includes('youtube') && (
-                <div className="flex items-center gap-1.5 bg-red-500/10 border border-red-500/30 px-3 py-1.5 rounded-xl">
-                  <span className="w-2.5 h-2.5 rounded-full bg-red-400 animate-pulse" />
-                  <span className="text-xs md:text-sm font-black text-red-400">유튜브 채팅 연동중</span>
-                </div>
-              )}
+
             </div>
 
             <button
