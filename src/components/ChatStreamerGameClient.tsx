@@ -987,6 +987,12 @@ export default function ChatStreamerGameClient() {
                   <span className="text-xs md:text-sm font-black text-blue-400">SOOP 채팅 연동중</span>
                 </div>
               )}
+              {config.platforms.includes('youtube') && (
+                <div className="flex items-center gap-1.5 bg-red-500/10 border border-red-500/30 px-3 py-1.5 rounded-xl">
+                  <span className="w-2.5 h-2.5 rounded-full bg-red-400 animate-pulse" />
+                  <span className="text-xs md:text-sm font-black text-red-400">유튜브 채팅 연동중</span>
+                </div>
+              )}
             </div>
 
             <button
