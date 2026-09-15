@@ -110,7 +110,7 @@ export async function POST(req: Request) {
         bno,
         channelName,
       });
-
+    }
 
     return NextResponse.json({ error: '지원하지 않는 플랫폼입니다.' }, { status: 400 });
   } catch (error: any) {
