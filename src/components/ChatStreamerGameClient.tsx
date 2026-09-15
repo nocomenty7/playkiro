@@ -517,6 +517,17 @@ export default function ChatStreamerGameClient() {
           } catch (e) {}
         };
 
+        es.addEventListener('error', (event: any) => {
+          if (event.data) {
+            triggerToast(`[유튜브] 연결 오류: ${event.data}`);
+          }
+          es.close();
+          if (!isUnmounted) {
+            clearTimeout(youtubeReconnectTimer);
+            youtubeReconnectTimer = setTimeout(connectYoutube, 3000);
+          }
+        });
+
         es.onerror = () => {
           es.close();
           if (!isUnmounted) {
