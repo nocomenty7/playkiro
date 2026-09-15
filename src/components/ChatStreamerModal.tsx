@@ -17,7 +17,7 @@ export default function ChatStreamerModal({ isOpen, onClose }: ChatStreamerModal
   const [streamerNickname, setStreamerNickname] = useState('');
 
   // Multi-platform selection
-  const [selectedPlatforms, setSelectedPlatforms] = useState<('chzzk' | 'soop')[]>(['chzzk']);
+  const [selectedPlatforms, setSelectedPlatforms] = useState<('chzzk' | 'soop')[]>([]);
   const [chzzkChannelId, setChzzkChannelId] = useState('');
   const [soopBjId, setSoopBjId] = useState('');
 
