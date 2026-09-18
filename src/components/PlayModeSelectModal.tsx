@@ -28,7 +28,7 @@ export default function PlayModeSelectModal({
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           onClick={onClose}
-          className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+          className="absolute inset-0 bg-black/20 dark:bg-black/80 backdrop-blur-sm"
         />
 
         {/* Modal Window */}
@@ -37,22 +37,22 @@ export default function PlayModeSelectModal({
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 15 }}
           transition={{ type: 'spring', damping: 25, stiffness: 260 }}
-          className="relative z-10 w-full max-w-md overflow-hidden rounded-3xl border border-zinc-800 bg-[#0d0e1b] p-6 text-white shadow-2xl backdrop-blur-xl"
+          className="relative z-10 w-full max-w-md overflow-hidden rounded-3xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#0d0e1b] p-6 shadow-2xl backdrop-blur-xl"
         >
           {/* Close button */}
           <button
             onClick={onClose}
-            className="absolute top-5 right-5 p-2 rounded-full bg-zinc-900 text-neutral-400 hover:text-white hover:bg-zinc-800 transition cursor-pointer"
+            className="absolute top-5 right-5 p-2 rounded-full bg-zinc-100 dark:bg-zinc-900 text-zinc-500 dark:text-neutral-400 hover:bg-zinc-200 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-white transition cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
 
           {/* Modal Header */}
           <div className="mb-6">
-            <h2 className="text-xl font-black text-white tracking-tight">
+            <h2 className="text-xl font-black text-zinc-900 dark:text-white tracking-tight">
               함께 플레이하기 방식 선택
             </h2>
-            <p className="text-xs text-neutral-400 mt-1">
+            <p className="text-xs text-zinc-500 dark:text-neutral-400 mt-1">
               진행하고자 하는 함께 플레이 방식을 선택해 주세요.
             </p>
           </div>
@@ -63,20 +63,20 @@ export default function PlayModeSelectModal({
             <button
               type="button"
               onClick={onSelectChatIntegration}
-              className="w-full text-left group relative rounded-2xl border border-purple-500/40 bg-gradient-to-r from-purple-500/10 via-zinc-900/80 to-zinc-900 p-4 transition-all hover:border-purple-400 hover:scale-[1.01] active:scale-[0.99] cursor-pointer shadow-lg"
+              className="w-full text-left group relative rounded-2xl border border-purple-200 dark:border-purple-500/40 bg-gradient-to-r from-purple-50 via-white to-white dark:from-purple-500/10 dark:via-zinc-900/80 dark:to-zinc-900 p-4 transition-all hover:border-purple-300 dark:hover:border-purple-400 hover:scale-[1.01] active:scale-[0.99] cursor-pointer shadow-sm dark:shadow-lg"
             >
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="p-2.5 rounded-xl bg-purple-500/20 border border-purple-500/40 text-purple-400">
+                  <div className="p-2.5 rounded-xl bg-purple-100 dark:bg-purple-500/20 border border-purple-200 dark:border-purple-500/40 text-purple-500 dark:text-purple-400">
                     <MessageSquare className="w-5 h-5" />
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="font-black text-sm text-white group-hover:text-purple-300 transition-colors">
+                      <span className="font-black text-sm text-zinc-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-300 transition-colors">
                         1. 채팅 연동 방식 (치지직, 숲 지원)
                       </span>
                     </div>
-                    <p className="text-xs text-neutral-400 mt-1 leading-relaxed break-keep">
+                    <p className="text-xs text-zinc-500 dark:text-neutral-400 mt-1 leading-relaxed break-keep">
                       치지직, SOOP 방송 채팅창에서 !1, !2를 입력받아 실시간으로 투표를 집계하는 방식입니다.
                     </p>
                   </div>
@@ -91,21 +91,24 @@ export default function PlayModeSelectModal({
               onClick={() => {
                 onSelectDirectJoin();
               }}
-              className="w-full text-left group relative rounded-2xl border border-amber-500/40 bg-gradient-to-r from-amber-500/10 via-zinc-900/80 to-zinc-900 p-4 transition-all hover:border-amber-400 hover:scale-[1.01] active:scale-[0.99] cursor-pointer shadow-lg"
+              className="w-full text-left group relative rounded-2xl border border-amber-200 dark:border-amber-500/40 bg-gradient-to-r from-amber-50 via-white to-white dark:from-amber-500/10 dark:via-zinc-900/80 dark:to-zinc-900 p-4 transition-all hover:border-amber-300 dark:hover:border-amber-400 hover:scale-[1.01] active:scale-[0.99] cursor-pointer shadow-sm dark:shadow-lg"
             >
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="p-2.5 rounded-xl bg-amber-500/20 border border-amber-500/40 text-amber-400">
+                  <div className="p-2.5 rounded-xl bg-amber-100 dark:bg-amber-500/20 border border-amber-200 dark:border-amber-500/40 text-amber-500 dark:text-amber-400">
                     <Users className="w-5 h-5" />
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="font-black text-sm text-white group-hover:text-amber-300 transition-colors">
-                        2. 방을 만들고 시청자가 직접 입장
+                      <span className="font-black text-sm text-zinc-900 dark:text-white group-hover:text-amber-600 dark:group-hover:text-amber-300 transition-colors">
+                        2. 방 만들기 방식 (입장코드)
+                      </span>
+                      <span className="px-1.5 py-0.5 rounded text-[10px] font-black bg-amber-100 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-500/30">
+                        기존
                       </span>
                     </div>
-                    <p className="text-xs text-neutral-400 mt-1 leading-relaxed break-keep">
-                      방을 생성한 뒤 PIN 코드를 공유하여 시청자들이 직접 접속해 게임을 플레이합니다.
+                    <p className="text-xs text-zinc-500 dark:text-neutral-400 mt-1 leading-relaxed break-keep">
+                      호스트가 방을 개설하고 시청자들은 화면의 QR코드나 PIN 번호로 입장하여 투표합니다.
                     </p>
                   </div>
                 </div>

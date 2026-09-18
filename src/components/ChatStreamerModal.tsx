@@ -29,15 +29,15 @@ export default function ChatStreamerModal({ isOpen, onClose }: ChatStreamerModal
   const [errorMsg, setErrorMsg] = useState('');
 
   const categoriesConfig = [
-    { name: '전체', activeClass: 'border-white bg-white text-zinc-950', inactiveClass: 'border-zinc-800 bg-zinc-900/50 text-neutral-400 hover:border-zinc-700' },
-    { name: '음식', activeClass: 'border-red-500 bg-red-500 text-white', inactiveClass: 'border-red-500/30 bg-red-500/5 text-red-400 hover:border-red-500/50' },
-    { name: '일상', activeClass: 'border-orange-500 bg-orange-500 text-white', inactiveClass: 'border-orange-500/30 bg-orange-500/5 text-orange-400 hover:border-orange-500/50' },
-    { name: '스타일', activeClass: 'border-purple-500 bg-purple-500 text-white', inactiveClass: 'border-purple-500/30 bg-purple-500/5 text-purple-400 hover:border-purple-500/50' },
-    { name: '여가', activeClass: 'border-green-500 bg-green-500 text-white', inactiveClass: 'border-green-500/30 bg-green-500/5 text-green-400 hover:border-green-500/50' },
-    { name: '관계', activeClass: 'border-blue-500 bg-blue-500 text-white', inactiveClass: 'border-blue-500/30 bg-blue-500/5 text-blue-400 hover:border-blue-500/50' },
-    { name: '돈', activeClass: 'border-[#8b5a2b] bg-[#8b5a2b] text-white', inactiveClass: 'border-[rgba(139,90,43,0.3)] bg-[rgba(139,90,43,0.05)] text-[#d2b48c] hover:border-[rgba(139,90,43,0.5)]' },
-    { name: '상상', activeClass: 'border-pink-500 bg-pink-500 text-white', inactiveClass: 'border-pink-500/30 bg-pink-500/5 text-pink-400 hover:border-pink-500/50' },
-    { name: '극한 밸런스게임', activeClass: 'border-neutral-500 bg-neutral-500 text-white', inactiveClass: 'border-neutral-500/30 bg-neutral-500/5 text-neutral-400 hover:border-neutral-500/50' }
+    { name: '전체', activeClass: 'border-zinc-900 bg-zinc-900 text-white dark:border-white dark:bg-white dark:text-zinc-950', inactiveClass: 'border-zinc-200 bg-zinc-50 text-zinc-500 hover:border-zinc-300 dark:border-zinc-800 dark:bg-zinc-900/50 dark:text-neutral-400 dark:hover:border-zinc-700' },
+    { name: '음식', activeClass: 'border-red-500 bg-red-500 text-white', inactiveClass: 'border-red-200 bg-red-50 text-red-500 hover:border-red-300 dark:border-red-500/30 dark:bg-red-500/5 dark:text-red-400 dark:hover:border-red-500/50' },
+    { name: '일상', activeClass: 'border-orange-500 bg-orange-500 text-white', inactiveClass: 'border-orange-200 bg-orange-50 text-orange-500 hover:border-orange-300 dark:border-orange-500/30 dark:bg-orange-500/5 dark:text-orange-400 dark:hover:border-orange-500/50' },
+    { name: '스타일', activeClass: 'border-purple-500 bg-purple-500 text-white', inactiveClass: 'border-purple-200 bg-purple-50 text-purple-500 hover:border-purple-300 dark:border-purple-500/30 dark:bg-purple-500/5 dark:text-purple-400 dark:hover:border-purple-500/50' },
+    { name: '여가', activeClass: 'border-green-500 bg-green-500 text-white', inactiveClass: 'border-green-200 bg-green-50 text-green-500 hover:border-green-300 dark:border-green-500/30 dark:bg-green-500/5 dark:text-green-400 dark:hover:border-green-500/50' },
+    { name: '관계', activeClass: 'border-blue-500 bg-blue-500 text-white', inactiveClass: 'border-blue-200 bg-blue-50 text-blue-500 hover:border-blue-300 dark:border-blue-500/30 dark:bg-blue-500/5 dark:text-blue-400 dark:hover:border-blue-500/50' },
+    { name: '돈', activeClass: 'border-[#8b5a2b] bg-[#8b5a2b] text-white', inactiveClass: 'border-[#8b5a2b]/30 bg-[#8b5a2b]/5 text-[#8b5a2b] hover:border-[#8b5a2b]/50 dark:border-[rgba(139,90,43,0.3)] dark:bg-[rgba(139,90,43,0.05)] dark:text-[#d2b48c] dark:hover:border-[rgba(139,90,43,0.5)]' },
+    { name: '상상', activeClass: 'border-pink-500 bg-pink-500 text-white', inactiveClass: 'border-pink-200 bg-pink-50 text-pink-500 hover:border-pink-300 dark:border-pink-500/30 dark:bg-pink-500/5 dark:text-pink-400 dark:hover:border-pink-500/50' },
+    { name: '극한 밸런스게임', activeClass: 'border-zinc-500 bg-zinc-500 text-white dark:border-neutral-500 dark:bg-neutral-500', inactiveClass: 'border-zinc-200 bg-zinc-50 text-zinc-600 hover:border-zinc-300 dark:border-neutral-500/30 dark:bg-neutral-500/5 dark:text-neutral-400 dark:hover:border-neutral-500/50' }
   ];
 
   useEffect(() => {
@@ -227,7 +227,7 @@ export default function ChatStreamerModal({ isOpen, onClose }: ChatStreamerModal
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           onClick={onClose}
-          className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+          className="absolute inset-0 bg-black/20 dark:bg-black/80 backdrop-blur-sm"
         />
 
         {/* Modal Container */}
@@ -236,12 +236,12 @@ export default function ChatStreamerModal({ isOpen, onClose }: ChatStreamerModal
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 15 }}
           transition={{ type: 'spring', damping: 25, stiffness: 260 }}
-          className="relative z-10 w-full max-w-md max-h-[90vh] overflow-y-auto rounded-3xl border border-zinc-800 bg-[#0d0e1d] p-6 text-white shadow-2xl backdrop-blur-xl no-scrollbar"
+          className="relative z-10 w-full max-w-md max-h-[90vh] overflow-y-auto rounded-3xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#0d0e1d] p-6 shadow-2xl backdrop-blur-xl no-scrollbar"
         >
           {/* Close button */}
           <button
             onClick={onClose}
-            className="absolute top-5 right-5 p-2 rounded-full bg-zinc-900 text-neutral-400 hover:text-white hover:bg-zinc-800 transition cursor-pointer"
+            className="absolute top-5 right-5 p-2 rounded-full bg-zinc-100 dark:bg-zinc-900 text-zinc-500 dark:text-neutral-400 hover:bg-zinc-200 hover:text-zinc-900 dark:hover:text-white dark:hover:bg-zinc-800 transition cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -252,8 +252,8 @@ export default function ChatStreamerModal({ isOpen, onClose }: ChatStreamerModal
               <MessageSquare className="w-6 h-6" />
             </div>
             <div>
-              <h2 className="text-xl font-black text-white tracking-tight">함께 플레이하기 (방송 채팅 연동)</h2>
-              <p className="text-xs text-neutral-400">실시간으로 시청자들의 방송 채팅(!1, !2)을 집계하세요!</p>
+              <h2 className="text-xl font-black text-zinc-900 dark:text-white tracking-tight">함께 플레이하기 (방송 채팅 연동)</h2>
+              <p className="text-xs text-zinc-500 dark:text-neutral-400">실시간으로 시청자들의 방송 채팅(!1, !2)을 집계하세요!</p>
             </div>
           </div>
 
@@ -267,7 +267,7 @@ export default function ChatStreamerModal({ isOpen, onClose }: ChatStreamerModal
           <form onSubmit={(e) => handleStartChatStream(e, false)} className="space-y-4">
             {/* Streamer Nickname (Mandatory) */}
             <div>
-              <label className="block text-xs font-extrabold text-neutral-300 mb-1.5">
+              <label className="block text-xs font-extrabold text-zinc-700 dark:text-neutral-300 mb-1.5">
                 스트리머 닉네임
               </label>
               <input
@@ -275,15 +275,15 @@ export default function ChatStreamerModal({ isOpen, onClose }: ChatStreamerModal
                 placeholder="본인 닉네임을 입력하세요 (방송 화면 표시용)"
                 value={streamerNickname}
                 onChange={(e) => setStreamerNickname(e.target.value)}
-                className="w-full rounded-xl border border-zinc-800 bg-zinc-900/80 px-4 py-3 text-xs text-white placeholder-zinc-500 focus:border-purple-500 focus:outline-none"
+                className="w-full rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/80 px-4 py-3 text-xs text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-500 focus:border-purple-500 focus:outline-none"
               />
             </div>
 
             {/* Multi-Platform Selection */}
-            <div className="border-t border-zinc-900/80 pt-3">
-              <label className="flex items-center justify-between text-xs font-extrabold text-neutral-300 mb-2">
+            <div className="border-t border-zinc-200 dark:border-zinc-900/80 pt-3">
+              <label className="flex items-center justify-between text-xs font-extrabold text-zinc-700 dark:text-neutral-300 mb-2">
                 <span>방송 플랫폼 연동</span>
-                <span className="text-amber-400/90 text-xs font-bold">(복수 선택 가능)</span>
+                <span className="text-amber-500 dark:text-amber-400/90 text-xs font-bold">(복수 선택 가능)</span>
               </label>
 
               <div className="grid grid-cols-2 gap-2 mb-3">
@@ -292,8 +292,8 @@ export default function ChatStreamerModal({ isOpen, onClose }: ChatStreamerModal
                   onClick={() => togglePlatform('chzzk')}
                   className={`py-3 px-3 rounded-xl text-xs font-black border transition-all cursor-pointer flex items-center justify-between ${
                     selectedPlatforms.includes('chzzk')
-                      ? 'border-emerald-500 bg-emerald-500/15 text-emerald-300 shadow-md'
-                      : 'border-zinc-800 bg-zinc-900 text-neutral-400'
+                      ? 'border-emerald-500 bg-emerald-50 text-emerald-600 dark:bg-emerald-500/15 dark:text-emerald-300 shadow-md'
+                      : 'border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900 text-zinc-500 dark:text-neutral-400'
                   }`}
                 >
                   <div className="flex items-center gap-2">
@@ -308,8 +308,8 @@ export default function ChatStreamerModal({ isOpen, onClose }: ChatStreamerModal
                   onClick={() => togglePlatform('soop')}
                   className={`py-3 px-3 rounded-xl text-xs font-black border transition-all cursor-pointer flex items-center justify-between ${
                     selectedPlatforms.includes('soop')
-                      ? 'border-blue-500 bg-blue-500/15 text-blue-300 shadow-md'
-                      : 'border-zinc-800 bg-zinc-900 text-neutral-400'
+                      ? 'border-blue-500 bg-blue-50 text-blue-600 dark:bg-blue-500/15 dark:text-blue-300 shadow-md'
+                      : 'border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900 text-zinc-500 dark:text-neutral-400'
                   }`}
                 >
                   <div className="flex items-center gap-2">
@@ -325,30 +325,30 @@ export default function ChatStreamerModal({ isOpen, onClose }: ChatStreamerModal
               <div className="space-y-3">
                 {selectedPlatforms.includes('chzzk') && (
                   <div>
-                    <label className="block text-xs font-bold text-emerald-300 mb-1">
-                      치지직 채널 URL
+                    <label className="block text-[11px] font-extrabold text-emerald-600 dark:text-emerald-400 mb-1">
+                      치지직 채널 ID 또는 방송 주소
                     </label>
                     <input
                       type="text"
-                      placeholder="예: https://chzzk.naver.com/4de764d9dad3b25602284be6db3ac648"
+                      placeholder="예: https://chzzk.naver.com/live/..."
                       value={chzzkChannelId}
                       onChange={(e) => setChzzkChannelId(e.target.value)}
-                      className="w-full rounded-xl border border-emerald-500/30 bg-zinc-900/90 px-4 py-2.5 text-xs text-white placeholder-zinc-500 focus:border-emerald-400 focus:outline-none"
+                      className="w-full rounded-lg border border-emerald-200 dark:border-emerald-500/30 bg-white dark:bg-black/20 px-3 py-2.5 text-xs text-zinc-900 dark:text-white placeholder-emerald-300 dark:placeholder-emerald-500/50 focus:border-emerald-500 focus:outline-none"
                     />
                   </div>
                 )}
 
                 {selectedPlatforms.includes('soop') && (
                   <div>
-                    <label className="block text-xs font-bold text-blue-300 mb-1">
-                      SOOP 생방송 URL
+                    <label className="block text-[11px] font-extrabold text-blue-600 dark:text-blue-400 mb-1">
+                      SOOP BJ 아이디 또는 방송 주소
                     </label>
                     <input
                       type="text"
-                      placeholder="예: https://play.sooplive.com/abcdef/297001341"
+                      placeholder="예: https://play.sooplive.co.kr/..."
                       value={soopBjId}
                       onChange={(e) => setSoopBjId(e.target.value)}
-                      className="w-full rounded-xl border border-blue-500/30 bg-zinc-900/90 px-4 py-2.5 text-xs text-white placeholder-zinc-500 focus:border-blue-400 focus:outline-none"
+                      className="w-full rounded-lg border border-blue-200 dark:border-blue-500/30 bg-white dark:bg-black/20 px-3 py-2.5 text-xs text-zinc-900 dark:text-white placeholder-blue-300 dark:placeholder-blue-500/50 focus:border-blue-500 focus:outline-none"
                     />
                   </div>
                 )}
@@ -362,18 +362,20 @@ export default function ChatStreamerModal({ isOpen, onClose }: ChatStreamerModal
             </div>
 
             {/* Total Questions */}
-            <div className="border-t border-zinc-900/80 pt-3">
-              <label className="block text-xs font-extrabold text-neutral-300 mb-1.5">총 문제 수</label>
-              <div className="grid grid-cols-3 gap-2">
-                {[10, 20, 30].map((num) => (
+            <div className="border-t border-zinc-200 dark:border-zinc-900/80 pt-3">
+              <label className="block text-xs font-extrabold text-zinc-700 dark:text-neutral-300 mb-1.5">
+                진행 문항 수
+              </label>
+              <div className="flex gap-2">
+                {[5, 10, 15, 20, 30].map((num) => (
                   <button
                     key={num}
                     type="button"
                     onClick={() => setTotalQuestions(num)}
-                    className={`py-2 rounded-xl text-xs font-black border transition-all cursor-pointer ${
+                    className={`flex-1 py-2 rounded-xl text-xs font-black border transition-all cursor-pointer ${
                       totalQuestions === num
-                        ? 'border-purple-500 bg-purple-500/20 text-purple-300'
-                        : 'border-zinc-800 bg-zinc-900 text-neutral-400'
+                        ? 'border-purple-500 bg-purple-50 text-purple-600 dark:bg-purple-500/20 dark:text-purple-300'
+                        : 'border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900 text-zinc-500 dark:text-neutral-400 hover:border-zinc-300 dark:hover:border-zinc-700'
                     }`}
                   >
                     {num}문제
@@ -383,10 +385,10 @@ export default function ChatStreamerModal({ isOpen, onClose }: ChatStreamerModal
             </div>
 
             {/* Category Filter */}
-            <div className="border-t border-zinc-900/80 pt-3">
-              <label className="flex items-center justify-between text-xs font-extrabold text-neutral-300 mb-2">
-                <span>카테고리 필터</span>
-                <span className="text-amber-400/90 text-xs font-bold">(복수 선택 가능)</span>
+            <div className="border-t border-zinc-200 dark:border-zinc-900/80 pt-3">
+              <label className="flex items-center justify-between text-xs font-extrabold text-zinc-700 dark:text-neutral-300 mb-2">
+                <span>카테고리 선택</span>
+                <span className="text-amber-500 dark:text-amber-400/90 text-xs font-bold">(복수 선택 가능)</span>
               </label>
 
               <div className="mb-2.5">

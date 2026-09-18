@@ -44,15 +44,15 @@ export default function StreamerModal({ isOpen, onClose }: StreamerModalProps) {
   });
 
   const categoriesConfig = [
-    { name: '전체', activeClass: 'border-white bg-white text-[#080911]', inactiveClass: 'border-zinc-800 bg-zinc-900/50 text-neutral-400 hover:border-zinc-700' },
-    { name: '음식', activeClass: 'border-red-500 bg-red-500 text-white', inactiveClass: 'border-red-500/30 bg-red-500/5 text-red-400 hover:border-red-500/50' },
-    { name: '일상', activeClass: 'border-orange-500 bg-orange-500 text-white', inactiveClass: 'border-orange-500/30 bg-orange-500/5 text-orange-400 hover:border-orange-500/50' },
-    { name: '스타일', activeClass: 'border-purple-500 bg-purple-500 text-white', inactiveClass: 'border-purple-500/30 bg-purple-500/5 text-purple-400 hover:border-purple-500/50' },
-    { name: '여가', activeClass: 'border-green-500 bg-green-500 text-white', inactiveClass: 'border-green-500/30 bg-green-500/5 text-green-400 hover:border-green-500/50' },
-    { name: '관계', activeClass: 'border-blue-500 bg-blue-500 text-white', inactiveClass: 'border-blue-500/30 bg-blue-500/5 text-blue-400 hover:border-blue-500/50' },
-    { name: '돈', activeClass: 'border-[#8b5a2b] bg-[#8b5a2b] text-white', inactiveClass: 'border-[rgba(139,90,43,0.3)] bg-[rgba(139,90,43,0.05)] text-[#d2b48c] hover:border-[rgba(139,90,43,0.5)]' },
-    { name: '상상', activeClass: 'border-pink-500 bg-pink-500 text-white', inactiveClass: 'border-pink-500/30 bg-pink-500/5 text-pink-400 hover:border-pink-500/50' },
-    { name: '극한 밸런스게임', activeClass: 'border-neutral-500 bg-neutral-500 text-white', inactiveClass: 'border-neutral-500/30 bg-neutral-500/5 text-neutral-400 hover:border-neutral-500/50' }
+    { name: '전체', activeClass: 'border-zinc-900 bg-zinc-900 text-white dark:border-white dark:bg-white dark:text-[#080911]', inactiveClass: 'border-zinc-200 bg-zinc-50 text-zinc-500 hover:border-zinc-300 dark:border-zinc-800 dark:bg-zinc-900/50 dark:text-neutral-400 dark:hover:border-zinc-700' },
+    { name: '음식', activeClass: 'border-red-500 bg-red-500 text-white', inactiveClass: 'border-red-200 bg-red-50 text-red-500 hover:border-red-300 dark:border-red-500/30 dark:bg-red-500/5 dark:text-red-400 dark:hover:border-red-500/50' },
+    { name: '일상', activeClass: 'border-orange-500 bg-orange-500 text-white', inactiveClass: 'border-orange-200 bg-orange-50 text-orange-500 hover:border-orange-300 dark:border-orange-500/30 dark:bg-orange-500/5 dark:text-orange-400 dark:hover:border-orange-500/50' },
+    { name: '스타일', activeClass: 'border-purple-500 bg-purple-500 text-white', inactiveClass: 'border-purple-200 bg-purple-50 text-purple-500 hover:border-purple-300 dark:border-purple-500/30 dark:bg-purple-500/5 dark:text-purple-400 dark:hover:border-purple-500/50' },
+    { name: '여가', activeClass: 'border-green-500 bg-green-500 text-white', inactiveClass: 'border-green-200 bg-green-50 text-green-500 hover:border-green-300 dark:border-green-500/30 dark:bg-green-500/5 dark:text-green-400 dark:hover:border-green-500/50' },
+    { name: '관계', activeClass: 'border-blue-500 bg-blue-500 text-white', inactiveClass: 'border-blue-200 bg-blue-50 text-blue-500 hover:border-blue-300 dark:border-blue-500/30 dark:bg-blue-500/5 dark:text-blue-400 dark:hover:border-blue-500/50' },
+    { name: '돈', activeClass: 'border-[#8b5a2b] bg-[#8b5a2b] text-white', inactiveClass: 'border-[#8b5a2b]/30 bg-[#8b5a2b]/5 text-[#8b5a2b] hover:border-[#8b5a2b]/50 dark:border-[rgba(139,90,43,0.3)] dark:bg-[rgba(139,90,43,0.05)] dark:text-[#d2b48c] dark:hover:border-[rgba(139,90,43,0.5)]' },
+    { name: '상상', activeClass: 'border-pink-500 bg-pink-500 text-white', inactiveClass: 'border-pink-200 bg-pink-50 text-pink-500 hover:border-pink-300 dark:border-pink-500/30 dark:bg-pink-500/5 dark:text-pink-400 dark:hover:border-pink-500/50' },
+    { name: '극한 밸런스게임', activeClass: 'border-zinc-500 bg-zinc-500 text-white dark:border-neutral-500 dark:bg-neutral-500', inactiveClass: 'border-zinc-200 bg-zinc-50 text-zinc-600 hover:border-zinc-300 dark:border-neutral-500/30 dark:bg-neutral-500/5 dark:text-neutral-400 dark:hover:border-neutral-500/50' }
   ];
 
   useEffect(() => {
@@ -237,7 +237,7 @@ export default function StreamerModal({ isOpen, onClose }: StreamerModalProps) {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           onClick={onClose}
-          className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+          className="absolute inset-0 bg-black/20 dark:bg-black/80 backdrop-blur-sm"
         />
 
         {/* Modal Window */}
@@ -245,12 +245,12 @@ export default function StreamerModal({ isOpen, onClose }: StreamerModalProps) {
           initial={{ opacity: 0, scale: 0.95, y: 10 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 10 }}
-          className="relative z-10 w-full max-w-lg bg-[#0d0e1d] border border-zinc-800 rounded-3xl p-6 shadow-2xl text-white overflow-hidden"
+          className="relative z-10 w-full max-w-lg bg-white dark:bg-[#0d0e1d] border border-zinc-200 dark:border-zinc-800 rounded-3xl p-6 shadow-2xl text-zinc-900 dark:text-white overflow-hidden"
         >
           {/* Close Button */}
           <button
             onClick={onClose}
-            className="absolute top-5 right-5 p-2 rounded-full bg-zinc-900 text-neutral-400 hover:text-white hover:bg-zinc-800 transition cursor-pointer"
+            className="absolute top-5 right-5 p-2 rounded-full bg-zinc-100 dark:bg-zinc-900 text-zinc-500 dark:text-neutral-400 hover:text-zinc-900 hover:bg-zinc-200 dark:hover:text-white dark:hover:bg-zinc-800 transition cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -261,13 +261,13 @@ export default function StreamerModal({ isOpen, onClose }: StreamerModalProps) {
               <Tv className="w-6 h-6" />
             </div>
             <div>
-              <h2 className="text-xl font-black text-white tracking-tight">함께 플레이하기 (방을 만들고 시청자가 입장)</h2>
-              <p className="text-xs text-neutral-400">실시간으로 스트리머의 취향을 예측해보세요!</p>
+              <h2 className="text-xl font-black text-zinc-900 dark:text-white tracking-tight">함께 플레이하기 (방을 만들고 시청자가 입장)</h2>
+              <p className="text-xs text-zinc-500 dark:text-neutral-400">실시간으로 스트리머의 취향을 예측해보세요!</p>
             </div>
           </div>
 
           {/* Navigation Tabs */}
-          <div className="grid grid-cols-2 gap-2 bg-zinc-950 p-1.5 rounded-2xl border border-zinc-850 mb-6">
+          <div className="grid grid-cols-2 gap-2 bg-zinc-100 dark:bg-zinc-950 p-1.5 rounded-2xl border border-zinc-200 dark:border-zinc-850 mb-6">
             <button
               onClick={() => {
                 setActiveTab('join');
@@ -276,7 +276,7 @@ export default function StreamerModal({ isOpen, onClose }: StreamerModalProps) {
               className={`py-2.5 px-4 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 cursor-pointer ${
                 activeTab === 'join'
                   ? 'bg-amber-400 text-zinc-950 shadow-md font-black'
-                  : 'text-neutral-400 hover:text-neutral-200'
+                  : 'text-zinc-500 dark:text-neutral-400 hover:text-zinc-800 dark:hover:text-neutral-200'
               }`}
             >
               <Users className="w-4 h-4 text-zinc-950" />
@@ -290,8 +290,8 @@ export default function StreamerModal({ isOpen, onClose }: StreamerModalProps) {
               }}
               className={`py-2.5 px-4 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 cursor-pointer ${
                 activeTab === 'create'
-                  ? 'bg-brand-yellow text-zinc-950 shadow-md font-black'
-                  : 'text-neutral-400 hover:text-neutral-200'
+                  ? 'bg-[#FFD700] text-zinc-950 shadow-md font-black'
+                  : 'text-zinc-500 dark:text-neutral-400 hover:text-zinc-800 dark:hover:text-neutral-200'
               }`}
             >
               <Tv className="w-4 h-4" />
@@ -309,25 +309,25 @@ export default function StreamerModal({ isOpen, onClose }: StreamerModalProps) {
           {activeTab === 'join' && (
             <form onSubmit={handleJoinRoom} className="space-y-4">
               <div>
-                <label className="block text-xs font-extrabold text-neutral-300 mb-1.5">6자리 PIN 코드</label>
+                <label className="block text-xs font-extrabold text-zinc-700 dark:text-neutral-300 mb-1.5">6자리 PIN 코드</label>
                 <input
                   type="text"
                   maxLength={6}
                   placeholder="예: 849201"
                   value={joinPin}
                   onChange={(e) => setJoinPin(e.target.value.replace(/[^0-9]/g, ''))}
-                  className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-lg font-black text-center tracking-widest text-brand-yellow placeholder-zinc-700 focus:outline-none focus:border-brand-yellow"
+                  className="w-full bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl px-4 py-3 text-lg font-black text-center tracking-widest text-amber-500 dark:text-amber-400 placeholder-zinc-400 dark:placeholder-zinc-700 focus:outline-none focus:border-amber-400"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-extrabold text-neutral-300 mb-1.5">시청자 닉네임</label>
+                <label className="block text-xs font-extrabold text-zinc-700 dark:text-neutral-300 mb-1.5">시청자 닉네임</label>
                 <input
                   type="text"
                   placeholder="본인 닉네임을 입력하세요."
                   value={joinNickname}
                   onChange={(e) => setJoinNickname(e.target.value)}
-                  className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-sm font-bold text-white placeholder-zinc-600 focus:outline-none focus:border-brand-yellow"
+                  className="w-full bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl px-4 py-3 text-sm font-bold text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-600 focus:outline-none focus:border-amber-400"
                 />
               </div>
 
@@ -355,20 +355,20 @@ export default function StreamerModal({ isOpen, onClose }: StreamerModalProps) {
           {activeTab === 'create' && (
             <form onSubmit={handleCreateRoom} className="space-y-4 max-h-[60vh] overflow-y-auto pr-1 no-scrollbar">
               <div>
-                <label className="block text-xs font-extrabold text-neutral-300 mb-1.5">스트리머 닉네임</label>
+                <label className="block text-xs font-extrabold text-zinc-700 dark:text-neutral-300 mb-1.5">스트리머 닉네임</label>
                 <input
                   type="text"
                   placeholder="본인 닉네임을 입력하세요."
                   value={hostNickname}
                   onChange={(e) => setHostNickname(e.target.value)}
-                  className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-sm font-bold text-white placeholder-zinc-600 focus:outline-none focus:border-brand-yellow"
+                  className="w-full bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl px-4 py-2.5 text-sm font-bold text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-600 focus:outline-none focus:border-amber-400"
                 />
               </div>
 
 
 
               <div>
-                <label className="block text-xs font-extrabold text-neutral-300 mb-1.5">총 문제 수</label>
+                <label className="block text-xs font-extrabold text-zinc-700 dark:text-neutral-300 mb-1.5">총 문제 수</label>
                 <div className="grid grid-cols-3 gap-2">
                   {[10, 20, 30].map((num) => (
                     <button
@@ -377,8 +377,8 @@ export default function StreamerModal({ isOpen, onClose }: StreamerModalProps) {
                       onClick={() => setTotalQuestions(num)}
                       className={`py-2 rounded-xl text-xs font-black border transition-all cursor-pointer ${
                         totalQuestions === num
-                          ? 'border-brand-yellow bg-brand-yellow/10 text-brand-yellow'
-                          : 'border-zinc-800 bg-zinc-900 text-neutral-400'
+                          ? 'border-amber-400 bg-amber-50 dark:bg-amber-400/10 text-amber-500 dark:text-amber-400'
+                          : 'border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900 text-zinc-500 dark:text-neutral-400 hover:border-zinc-300 dark:hover:border-zinc-700'
                       }`}
                     >
                       {num}문제
@@ -388,10 +388,10 @@ export default function StreamerModal({ isOpen, onClose }: StreamerModalProps) {
               </div>
 
               {/* Category Filter Chips */}
-              <div className="border-t border-zinc-900/80 pt-3">
-                <label className="flex items-center justify-between text-xs font-extrabold text-neutral-300 mb-2">
-                  <span>카테고리 필터</span>
-                  <span className="text-amber-400/90 text-xs font-bold">(복수 선택 가능)</span>
+              <div className="border-t border-zinc-200 dark:border-zinc-900/80 pt-3 mt-4">
+                <label className="flex items-center justify-between text-xs font-extrabold text-zinc-700 dark:text-neutral-300 mb-3">
+                  <span>카테고리 선택</span>
+                  <span className="text-amber-500 dark:text-amber-400/90 text-[10px]">(복수 선택 가능)</span>
                 </label>
 
                 <div className="mb-2.5">
@@ -436,7 +436,7 @@ export default function StreamerModal({ isOpen, onClose }: StreamerModalProps) {
               <button
                 type="submit"
                 disabled={creating}
-                className="w-full py-3.5 rounded-xl bg-brand-yellow text-zinc-950 font-black text-sm transition-all shadow-lg hover:brightness-110 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 mt-4"
+                className="w-full py-3.5 rounded-xl bg-[#FFD700] hover:bg-yellow-400 text-zinc-950 font-black text-sm transition-all shadow-lg flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 mt-4"
               >
                 {creating ? (
                   <>
@@ -454,21 +454,21 @@ export default function StreamerModal({ isOpen, onClose }: StreamerModalProps) {
         {/* All Questions Completed Alert Modal */}
         <AnimatePresence>
           {completedAlert.isOpen && (
-            <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
+            <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/20 dark:bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
               <motion.div
                 initial={{ opacity: 0, scale: 0.9, y: 10 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.9, y: 10 }}
-                className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 max-w-sm w-full shadow-2xl text-center space-y-4 relative"
+                className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-3xl p-6 max-w-sm w-full shadow-2xl text-center space-y-4 relative"
               >
-                <div className="w-12 h-12 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 flex items-center justify-center mx-auto text-2xl">
+                <div className="w-12 h-12 rounded-full bg-amber-100 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/30 text-amber-500 dark:text-amber-400 flex items-center justify-center mx-auto text-2xl">
                   🎉
                 </div>
                 <div className="space-y-2">
-                  <h3 className="text-lg font-black text-white leading-snug break-keep">
+                  <h3 className="text-lg font-black text-zinc-900 dark:text-white leading-snug break-keep">
                     {completedAlert.title}
                   </h3>
-                  <p className="text-xs text-neutral-400 font-bold leading-relaxed break-keep">
+                  <p className="text-xs text-zinc-500 dark:text-neutral-400 font-bold leading-relaxed break-keep">
                     {completedAlert.message}
                   </p>
                 </div>
@@ -479,7 +479,7 @@ export default function StreamerModal({ isOpen, onClose }: StreamerModalProps) {
                     onClick={() => {
                       setCompletedAlert({ isOpen: false, title: '', message: '' });
                     }}
-                    className="w-full py-3 rounded-xl bg-brand-yellow text-zinc-950 font-black text-sm hover:brightness-110 transition-all cursor-pointer shadow-md"
+                    className="w-full py-3 rounded-xl bg-[#FFD700] text-zinc-950 font-black text-sm hover:brightness-110 transition-all cursor-pointer shadow-md"
                   >
                     확인 (카테고리 변경하기)
                   </button>
@@ -493,7 +493,7 @@ export default function StreamerModal({ isOpen, onClose }: StreamerModalProps) {
                       setCompletedAlert({ isOpen: false, title: '', message: '' });
                       setErrorMsg('스트리머 풀었던 문제 이력이 초기화되었습니다. 방을 다시 생성해 주세요.');
                     }}
-                    className="w-full py-2.5 rounded-xl bg-zinc-800 text-neutral-400 hover:text-white font-bold text-xs hover:bg-zinc-700 transition-all cursor-pointer"
+                    className="w-full py-2.5 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-neutral-400 hover:text-zinc-900 dark:hover:text-white font-bold text-xs hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-all cursor-pointer"
                   >
                     풀었던 문제 기록 초기화하고 다시 풀기
                   </button>
