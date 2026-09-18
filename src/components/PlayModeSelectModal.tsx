@@ -103,9 +103,6 @@ export default function PlayModeSelectModal({
                       <span className="font-black text-sm text-zinc-900 dark:text-white group-hover:text-amber-600 dark:group-hover:text-amber-300 transition-colors">
                         2. 방 만들기 방식 (입장코드)
                       </span>
-                      <span className="px-1.5 py-0.5 rounded text-[10px] font-black bg-amber-100 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-500/30">
-                        기존
-                      </span>
                     </div>
                     <p className="text-xs text-zinc-500 dark:text-neutral-400 mt-1 leading-relaxed break-keep">
                       호스트가 방을 개설하고 시청자들은 화면의 QR코드나 PIN 번호로 입장하여 투표합니다.
