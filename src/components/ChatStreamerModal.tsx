@@ -361,13 +361,10 @@ export default function ChatStreamerModal({ isOpen, onClose }: ChatStreamerModal
               </p>
             </div>
 
-            {/* Total Questions */}
             <div className="border-t border-zinc-200 dark:border-zinc-900/80 pt-3">
-              <label className="block text-xs font-extrabold text-zinc-700 dark:text-neutral-300 mb-1.5">
-                진행 문항 수
-              </label>
-              <div className="flex gap-2">
-                {[5, 10, 15, 20, 30].map((num) => (
+              <label className="block text-xs font-extrabold text-zinc-700 dark:text-neutral-300 mb-1.5">총 문제 수</label>
+              <div className="grid grid-cols-3 gap-2">
+                {[10, 20, 30].map((num) => (
                   <button
                     key={num}
                     type="button"
