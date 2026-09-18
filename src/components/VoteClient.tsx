@@ -404,6 +404,8 @@ export default function VoteClient({
             <Link href="/terms" target="_blank" rel="noopener noreferrer" className="hover:text-neutral-350 transition-all">이용약관</Link>
             <span className="text-zinc-800">|</span>
             <a href="mailto:auroranest.official@gmail.com" className="hover:text-neutral-350 transition-all">문의하기</a>
+            <span className="text-zinc-800">|</span>
+            <a href="https://fairy.hada.io/@playkiro" target="_blank" rel="noopener noreferrer" className="hover:text-neutral-350 transition-all">후원하기</a>
           </div>
           <p className="text-[9px] text-neutral-600">Copyright © 2026 AuroraNest. All rights reserved.</p>
         </footer>
@@ -650,6 +652,8 @@ export default function VoteClient({
           <Link href="/terms" target="_blank" rel="noopener noreferrer" className="hover:text-neutral-350 transition-all">이용약관</Link>
           <span className="text-zinc-800">|</span>
           <a href="mailto:auroranest.official@gmail.com" className="hover:text-neutral-350 transition-all">문의하기</a>
+          <span className="text-zinc-800">|</span>
+          <a href="https://fairy.hada.io/@playkiro" target="_blank" rel="noopener noreferrer" className="hover:text-neutral-350 transition-all">후원하기</a>
         </div>
         <p className="text-[9px] text-neutral-650">Copyright © 2026 AuroraNest. All rights reserved.</p>
         

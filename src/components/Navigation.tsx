@@ -221,6 +221,15 @@ export default function Navigation({
                   >
                     <span>문의하기</span>
                   </a>
+                  <a
+                    href="https://fairy.hada.io/@playkiro"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() => setShowDrawer(false)}
+                    className="flex items-center gap-3 rounded-2xl bg-zinc-900/50 hover:bg-zinc-900 border border-zinc-900 p-3 text-xs font-extrabold text-neutral-250 transition-all hover:border-zinc-800"
+                  >
+                    <span>후원하기</span>
+                  </a>
                 </div>
               </div>
 
