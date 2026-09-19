@@ -326,11 +326,11 @@ export default function ChatStreamerModal({ isOpen, onClose }: ChatStreamerModal
                 {selectedPlatforms.includes('chzzk') && (
                   <div>
                     <label className="block text-[11px] font-extrabold text-emerald-600 dark:text-emerald-400 mb-1">
-                      치지직 채널 ID 또는 방송 주소
+                      치지직 채널 URL
                     </label>
                     <input
                       type="text"
-                      placeholder="예: https://chzzk.naver.com/live/..."
+                      placeholder="예: https://chzzk.naver.com/bstsd38c2e75e000722809c171xnsldi"
                       value={chzzkChannelId}
                       onChange={(e) => setChzzkChannelId(e.target.value)}
                       className="w-full rounded-lg border border-emerald-200 dark:border-emerald-500/30 bg-white dark:bg-black/20 px-3 py-2.5 text-xs text-zinc-900 dark:text-white placeholder-emerald-300 dark:placeholder-emerald-500/50 focus:border-emerald-500 focus:outline-none"
@@ -341,11 +341,11 @@ export default function ChatStreamerModal({ isOpen, onClose }: ChatStreamerModal
                 {selectedPlatforms.includes('soop') && (
                   <div>
                     <label className="block text-[11px] font-extrabold text-blue-600 dark:text-blue-400 mb-1">
-                      SOOP BJ 아이디 또는 방송 주소
+                      SOOP 생방송 URL
                     </label>
                     <input
                       type="text"
-                      placeholder="예: https://play.sooplive.co.kr/..."
+                      placeholder="예: https://play.sooplive.com/abcd1234/297216229"
                       value={soopBjId}
                       onChange={(e) => setSoopBjId(e.target.value)}
                       className="w-full rounded-lg border border-blue-200 dark:border-blue-500/30 bg-white dark:bg-black/20 px-3 py-2.5 text-xs text-zinc-900 dark:text-white placeholder-blue-300 dark:placeholder-blue-500/50 focus:border-blue-500 focus:outline-none"

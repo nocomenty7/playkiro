@@ -96,6 +96,9 @@ export default function ChatStreamerGameClient() {
   const statusRef = useRef(status);
   useEffect(() => {
     statusRef.current = status;
+    if (status === 'FINISHED') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   }, [status]);
 
   const [isSubmitting, setIsSubmitting] = useState(false);

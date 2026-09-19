@@ -79,6 +79,9 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
 
   useEffect(() => {
     roomStatusRef.current = room?.status || null;
+    if (room?.status === 'finished') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   }, [room?.status]);
 
   // 300ms Debounced Broadcast Throttling Refs & Helper
