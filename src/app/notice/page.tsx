@@ -1,10 +1,10 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { ArrowLeft, ChevronDown, Bell, Rocket, TrendingUp } from 'lucide-react';
+import { ChevronDown, Bell, Rocket, TrendingUp } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import ThemeToggle from '@/components/ThemeToggle';
+import Navigation from '@/components/Navigation';
+import Footer from '@/components/Footer';
 
 interface NoticeItem {
   id: number;
@@ -17,19 +17,8 @@ interface NoticeItem {
 }
 
 export default function NoticePage() {
-  const router = useRouter();
+  const [showDrawer, setShowDrawer] = useState(false);
   const [openId, setOpenId] = useState<number | null>(3); // Open the latest one by default
-
-  const handleBack = (e: React.MouseEvent) => {
-    e.preventDefault();
-    if (typeof window !== 'undefined') {
-      if (window.history.length > 1) {
-        router.back();
-      } else {
-        router.push('/');
-      }
-    }
-  };
 
   const notices: NoticeItem[] = [
     {
@@ -101,49 +90,51 @@ export default function NoticePage() {
   ];
 
   return (
-    <div className="min-h-[100dvh] overflow-y-auto bg-[#080911] text-neutral-100 font-sans p-6 md:p-12 max-w-3xl mx-auto flex flex-col justify-between">
-      <div className="space-y-8 pb-12">
-        <header className="flex items-center justify-between py-4 border-b border-zinc-900/60 sticky top-0 bg-[#080911]/90 backdrop-blur-sm z-10">
-          <div className="flex items-center gap-3">
-            <button
-              onClick={handleBack}
-              className="flex items-center justify-center p-2 rounded-xl bg-zinc-900/50 border border-zinc-800 text-neutral-400 hover:text-white transition cursor-pointer"
-            >
-              <ArrowLeft className="h-5 w-5" />
-            </button>
-            <h1 className="text-2xl font-extrabold tracking-tight">공지사항</h1>
-          </div>
-          <ThemeToggle />
-        </header>
+    <div className="flex h-[100dvh] w-full flex-col overflow-y-auto overflow-x-hidden bg-[#080911] text-white selection:bg-amber-500/30 selection:text-amber-200">
+      
+      <div className="shrink-0">
+        <Navigation
+          selectedCategories={['전체']}
+          onToggleCategory={() => {}}
+          showDrawer={showDrawer}
+          setShowDrawer={setShowDrawer}
+        />
+      </div>
 
-        <main className="space-y-4">
+      <main className="flex-1 w-full max-w-3xl mx-auto px-6 py-10 flex flex-col">
+        <div className="mb-10 text-center">
+          <h1 className="text-2xl md:text-3xl font-black tracking-tight text-white mb-2">공지사항</h1>
+          <p className="text-sm text-neutral-400">기로(Playkiro)의 새로운 소식과 업데이트 내역을 전해드립니다.</p>
+        </div>
+
+        <div className="space-y-4">
           {notices.map((notice) => {
             const isOpen = openId === notice.id;
             return (
               <div 
                 key={notice.id}
                 className={`rounded-2xl border transition-all duration-300 overflow-hidden ${
-                  isOpen ? 'border-zinc-700 bg-zinc-900/40' : 'border-zinc-900/60 bg-zinc-900/10 hover:border-zinc-800 hover:bg-zinc-900/30'
+                  isOpen ? 'border-zinc-700 bg-zinc-900/40' : 'border-zinc-800/80 bg-zinc-900/40 hover:border-zinc-700 hover:bg-zinc-800/50 shadow-sm'
                 }`}
               >
                 {/* Accordion Header */}
                 <button
                   onClick={() => setOpenId(isOpen ? null : notice.id)}
-                  className="w-full px-6 py-5 flex items-start gap-4 text-left cursor-pointer"
+                  className="w-full px-6 py-5 flex items-start gap-4 text-left cursor-pointer transition-colors"
                 >
-                  <div className="mt-1 shrink-0 bg-zinc-950 p-2 rounded-lg border border-zinc-800 shadow-inner">
+                  <div className="mt-1 shrink-0 bg-black/40 p-2 rounded-xl border border-zinc-800/80 shadow-sm">
                     {notice.icon}
                   </div>
                   <div className="flex-1 space-y-2">
                     <div className="flex items-center gap-2">
-                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${notice.tagColor}`}>
+                      <span className={`text-[10px] font-extrabold px-2 py-0.5 rounded-md ${notice.tagColor}`}>
                         {notice.tag}
                       </span>
-                      <span className="text-xs text-neutral-500 font-medium tracking-wide">
+                      <span className="text-xs text-neutral-500 font-bold tracking-wide">
                         {notice.date}
                       </span>
                     </div>
-                    <h2 className={`text-base md:text-lg font-bold leading-snug transition-colors ${isOpen ? 'text-white' : 'text-neutral-300'}`}>
+                    <h2 className={`text-sm md:text-base font-extrabold leading-snug transition-colors ${isOpen ? 'text-white' : 'text-neutral-300'}`}>
                       {notice.title}
                     </h2>
                   </div>
@@ -166,7 +157,7 @@ export default function NoticePage() {
                       exit={{ height: 0, opacity: 0 }}
                       transition={{ duration: 0.3, ease: "easeInOut" }}
                     >
-                      <div className="px-6 pb-6 pt-2 text-sm md:text-base text-neutral-400 leading-relaxed font-normal border-t border-zinc-900/50 mx-4 mt-2">
+                      <div className="px-6 pb-6 pt-2 text-[13px] md:text-sm text-neutral-400 leading-relaxed font-normal border-t border-zinc-800/50 mx-4 mt-2 break-keep">
                         {notice.content}
                       </div>
                     </motion.div>
@@ -175,12 +166,13 @@ export default function NoticePage() {
               </div>
             );
           })}
-        </main>
-      </div>
+        </div>
+      </main>
 
-      <footer className="pt-8 pb-4 border-t border-zinc-900/60 text-center text-xs text-neutral-500">
-        <p>Copyright © 2026 AuroraNest. All rights reserved.</p>
-      </footer>
+      <div className="shrink-0 mt-auto">
+        <Footer />
+      </div>
+      
     </div>
   );
 }
