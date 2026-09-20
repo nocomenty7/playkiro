@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Trash2, Send, Lightbulb, AlertTriangle, ChevronDown, ChevronUp } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 
@@ -149,6 +150,15 @@ export default function SuggestPage() {
           <p className="text-xs md:text-sm text-neutral-400 leading-relaxed break-keep">
             관리자의 확인을 거쳐 최종 채택된 문제는 모든 플레이어가 함께 즐기게 되며, 문제 카드에 회원님의 닉네임이 표시됩니다.
           </p>
+          <div className="mt-6 flex justify-center">
+            <Image 
+              src="/images/suggest.png" 
+              alt="문제 제안 예시" 
+              width={400} 
+              height={150} 
+              className="rounded-xl border border-zinc-800 shadow-md w-full max-w-sm h-auto"
+            />
+          </div>
           
           {/* Rules Accordion */}
           <div className="mt-4 text-left bg-zinc-900/50 rounded-xl border border-zinc-800/80 overflow-hidden shadow-sm transition-all duration-300">
@@ -207,7 +217,7 @@ export default function SuggestPage() {
             <input
               id="nickname"
               type="text"
-              placeholder="예: 기로장인"
+              placeholder="예: 밸런스장인"
               value={nickname}
               maxLength={10}
               onChange={e => { setNickname(e.target.value); setShowValidationErrors(false); }}
