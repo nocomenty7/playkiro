@@ -21,6 +21,7 @@ interface Question {
   option_b: string;
   emoji_b: string | null;
   category: string | null;
+  suggested_by?: string | null;
 }
 
 interface VoteClientProps {
@@ -453,15 +454,25 @@ export default function VoteClient({
                     NEW
                   </span>
                 )}
+                {question.suggested_by && question.suggested_by !== 'admin' && (
+                  <span className="inline-flex items-center rounded-full bg-amber-500/10 border border-amber-500/30 px-2.5 py-0.5 text-[10px] font-black text-amber-500 tracking-wide">
+                    💡 제안: {question.suggested_by}
+                  </span>
+                )}
               </div>
             ) : (
-              (votesA + votesB) < 10 ? (
-                <span className="inline-flex items-center rounded-full bg-yellow-500/10 border border-yellow-500/30 px-2 py-0.5 text-[9px] font-black text-yellow-500 tracking-wider uppercase animate-pulse">
-                  NEW
-                </span>
-              ) : (
-                <div /> // Spacer
-              )
+              <div className="flex items-center gap-2">
+                {(votesA + votesB) < 10 && (
+                  <span className="inline-flex items-center rounded-full bg-yellow-500/10 border border-yellow-500/30 px-2 py-0.5 text-[9px] font-black text-yellow-500 tracking-wider uppercase animate-pulse">
+                    NEW
+                  </span>
+                )}
+                {question.suggested_by && question.suggested_by !== 'admin' && (
+                  <span className="inline-flex items-center rounded-full bg-amber-500/10 border border-amber-500/30 px-2.5 py-0.5 text-[10px] font-black text-amber-500 tracking-wide">
+                    💡 제안: {question.suggested_by}
+                  </span>
+                )}
+              </div>
             )}
 
             <button

@@ -214,7 +214,12 @@ function LandingClient() {
             <div className="h-12 w-12 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400">
               <RotateCcw className="h-6 w-6" />
             </div>
-            <h3 className="text-xl font-extrabold text-neutral-100">중복 문제 없는 100% 릴레이 출제</h3>
+            <h3 
+              className="text-xl font-extrabold text-neutral-100 selection:bg-transparent"
+              onDoubleClick={() => router.push('/suggest')}
+            >
+              중복 문제 없는 100% 릴레이 출제
+            </h3>
             <p className="text-sm text-neutral-450 leading-relaxed">
               브라우저의 데이터나 캐시를 삭제하지 않는 한, 언제 접속하셔도 중복 없이 항상 고유의 문제를 끝없이 이어서 풀 수 있습니다.
             </p>
