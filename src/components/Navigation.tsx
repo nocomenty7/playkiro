@@ -135,18 +135,25 @@ export default function Navigation({
                 {/* Navigation Links list */}
                 <nav className="flex flex-col gap-2">
                   <Link
+                    href="/about"
+                    onClick={() => setShowDrawer(false)}
+                    className="flex items-center gap-3 rounded-2xl bg-zinc-900/50 hover:bg-zinc-900 border border-zinc-900 p-3 text-xs font-extrabold text-neutral-250 transition-all hover:border-zinc-800"
+                  >
+                    <span>기로란?</span>
+                  </Link>
+                  <Link
+                    href="/suggest"
+                    onClick={() => setShowDrawer(false)}
+                    className="flex items-center gap-3 rounded-2xl bg-zinc-900/50 hover:bg-zinc-900 border border-zinc-900 p-3 text-xs font-extrabold text-neutral-250 transition-all hover:border-zinc-800"
+                  >
+                    <span>문제 제안하기</span>
+                  </Link>
+                  <Link
                     href="/notice"
                     onClick={() => setShowDrawer(false)}
                     className="flex items-center gap-3 rounded-2xl bg-zinc-900/50 hover:bg-zinc-900 border border-zinc-900 p-3 text-xs font-extrabold text-neutral-250 transition-all hover:border-zinc-800"
                   >
                     <span>공지사항</span>
-                  </Link>
-                  <Link
-                    href="/about"
-                    onClick={() => setShowDrawer(false)}
-                    className="flex items-center gap-3 rounded-2xl bg-zinc-900/50 hover:bg-zinc-900 border border-zinc-900 p-3 text-xs font-extrabold text-neutral-250 transition-all hover:border-zinc-800"
-                  >
-                    <span>기로 소개</span>
                   </Link>
                 </nav>
 

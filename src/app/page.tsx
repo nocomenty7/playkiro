@@ -4,7 +4,7 @@ import React, { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, Trophy, Users, ShieldAlert, BrainCircuit, BarChart3, Loader2, Tv, RotateCcw, HelpCircle, BookOpen } from 'lucide-react';
+import { Sparkles, Trophy, Users, ShieldAlert, BrainCircuit, BarChart3, Loader2, Tv, RotateCcw, HelpCircle, BookOpen, Lightbulb } from 'lucide-react';
 import Navigation from '../components/Navigation';
 import StreamerModal from '../components/StreamerModal';
 import NoticePopup from '../components/NoticePopup';
@@ -194,6 +194,14 @@ function LandingClient() {
             >
               <span>📺 함께 플레이하기 (멀티모드)</span>
             </button>
+
+            <Link
+              href="/suggest"
+              className="w-full flex items-center justify-center gap-2 rounded-2xl bg-zinc-950/40 border border-dashed border-zinc-800 hover:border-amber-500/40 hover:text-amber-400 hover:bg-amber-500/5 text-neutral-400 font-bold text-sm px-6 h-12 transition-all cursor-pointer mt-1"
+            >
+              <Lightbulb className="w-4 h-4" />
+              <span>나만의 기발한 밸런스게임 문제 제안하기</span>
+            </Link>
           </motion.div>
 
           <motion.p 
@@ -215,10 +223,7 @@ function LandingClient() {
             <div className="h-12 w-12 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400">
               <RotateCcw className="h-6 w-6" />
             </div>
-            <h3 
-              className="text-xl font-extrabold text-neutral-100 selection:bg-transparent"
-              onDoubleClick={() => router.push('/suggest')}
-            >
+            <h3 className="text-xl font-extrabold text-neutral-100 selection:bg-transparent">
               중복 문제 없는 100% 릴레이 출제
             </h3>
             <p className="text-sm text-neutral-450 leading-relaxed">
