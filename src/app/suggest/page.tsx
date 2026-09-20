@@ -35,6 +35,10 @@ export default function SuggestPage() {
   const [showRules, setShowRules] = useState(false);
 
   const handleAddForm = () => {
+    if (forms.length >= 10) {
+      alert('한 번에 최대 10문제까지만 제안할 수 있습니다.');
+      return;
+    }
     setForms(prev => [...prev, {
       id: Date.now().toString(),
       category: '일상',
@@ -166,7 +170,7 @@ export default function SuggestPage() {
                       </ul>
                     </div>
                     <div>
-                      <h4 className="font-extrabold text-zinc-800 dark:text-zinc-200 mb-1 flex items-center gap-1.5"><span className="w-1 h-1 rounded-full bg-zinc-400"></span> 문제내용</h4>
+                      <h4 className="font-extrabold text-zinc-800 dark:text-zinc-200 mb-1 flex items-center gap-1.5"><span className="w-1 h-1 rounded-full bg-zinc-400"></span> 문제</h4>
                       <ul className="pl-4 space-y-1 list-disc list-outside ml-2">
                         <li>기존에 존재하는 문제와 중복되는 문제는 반영되지 않을 수 있습니다.</li>
                         <li>부적절하거나 불쾌감을 줄 수 있는 문제는 반영되지 않을 수 있습니다.</li>
@@ -322,7 +326,7 @@ export default function SuggestPage() {
           
           <div className="text-center pt-2 pb-6">
             <p className="text-xs md:text-sm text-zinc-600 dark:text-zinc-400 font-bold break-keep px-2 leading-relaxed">
-              💡 제안해주신 소중한 문제는 기로(PlayKiro)에 귀속되며, 서비스 내에서 자유롭게 사용 및 가공될 수 있습니다.
+              💡 당신의 제안으로 기로가 더욱 풍성해집니다. 진심으로 감사드립니다. 제안해주신 소중한 문제는 전적으로 기로에 귀속되며, 서비스 내에서 자유롭게 사용 및 가공될 수 있습니다.
             </p>
           </div>
         </form>
