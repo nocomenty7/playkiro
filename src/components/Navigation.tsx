@@ -150,53 +150,6 @@ export default function Navigation({
                   </Link>
                 </nav>
 
-                {/* Notion Category Filter Section */}
-                <div className="border-t border-zinc-900/80 pt-4">
-                  <span className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest block mb-3 flex items-center gap-1.5">
-                    카테고리 필터 <span className="text-neutral-600 text-[9px] normal-case">(복수 선택 가능)</span>
-                  </span>
-                  
-                  {/* Option 1: 전체 (Top on its own row) */}
-                  <div className="mb-3">
-                    {categoriesConfig.filter(c => c.name === '전체').map((cat) => {
-                      const isActive = selectedCategories.includes(cat.name);
-                      const count = questionCounts[cat.name];
-                      return (
-                        <button
-                          key={cat.name}
-                          onClick={() => onToggleCategory(cat.name)}
-                          className={`w-full px-3 py-2 rounded-full text-xs font-black border transition-all cursor-pointer text-center ${
-                            isActive ? cat.activeClass : cat.inactiveClass
-                          }`}
-                        >
-                          {cat.name} {count !== undefined ? `(${count})` : ''}
-                        </button>
-                      );
-                    })}
-                  </div>
-
-                  {/* Option 2: Remaining categories (Grid/Wrap below) */}
-                  <div className="flex flex-wrap gap-2">
-                    {categoriesConfig.filter(c => c.name !== '전체').map((cat) => {
-                      const isActive = selectedCategories.includes(cat.name);
-                      const count = questionCounts[cat.name];
-                      return (
-                        <button
-                          key={cat.name}
-                          onClick={() => onToggleCategory(cat.name)}
-                          className={`px-3 py-1.5 rounded-full text-xs font-black border transition-all cursor-pointer ${
-                            isActive ? cat.activeClass : cat.inactiveClass
-                          }`}
-                        >
-                          {cat.name} {count !== undefined ? `(${count})` : ''}
-                        </button>
-                      );
-                    })}
-                  </div>
-                  <span className="text-[10px] text-neutral-500 font-semibold block mt-3">
-                    💡 다음 질문부터 필터가 적용됩니다.
-                  </span>
-                </div>
 
                 {/* Additional Trust Links Inside Drawer */}
                 <div className="border-t border-zinc-900/80 pt-4 flex flex-col gap-2">

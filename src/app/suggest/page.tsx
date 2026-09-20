@@ -100,12 +100,12 @@ export default function SuggestPage() {
           animate={{ opacity: 1, scale: 1 }}
           className="max-w-md w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-3xl p-6 md:p-8 text-center shadow-2xl"
         >
-          <div className="w-12 h-12 md:w-16 md:h-16 rounded-full bg-emerald-100 dark:bg-emerald-500/20 text-emerald-500 mx-auto flex items-center justify-center mb-4 md:mb-6">
+          <div className="w-12 h-12 md:w-16 h-16 rounded-full bg-emerald-100 dark:bg-emerald-500/20 text-emerald-500 mx-auto flex items-center justify-center mb-4 md:mb-6">
             <Lightbulb className="w-6 h-6 md:w-8 md:h-8" />
           </div>
           <h1 className="text-xl md:text-2xl font-black mb-2">제안해 주셔서 감사합니다!</h1>
-          <p className="text-zinc-500 dark:text-neutral-400 text-xs md:text-sm mb-6 md:mb-8 leading-relaxed">
-            보내주신 소중한 문제는 기로(PlayKiro) 운영팀에서 꼼꼼히 확인한 후 서비스에 반영될 수 있습니다. 
+          <p className="text-zinc-500 dark:text-neutral-400 text-xs md:text-sm mb-6 md:mb-8 leading-relaxed break-keep">
+            제안해주신 소중한 문제는 관리자가 꼼꼼히 확인한 후 서비스에 반영될 수 있습니다. 
             관리자의 확인을 거쳐 최종 채택된 문제에는 작성해주신 닉네임이 함께 표기됩니다!
           </p>
           <Link href="/" className="inline-flex items-center justify-center w-full py-3.5 rounded-2xl bg-zinc-900 text-white dark:bg-white dark:text-black font-black text-sm hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-colors">
@@ -117,7 +117,7 @@ export default function SuggestPage() {
   }
 
   return (
-    <div className="flex h-[100dvh] w-full flex-col overflow-y-auto overflow-x-hidden bg-zinc-50 dark:bg-[#080911] text-zinc-900 dark:text-white selection:bg-amber-500/30 selection:text-amber-200">
+    <div className="flex min-h-[100dvh] w-full flex-col bg-zinc-50 dark:bg-[#080911] text-zinc-900 dark:text-white selection:bg-amber-500/30 selection:text-amber-200">
       
       {/* Reused Navigation Header */}
       <Navigation
@@ -127,7 +127,7 @@ export default function SuggestPage() {
         setShowDrawer={setShowDrawer}
       />
 
-      <main className="max-w-md md:max-w-xl mx-auto w-full p-4 py-6 md:py-8 flex-1 flex flex-col min-h-0">
+      <main className="max-w-md md:max-w-xl mx-auto w-full p-4 py-6 md:py-8 flex-1 flex flex-col">
         
         <Link href="/" className="inline-flex items-center gap-1.5 text-zinc-500 hover:text-zinc-900 dark:text-neutral-400 dark:hover:text-white transition-colors mb-4 w-fit">
           <ArrowLeft className="w-4 h-4" />
@@ -135,19 +135,25 @@ export default function SuggestPage() {
         </Link>
 
         <div className="mb-6 md:mb-8 text-center px-2">
-          <h2 className="text-xl md:text-2xl font-black tracking-tight mb-2 text-zinc-900 dark:text-white">
-            나만의 기발한 <span className="text-amber-500">밸런스 게임</span> 제안하기
+          <h2 className="text-xl md:text-2xl font-black tracking-tight mb-2 text-zinc-900 dark:text-white break-keep">
+            나만의 기발한 <span className="text-amber-500">밸런스 게임 문제</span> 제안하기
           </h2>
           <p className="text-xs md:text-sm text-zinc-500 dark:text-neutral-400 leading-relaxed break-keep">
             관리자의 확인을 거쳐 최종 채택된 문제는 모든 플레이어가 함께 즐기게 되며, 문제 카드에 회원님의 닉네임이 표시됩니다.
           </p>
+          <div className="mt-3 flex items-start gap-1.5 text-rose-500 text-[11px] md:text-xs font-bold bg-rose-50 dark:bg-rose-500/10 p-2.5 rounded-lg border border-rose-200 dark:border-rose-500/20 text-left">
+            <AlertTriangle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+            <p className="leading-relaxed">
+              부적절하거나 불쾌감을 줄 수 있는 닉네임 및 내용 제출시 임의로 마스킹 처리되거나 서비스 반영이 거절될 수 있습니다.
+            </p>
+          </div>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Nickname Section */}
           <div className="bg-white dark:bg-zinc-900/50 rounded-2xl border border-zinc-200 dark:border-zinc-800/80 p-5 shadow-sm">
             <label className="block text-xs md:text-sm font-extrabold text-zinc-700 dark:text-neutral-300 mb-2">
-              제안자 닉네임 (필수)
+              제안자 닉네임
             </label>
             <input
               type="text"
@@ -156,12 +162,6 @@ export default function SuggestPage() {
               onChange={e => setNickname(e.target.value)}
               className="w-full bg-zinc-50 dark:bg-black/50 border border-zinc-200 dark:border-zinc-800 rounded-xl px-3.5 py-2.5 text-sm font-bold text-zinc-900 dark:text-white placeholder-zinc-400 focus:outline-none focus:border-amber-400 transition-colors"
             />
-            <div className="mt-3 flex items-start gap-1.5 text-rose-500 text-[11px] md:text-xs font-bold bg-rose-50 dark:bg-rose-500/10 p-2.5 rounded-lg border border-rose-200 dark:border-rose-500/20">
-              <AlertTriangle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
-              <p className="leading-relaxed">
-                부적절하거나 불쾌감을 줄 수 있는 닉네임 및 내용 제출시 임의로 마스킹 처리되거나 서비스 반영이 거절될 수 있습니다.
-              </p>
-            </div>
           </div>
 
           {errorMsg && (
@@ -208,11 +208,17 @@ export default function SuggestPage() {
                     </div>
 
                     <div>
-                      <label className="block text-[11px] md:text-xs font-extrabold text-zinc-500 dark:text-neutral-400 mb-1.5">문제 내용</label>
+                      <div className="flex items-center justify-between mb-1.5">
+                        <label className="block text-[11px] md:text-xs font-extrabold text-zinc-500 dark:text-neutral-400">문제 내용</label>
+                        <span className={`text-[10px] font-bold ${form.question_text.length >= 25 ? 'text-red-500' : 'text-zinc-400'}`}>
+                          {form.question_text.length} / 25자 (최대)
+                        </span>
+                      </div>
                       <textarea
                         rows={2}
                         placeholder="예: 평생 하나의 음식만 먹고 살아야 한다면?"
                         value={form.question_text}
+                        maxLength={25}
                         onChange={e => handleChange(form.id, 'question_text', e.target.value)}
                         className="w-full bg-zinc-50 dark:bg-black/50 border border-zinc-200 dark:border-zinc-800 rounded-xl px-3.5 py-2.5 text-xs md:text-sm font-bold text-zinc-900 dark:text-white placeholder-zinc-400 focus:outline-none focus:border-amber-400 resize-none"
                       />
@@ -220,21 +226,33 @@ export default function SuggestPage() {
 
                     <div className="grid grid-cols-1 gap-3">
                       <div>
-                        <label className="block text-[11px] md:text-xs font-extrabold text-zinc-500 dark:text-neutral-400 mb-1.5">선택지 A</label>
+                        <div className="flex items-center justify-between mb-1.5">
+                          <label className="block text-[11px] md:text-xs font-extrabold text-zinc-500 dark:text-neutral-400">선택지 A</label>
+                          <span className={`text-[10px] font-bold ${form.option_a.length >= 20 ? 'text-red-500' : 'text-zinc-400'}`}>
+                            {form.option_a.length} / 20자
+                          </span>
+                        </div>
                         <input
                           type="text"
                           placeholder="예: 매일 치킨 먹기"
                           value={form.option_a}
+                          maxLength={20}
                           onChange={e => handleChange(form.id, 'option_a', e.target.value)}
                           className="w-full bg-zinc-50 dark:bg-black/50 border border-zinc-200 dark:border-zinc-800 rounded-xl px-3.5 py-2.5 text-xs md:text-sm font-bold text-zinc-900 dark:text-white placeholder-zinc-400 focus:outline-none focus:border-amber-400"
                         />
                       </div>
                       <div>
-                        <label className="block text-[11px] md:text-xs font-extrabold text-zinc-500 dark:text-neutral-400 mb-1.5">선택지 B</label>
+                        <div className="flex items-center justify-between mb-1.5">
+                          <label className="block text-[11px] md:text-xs font-extrabold text-zinc-500 dark:text-neutral-400">선택지 B</label>
+                          <span className={`text-[10px] font-bold ${form.option_b.length >= 20 ? 'text-red-500' : 'text-zinc-400'}`}>
+                            {form.option_b.length} / 20자
+                          </span>
+                        </div>
                         <input
                           type="text"
                           placeholder="예: 매일 피자 먹기"
                           value={form.option_b}
+                          maxLength={20}
                           onChange={e => handleChange(form.id, 'option_b', e.target.value)}
                           className="w-full bg-zinc-50 dark:bg-black/50 border border-zinc-200 dark:border-zinc-800 rounded-xl px-3.5 py-2.5 text-xs md:text-sm font-bold text-zinc-900 dark:text-white placeholder-zinc-400 focus:outline-none focus:border-amber-400"
                         />
@@ -249,7 +267,7 @@ export default function SuggestPage() {
           <button
             type="button"
             onClick={handleAddForm}
-            className="w-full py-3.5 rounded-2xl border border-dashed border-zinc-300 dark:border-zinc-800 text-zinc-500 dark:text-zinc-400 font-bold text-xs md:text-sm hover:border-amber-400 hover:text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-500/5 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+            className="w-full py-3.5 rounded-2xl border border-dashed border-zinc-300 dark:border-zinc-800 text-zinc-500 dark:text-zinc-400 font-bold text-xs md:text-sm hover:border-amber-400 hover:text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-500/5 transition-all flex items-center justify-center gap-1.5 cursor-pointer z-10 relative"
           >
             <Plus className="w-4 h-4" />
             문제 한 개 더 추가하기
@@ -259,7 +277,7 @@ export default function SuggestPage() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full py-3.5 rounded-2xl bg-[#FFD700] hover:bg-yellow-400 text-zinc-950 font-black text-sm md:text-base transition-all shadow-lg hover:shadow-amber-500/20 hover:-translate-y-0.5 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:hover:translate-y-0"
+              className="w-full py-3.5 rounded-2xl bg-[#FFD700] hover:bg-yellow-400 text-zinc-950 font-black text-sm md:text-base transition-all shadow-lg hover:shadow-amber-500/20 hover:-translate-y-0.5 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:hover:translate-y-0 relative z-10"
             >
               {isSubmitting ? (
                 '제출하는 중...'
@@ -281,7 +299,9 @@ export default function SuggestPage() {
       </main>
 
       {/* Reused Footer */}
-      <Footer />
+      <div className="mt-auto">
+        <Footer />
+      </div>
     </div>
   );
 }
