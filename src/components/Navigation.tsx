@@ -77,7 +77,7 @@ export default function Navigation({
   return (
     <>
       {/* 1. Top Header */}
-      <header className="w-full h-16 shrink-0 border-b border-zinc-200 dark:border-zinc-900 bg-white/85 dark:bg-[#080911]/85 backdrop-blur-md sticky top-0 z-40 px-4 sm:px-6">
+      <header className="w-full h-16 shrink-0 border-b border-zinc-900 bg-[#080911]/85 backdrop-blur-md sticky top-0 z-40 px-4 sm:px-6">
         <div className="w-full max-w-xl md:max-w-4xl lg:max-w-6xl mx-auto flex items-center justify-between">
           <Link href="/" className="relative h-11 w-32 flex items-center">
             <img
@@ -90,7 +90,7 @@ export default function Navigation({
             <ThemeToggle />
             <button
               onClick={() => setShowDrawer(true)}
-              className="p-2.5 rounded-xl text-zinc-500 dark:text-neutral-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-all cursor-pointer"
+              className="p-2.5 rounded-xl text-neutral-400 hover:text-white hover:bg-zinc-900 transition-all cursor-pointer"
               title="메뉴"
             >
               <Menu className="h-6 w-6" />
@@ -109,7 +109,7 @@ export default function Navigation({
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setShowDrawer(false)}
-              className="absolute inset-0 bg-black/50 dark:bg-black/75"
+              className="absolute inset-0 bg-black/75"
             />
 
             {/* Drawer panel wrapper */}
@@ -118,15 +118,15 @@ export default function Navigation({
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ type: 'spring', damping: 25, stiffness: 220 }}
-              className="relative z-10 w-4/5 max-w-xs h-full bg-white dark:bg-[#0c0d1b] border-l border-zinc-200 dark:border-zinc-900 p-6 flex flex-col justify-between text-zinc-900 dark:text-white shadow-2xl"
+              className="relative z-10 w-4/5 max-w-xs h-full bg-[#0c0d1b] border-l border-zinc-900 p-6 flex flex-col justify-between text-white shadow-2xl"
             >
               <div className="space-y-6 overflow-y-auto max-h-[85vh] pr-1">
                 {/* Header Inside Drawer */}
-                <div className="flex items-center justify-between border-b border-zinc-200 dark:border-zinc-900 pb-4">
-                  <span onClick={handleMenuResetClick} className="font-black tracking-widest text-lg text-zinc-900 dark:text-neutral-200 cursor-pointer select-none">MENU</span>
+                <div className="flex items-center justify-between border-b border-zinc-900 pb-4">
+                  <span onClick={handleMenuResetClick} className="font-black tracking-widest text-lg text-neutral-200 cursor-pointer select-none">MENU</span>
                   <button
                     onClick={() => setShowDrawer(false)}
-                    className="p-1.5 rounded-full bg-zinc-100 dark:bg-zinc-900 text-zinc-500 dark:text-neutral-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-200 dark:hover:bg-zinc-800 transition"
+                    className="p-1.5 rounded-full bg-zinc-900 text-neutral-400 hover:text-white hover:bg-zinc-800 transition"
                   >
                     <X className="h-5 w-5" />
                   </button>
@@ -137,14 +137,14 @@ export default function Navigation({
                   <Link
                     href="/notice"
                     onClick={() => setShowDrawer(false)}
-                    className="flex items-center gap-3 rounded-2xl bg-zinc-50 dark:bg-zinc-900/50 hover:bg-zinc-100 dark:hover:bg-zinc-900 border border-zinc-200 dark:border-zinc-900 p-3 text-xs font-extrabold text-zinc-700 dark:text-neutral-250 transition-all hover:border-zinc-300 dark:hover:border-zinc-800"
+                    className="flex items-center gap-3 rounded-2xl bg-zinc-900/50 hover:bg-zinc-900 border border-zinc-900 p-3 text-xs font-extrabold text-neutral-250 transition-all hover:border-zinc-800"
                   >
                     <span>공지사항</span>
                   </Link>
                   <Link
                     href="/about"
                     onClick={() => setShowDrawer(false)}
-                    className="flex items-center gap-3 rounded-2xl bg-zinc-50 dark:bg-zinc-900/50 hover:bg-zinc-100 dark:hover:bg-zinc-900 border border-zinc-200 dark:border-zinc-900 p-3 text-xs font-extrabold text-zinc-700 dark:text-neutral-250 transition-all hover:border-zinc-300 dark:hover:border-zinc-800"
+                    className="flex items-center gap-3 rounded-2xl bg-zinc-900/50 hover:bg-zinc-900 border border-zinc-900 p-3 text-xs font-extrabold text-neutral-250 transition-all hover:border-zinc-800"
                   >
                     <span>기로 소개</span>
                   </Link>
@@ -152,25 +152,25 @@ export default function Navigation({
 
 
                 {/* Additional Trust Links Inside Drawer */}
-                <div className="border-t border-zinc-200 dark:border-zinc-900/80 pt-4 flex flex-col gap-2">
+                <div className="border-t border-zinc-900/80 pt-4 flex flex-col gap-2">
                   <Link
                     href="/terms"
                     onClick={() => setShowDrawer(false)}
-                    className="flex items-center gap-3 rounded-2xl bg-zinc-50 dark:bg-zinc-900/50 hover:bg-zinc-100 dark:hover:bg-zinc-900 border border-zinc-200 dark:border-zinc-900 p-3 text-xs font-extrabold text-zinc-700 dark:text-neutral-250 transition-all hover:border-zinc-300 dark:hover:border-zinc-800"
+                    className="flex items-center gap-3 rounded-2xl bg-zinc-900/50 hover:bg-zinc-900 border border-zinc-900 p-3 text-xs font-extrabold text-neutral-250 transition-all hover:border-zinc-800"
                   >
                     <span>이용약관</span>
                   </Link>
                   <Link
                     href="/privacy"
                     onClick={() => setShowDrawer(false)}
-                    className="flex items-center gap-3 rounded-2xl bg-zinc-50 dark:bg-zinc-900/50 hover:bg-zinc-100 dark:hover:bg-zinc-900 border border-zinc-200 dark:border-zinc-900 p-3 text-xs font-extrabold text-zinc-700 dark:text-neutral-250 transition-all hover:border-zinc-300 dark:hover:border-zinc-800"
+                    className="flex items-center gap-3 rounded-2xl bg-zinc-900/50 hover:bg-zinc-900 border border-zinc-900 p-3 text-xs font-extrabold text-neutral-250 transition-all hover:border-zinc-800"
                   >
                     <span>개인정보처리방침</span>
                   </Link>
                   <a
                     href="mailto:auroranest.official@gmail.com"
                     onClick={() => setShowDrawer(false)}
-                    className="flex items-center gap-3 rounded-2xl bg-zinc-50 dark:bg-zinc-900/50 hover:bg-zinc-100 dark:hover:bg-zinc-900 border border-zinc-200 dark:border-zinc-900 p-3 text-xs font-extrabold text-zinc-700 dark:text-neutral-250 transition-all hover:border-zinc-300 dark:hover:border-zinc-800"
+                    className="flex items-center gap-3 rounded-2xl bg-zinc-900/50 hover:bg-zinc-900 border border-zinc-900 p-3 text-xs font-extrabold text-neutral-250 transition-all hover:border-zinc-800"
                   >
                     <span>문의하기</span>
                   </a>
@@ -179,7 +179,7 @@ export default function Navigation({
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={() => setShowDrawer(false)}
-                    className="flex items-center gap-3 rounded-2xl bg-zinc-50 dark:bg-zinc-900/50 hover:bg-zinc-100 dark:hover:bg-zinc-900 border border-zinc-200 dark:border-zinc-900 p-3 text-xs font-extrabold text-zinc-700 dark:text-neutral-250 transition-all hover:border-zinc-300 dark:hover:border-zinc-800"
+                    className="flex items-center gap-3 rounded-2xl bg-zinc-900/50 hover:bg-zinc-900 border border-zinc-900 p-3 text-xs font-extrabold text-neutral-250 transition-all hover:border-zinc-800"
                   >
                     <span>후원하기</span>
                   </a>
@@ -187,7 +187,7 @@ export default function Navigation({
               </div>
 
               {/* Footer inside Drawer */}
-              <div className="text-[10px] text-zinc-500 dark:text-neutral-600 leading-normal text-center border-t border-zinc-200 dark:border-zinc-900/40 pt-4">
+              <div className="text-[10px] text-neutral-600 leading-normal text-center border-t border-zinc-900/40 pt-4">
                 <p>Copyright © 2026 AuroraNest. All rights reserved.</p>
               </div>
             </motion.div>
