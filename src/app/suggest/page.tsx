@@ -196,14 +196,20 @@ export default function SuggestPage() {
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Nickname Section */}
           <div className="bg-zinc-900/50 rounded-2xl border border-zinc-800/80 p-5 shadow-sm">
-            <label className="block text-xs md:text-sm font-extrabold text-neutral-300 mb-2">
-              제안자 닉네임
-            </label>
+            <div className="flex items-center justify-between mb-2">
+              <label className="block text-xs md:text-sm font-extrabold text-neutral-300">
+                제안자 닉네임
+              </label>
+              <span className={`text-[10px] md:text-xs font-bold ${nickname.length >= 10 ? 'text-red-500' : 'text-zinc-400'}`}>
+                {nickname.length} / 10자
+              </span>
+            </div>
             <input
               id="nickname"
               type="text"
               placeholder="예: 기로장인"
               value={nickname}
+              maxLength={10}
               onChange={e => { setNickname(e.target.value); setShowValidationErrors(false); }}
               className={`w-full bg-black/50 border rounded-xl px-3.5 py-2.5 text-sm font-bold text-white placeholder-zinc-600 focus:outline-none transition-all ${
                 showValidationErrors && !nickname.trim() 
