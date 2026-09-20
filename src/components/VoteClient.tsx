@@ -455,8 +455,8 @@ export default function VoteClient({
                   </span>
                 )}
                 {question.suggested_by && question.suggested_by !== 'admin' && (
-                  <span className="inline-flex items-center rounded-full bg-amber-500/10 border border-amber-500/30 px-2.5 py-0.5 text-[10px] font-black text-amber-500 tracking-wide">
-                    💡 제안: {question.suggested_by}
+                  <span className="inline-flex items-center rounded-full bg-amber-500/10 border border-amber-500/30 px-3 py-1 text-xs font-black text-amber-500 tracking-wide">
+                    문제제안: {question.suggested_by}
                   </span>
                 )}
               </div>
@@ -468,8 +468,8 @@ export default function VoteClient({
                   </span>
                 )}
                 {question.suggested_by && question.suggested_by !== 'admin' && (
-                  <span className="inline-flex items-center rounded-full bg-amber-500/10 border border-amber-500/30 px-2.5 py-0.5 text-[10px] font-black text-amber-500 tracking-wide">
-                    💡 제안: {question.suggested_by}
+                  <span className="inline-flex items-center rounded-full bg-amber-500/10 border border-amber-500/30 px-3 py-1 text-xs font-black text-amber-500 tracking-wide">
+                    문제제안: {question.suggested_by}
                   </span>
                 )}
               </div>
