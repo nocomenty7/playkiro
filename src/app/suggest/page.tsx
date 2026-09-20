@@ -33,6 +33,7 @@ export default function SuggestPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
   const [showRules, setShowRules] = useState(false);
+  const [showValidationErrors, setShowValidationErrors] = useState(false);
 
   const handleAddForm = () => {
     if (forms.length >= 10) {
@@ -61,13 +62,21 @@ export default function SuggestPage() {
     e.preventDefault();
 
     if (!nickname.trim()) {
+      setShowValidationErrors(true);
       alert('닉네임을 입력해 주세요.');
+      setTimeout(() => document.getElementById('nickname')?.focus(), 10);
       return;
     }
 
     const invalidForm = forms.find(f => !f.question_text.trim() || !f.option_a.trim() || !f.option_b.trim());
     if (invalidForm) {
+      setShowValidationErrors(true);
       alert('모든 문제의 내용과 선택지를 입력해 주세요.');
+      setTimeout(() => {
+        if (!invalidForm.question_text.trim()) document.getElementById(`question-${invalidForm.id}`)?.focus();
+        else if (!invalidForm.option_a.trim()) document.getElementById(`optionA-${invalidForm.id}`)?.focus();
+        else if (!invalidForm.option_b.trim()) document.getElementById(`optionB-${invalidForm.id}`)?.focus();
+      }, 10);
       return;
     }
 
@@ -191,11 +200,16 @@ export default function SuggestPage() {
               제안자 닉네임
             </label>
             <input
+              id="nickname"
               type="text"
               placeholder="예: 기로장인"
               value={nickname}
-              onChange={e => setNickname(e.target.value)}
-              className="w-full bg-black/50 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-sm font-bold text-white placeholder-zinc-600 focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400/50 transition-all"
+              onChange={e => { setNickname(e.target.value); setShowValidationErrors(false); }}
+              className={`w-full bg-black/50 border rounded-xl px-3.5 py-2.5 text-sm font-bold text-white placeholder-zinc-600 focus:outline-none transition-all ${
+                showValidationErrors && !nickname.trim() 
+                  ? 'border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500/50' 
+                  : 'border-zinc-800 focus:border-amber-400 focus:ring-1 focus:ring-amber-400/50'
+              }`}
             />
           </div>
 
@@ -249,12 +263,17 @@ export default function SuggestPage() {
                         </span>
                       </div>
                       <textarea
+                        id={`question-${form.id}`}
                         rows={2}
                         placeholder="예: 평생 하나의 음식만 먹고 살아야 한다면?"
                         value={form.question_text}
                         maxLength={40}
-                        onChange={e => handleChange(form.id, 'question_text', e.target.value)}
-                        className="w-full bg-black/50 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-xs md:text-sm font-bold text-white placeholder-zinc-600 focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400/50 resize-none transition-all"
+                        onChange={e => { handleChange(form.id, 'question_text', e.target.value); setShowValidationErrors(false); }}
+                        className={`w-full bg-black/50 border rounded-xl px-3.5 py-2.5 text-xs md:text-sm font-bold text-white placeholder-zinc-600 focus:outline-none resize-none transition-all ${
+                          showValidationErrors && !form.question_text.trim()
+                            ? 'border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500/50'
+                            : 'border-zinc-800 focus:border-amber-400 focus:ring-1 focus:ring-amber-400/50'
+                        }`}
                       />
                     </div>
 
@@ -267,12 +286,17 @@ export default function SuggestPage() {
                           </span>
                         </div>
                         <input
+                          id={`optionA-${form.id}`}
                           type="text"
                           placeholder="예: 매일 치킨 먹기"
                           value={form.option_a}
                           maxLength={30}
-                          onChange={e => handleChange(form.id, 'option_a', e.target.value)}
-                          className="w-full bg-black/50 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-xs md:text-sm font-bold text-white placeholder-zinc-600 focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400/50 transition-all"
+                          onChange={e => { handleChange(form.id, 'option_a', e.target.value); setShowValidationErrors(false); }}
+                          className={`w-full bg-black/50 border rounded-xl px-3.5 py-2.5 text-xs md:text-sm font-bold text-white placeholder-zinc-600 focus:outline-none transition-all ${
+                            showValidationErrors && !form.option_a.trim()
+                              ? 'border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500/50'
+                              : 'border-zinc-800 focus:border-amber-400 focus:ring-1 focus:ring-amber-400/50'
+                          }`}
                         />
                       </div>
                       <div>
@@ -283,12 +307,17 @@ export default function SuggestPage() {
                           </span>
                         </div>
                         <input
+                          id={`optionB-${form.id}`}
                           type="text"
                           placeholder="예: 매일 피자 먹기"
                           value={form.option_b}
                           maxLength={30}
-                          onChange={e => handleChange(form.id, 'option_b', e.target.value)}
-                          className="w-full bg-black/50 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-xs md:text-sm font-bold text-white placeholder-zinc-600 focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400/50 transition-all"
+                          onChange={e => { handleChange(form.id, 'option_b', e.target.value); setShowValidationErrors(false); }}
+                          className={`w-full bg-black/50 border rounded-xl px-3.5 py-2.5 text-xs md:text-sm font-bold text-white placeholder-zinc-600 focus:outline-none transition-all ${
+                            showValidationErrors && !form.option_b.trim()
+                              ? 'border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500/50'
+                              : 'border-zinc-800 focus:border-amber-400 focus:ring-1 focus:ring-amber-400/50'
+                          }`}
                         />
                       </div>
                     </div>
