@@ -1124,8 +1124,8 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
                   {currentQuestion?.category || '밸런스게임'}
                 </span>
                 {currentQuestion?.suggested_by && currentQuestion.suggested_by !== 'admin' && (
-                  <span className="inline-flex items-center rounded-full bg-amber-500/10 border border-amber-500/30 px-2.5 py-1.5 text-[10px] md:text-xs font-black text-amber-500 tracking-wide">
-                    💡 제안: {currentQuestion.suggested_by}
+                  <span className="inline-flex items-center rounded-full bg-amber-500/10 border border-amber-500/30 px-3.5 py-1.5 text-xs md:text-sm font-black text-amber-500 tracking-wide">
+                    문제제안: {currentQuestion.suggested_by}
                   </span>
                 )}
               </div>
