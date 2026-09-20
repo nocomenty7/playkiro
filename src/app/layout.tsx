@@ -80,7 +80,7 @@ export default function RootLayout({
           async
         />
       </head>
-      <body className="min-h-full bg-[#080911] text-white antialiased">
+      <body className="min-h-full bg-zinc-50 dark:bg-[#080911] text-zinc-900 dark:text-white antialiased">
         {/* Google Analytics (GA4) Script */}
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-PKN41V9Q68"
