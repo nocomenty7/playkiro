@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { ChevronDown, Bell, Rocket, TrendingUp } from 'lucide-react';
+import { ChevronDown, Bell, Rocket, Lightbulb } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
@@ -18,9 +18,28 @@ interface NoticeItem {
 
 export default function NoticePage() {
   const [showDrawer, setShowDrawer] = useState(false);
-  const [openId, setOpenId] = useState<number | null>(3); // Open the latest one by default
+  const [openId, setOpenId] = useState<number | null>(4); // Open the latest one by default
 
   const notices: NoticeItem[] = [
+    {
+      id: 4,
+      title: "신규 기능: '나만의 기발한 밸런스게임 문제 제안하기' 오픈!",
+      date: "2026. 09. 20",
+      icon: <Lightbulb className="h-5 w-5 text-amber-400" />,
+      tag: "업데이트",
+      tagColor: "bg-amber-500/10 text-amber-400 border border-amber-500/20",
+      content: (
+        <div className="space-y-4">
+          <p>안녕하세요, 기로(Playkiro) 팀입니다. 플레이어 여러분들의 빛나는 아이디어를 기로에 직접 추가할 수 있는 <strong className="text-white">'문제 제안하기'</strong> 기능이 새롭게 추가되었습니다!</p>
+          <p>평소 친구들과 나누던 재미있는 밸런스 게임이나 혼자만 상상해 보았던 기상천외한 질문들이 있다면, 메인 화면 하단 혹은 좌측 상단의 메뉴를 통해 언제든지 제안해 주세요.</p>
+          <ul className="list-disc list-inside pl-2 space-y-2 text-neutral-300">
+            <li><strong>손쉬운 제안:</strong> 간단한 입력만으로 한 번에 최대 10문제까지 자유롭게 제안하실 수 있습니다.</li>
+            <li><strong>기여자 닉네임 표기:</strong> 관리자의 검토를 거쳐 최종 채택된 문제들은 기로 게임 내에 정식으로 등록되며, 문제 카드 최상단에 <strong>'문제제안: 닉네임'</strong>이 명예롭게 새겨집니다.</li>
+          </ul>
+          <p>여러분의 창의적인 딜레마 문제들로 기로가 더욱 풍성하고 재미있어지기를 기대합니다. 항상 진심으로 감사드립니다!</p>
+        </div>
+      )
+    },
     {
       id: 3,
       title: "대규모 업데이트: 스트리머 시참 모드 (치지직 & SOOP 채팅 연동) 출시!",
@@ -38,36 +57,6 @@ export default function NoticePage() {
             <li><strong>방 만들기 기능 개선:</strong> 채팅 연동 외에도 PIN 코드를 공유하여 모바일로 직관적인 터치 플레이를 즐길 수 있는 방 만들기 모드 역시 서버 최적화를 통해 수천 명이 동시에 접속해도 딜레이 없이 실시간 동기화가 이루어지도록 구조를 개편했습니다.</li>
           </ul>
           <p>시청자들과 함께 극악의 밸런스 게임을 즐기며 소통의 즐거움을 극대화해 보세요. 여러분의 피드백을 반영하여 앞으로 더욱 재미있고 자극적인 질문들을 추가해 나가겠습니다!</p>
-        </div>
-      )
-    },
-    {
-      id: 2,
-      title: "최근 1020 세대에서 가장 논란이 된 밸런스 게임 질문 Top 3",
-      date: "2026. 08. 20",
-      icon: <TrendingUp className="h-5 w-5 text-emerald-400" />,
-      tag: "트렌드",
-      tagColor: "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20",
-      content: (
-        <div className="space-y-4">
-          <p>기로(Playkiro)의 익명 투표 통계 데이터를 분석해 본 결과, 최근 한 달간 10대와 20대 유저들 사이에서 가장 치열한 찬반양론이 펼쳐진 밸런스 게임 질문 3가지를 공개합니다.</p>
-          
-          <div className="bg-zinc-900/50 p-4 rounded-xl border border-zinc-800 space-y-2">
-            <strong className="text-emerald-300 block">1위: 평생 양치 안 하기 VS 평생 샤워 안 하기</strong>
-            <p className="text-sm">압도적인 화제성을 기록한 이 질문은 성별에 따라 결과가 극명하게 갈렸습니다. 여성 유저의 경우 약 72%가 '평생 양치 안 하기'를 택한 반면, 남성 유저의 경우 60% 이상이 '평생 샤워 안 하기'를 택했습니다. 구취를 숨기느냐, 체취를 숨기느냐의 치열한 논쟁은 커뮤니티에서도 큰 화제가 되었습니다.</p>
-          </div>
-
-          <div className="bg-zinc-900/50 p-4 rounded-xl border border-zinc-800 space-y-2">
-            <strong className="text-emerald-300 block">2위: 100억 받고 평생 스마트폰 없이 살기 VS 그냥 살기</strong>
-            <p className="text-sm">스마트폰 중독이 심한 10대 유저층에서는 의외로 '그냥 살기(스마트폰 포기 불가)'의 비율이 무려 45%에 달했습니다. 반면 30대 이상에서는 80% 이상이 '100억 받기'를 선택하여 연령대별 가치관의 극명한 차이를 보여준 흥미로운 데이터였습니다.</p>
-          </div>
-
-          <div className="bg-zinc-900/50 p-4 rounded-xl border border-zinc-800 space-y-2">
-            <strong className="text-emerald-300 block">3위: 내가 사랑하는 사람 VS 나를 사랑하는 사람</strong>
-            <p className="text-sm">인류 최대의 난제 중 하나인 이 질문은, 시간대별로 픽률이 변하는 독특한 양상을 보였습니다. 밤 10시 이후 감수성이 풍부해지는 새벽 시간대에는 '내가 사랑하는 사람'의 픽률이 15% 이상 증가하는 현상이 포착되었습니다.</p>
-          </div>
-          
-          <p>앞으로도 기로는 유저 여러분의 재미있는 선택 데이터를 바탕으로 흥미로운 통계 트렌드를 지속적으로 발굴하여 공유해 드리겠습니다.</p>
         </div>
       )
     },
