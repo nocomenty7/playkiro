@@ -8,7 +8,6 @@ import { Sparkles, Trophy, Users, ShieldAlert, BrainCircuit, BarChart3, Loader2,
 import Navigation from '../components/Navigation';
 import StreamerModal from '../components/StreamerModal';
 import NoticePopup from '../components/NoticePopup';
-import AdsenseBanner from '../components/AdsenseBanner';
 import PlayModeSelectModal from '../components/PlayModeSelectModal';
 import SingleCategoryModal from '../components/SingleCategoryModal';
 import ChatStreamerModal from '../components/ChatStreamerModal';
@@ -66,11 +65,6 @@ function LandingClient() {
       }
     }
     updateSelectedCategories(next);
-  };
-
-  const handleStartGame = () => {
-    setIsNavigating(true);
-    router.push('/play');
   };
 
   // Sample dilemmas for the premium infinite marquee animation

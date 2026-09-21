@@ -21,46 +21,6 @@ export default function Navigation({
   setShowDrawer
 }: NavigationProps) {
   const [lastMenuClickTime, setLastMenuClickTime] = useState<number>(0);
-  const [questionCounts, setQuestionCounts] = useState<{ [key: string]: number }>({});
-
-  const categoriesConfig = [
-    { name: '전체', activeClass: 'border-white bg-white text-zinc-950', inactiveClass: 'border-zinc-800 bg-zinc-900/50 text-neutral-400 hover:border-zinc-700' },
-    { name: '음식', activeClass: 'border-red-500 bg-red-500 text-white', inactiveClass: 'border-red-500/30 bg-red-500/5 text-red-400 hover:border-red-500/50' },
-    { name: '일상', activeClass: 'border-orange-500 bg-orange-500 text-white', inactiveClass: 'border-orange-500/30 bg-orange-500/5 text-orange-400 hover:border-orange-500/50' },
-    { name: '스타일', activeClass: 'border-purple-500 bg-purple-500 text-white', inactiveClass: 'border-purple-500/30 bg-purple-500/5 text-purple-400 hover:border-purple-500/50' },
-    { name: '여가', activeClass: 'border-green-500 bg-green-500 text-white', inactiveClass: 'border-green-500/30 bg-green-500/5 text-green-400 hover:border-green-500/50' },
-    { name: '관계', activeClass: 'border-blue-500 bg-blue-500 text-white', inactiveClass: 'border-blue-500/30 bg-blue-500/5 text-blue-400 hover:border-blue-500/50' },
-    { name: '돈', activeClass: 'border-[#8b5a2b] bg-[#8b5a2b] text-white', inactiveClass: 'border-[rgba(139,90,43,0.3)] bg-[rgba(139,90,43,0.05)] text-[#d2b48c] hover:border-[rgba(139,90,43,0.5)]' },
-    { name: '상상', activeClass: 'border-pink-500 bg-pink-500 text-white', inactiveClass: 'border-pink-500/30 bg-pink-500/5 text-pink-400 hover:border-pink-500/50' },
-    { name: '극한 밸런스게임', activeClass: 'border-neutral-500 bg-neutral-500 text-white', inactiveClass: 'border-neutral-500/30 bg-neutral-500/5 text-neutral-400 hover:border-neutral-500/50' }
-  ];
-
-  // Fetch category question counts dynamically on mount
-  useEffect(() => {
-    const fetchCounts = async () => {
-      try {
-        const { data } = await supabase
-          .from('questions')
-          .select('category');
-        if (data) {
-          const counts: { [key: string]: number } = {};
-          let total = 0;
-          data.forEach((q: any) => {
-            const cat = q.category?.trim();
-            if (cat) {
-              counts[cat] = (counts[cat] || 0) + 1;
-              total++;
-            }
-          });
-          counts['전체'] = total;
-          setQuestionCounts(counts);
-        }
-      } catch (e) {
-        console.error('Failed to fetch category counts inside navigation:', e);
-      }
-    };
-    fetchCounts();
-  }, []);
 
   const handleMenuResetClick = () => {
     const now = Date.now();
