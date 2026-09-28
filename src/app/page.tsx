@@ -191,9 +191,9 @@ function LandingClient() {
 
             <Link
               href="/suggest"
-              className="w-full flex items-center justify-center gap-2 rounded-2xl bg-zinc-950/40 border border-dashed border-zinc-800 hover:border-amber-500/40 hover:text-amber-400 hover:bg-amber-500/5 text-neutral-400 font-bold text-sm px-6 h-12 transition-all cursor-pointer mt-1"
+              className="w-full flex items-center justify-center gap-2 rounded-2xl bg-zinc-900/60 border border-zinc-700/50 hover:border-amber-500/60 hover:text-amber-400 hover:bg-amber-500/10 text-neutral-200 font-extrabold text-sm px-6 h-12 transition-all hover:scale-[1.01] active:scale-[0.99] cursor-pointer mt-1"
             >
-              <Lightbulb className="w-4 h-4" />
+              <Lightbulb className="w-4 h-4 text-amber-500" />
               <span>나만의 기발한 밸런스게임 문제 제안하기</span>
             </Link>
           </motion.div>
