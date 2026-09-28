@@ -9,7 +9,6 @@ import { supabase } from '@/lib/supabase';
 import OnboardingModal from './OnboardingModal';
 import StatsBottomSheet from './StatsBottomSheet';
 import ShareSheet from './ShareSheet';
-import AdsenseBanner from './AdsenseBanner';
 import Navigation from './Navigation';
 
 interface Question {
@@ -667,11 +666,6 @@ export default function VoteClient({
           <a href="https://fairy.hada.io/@playkiro" target="_blank" rel="noopener noreferrer" className="hover:text-neutral-350 transition-all">후원하기</a>
         </div>
         <p className="text-[9px] text-neutral-650">Copyright © 2026 AuroraNest. All rights reserved.</p>
-        
-        {/* Google AdSense Banner (Single Mode - Very Bottom) */}
-        <div className="w-full max-w-xl mx-auto px-4 mt-1 mb-0">
-          <AdsenseBanner />
-        </div>
       </footer>
 
 

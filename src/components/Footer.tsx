@@ -1,6 +1,5 @@
 import React from 'react';
 import Link from 'next/link';
-import AdsenseBanner from './AdsenseBanner';
 
 export default function Footer() {
   return (
@@ -16,10 +15,6 @@ export default function Footer() {
       </div>
       <p className="text-[10px] text-neutral-400 dark:text-neutral-600">Copyright © 2026 AuroraNest. All rights reserved.</p>
       
-      {/* Google AdSense Banner (Main Page - Very Bottom) */}
-      <div className="w-full max-w-xl mx-auto px-4 mt-2 mb-0">
-        <AdsenseBanner />
-      </div>
     </footer>
   );
 }
