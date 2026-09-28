@@ -62,42 +62,41 @@ export async function POST(request: Request) {
       .eq('id', roomId);
 
     // 4. Multi-Player DB Sync
-    (async () => {
-      try {
-        const streamerVoteA = hostPick === 'A' ? 1 : 0;
-        const streamerVoteB = hostPick === 'B' ? 1 : 0;
-        
-        let scaledViewerA = 0;
-        let scaledViewerB = 0;
-        const totalViewers = viewerVotesA + viewerVotesB;
-        
-        if (totalViewers > 0) {
-          if (totalViewers <= 10) {
-            scaledViewerA = viewerVotesA;
-            scaledViewerB = viewerVotesB;
-          } else {
-            scaledViewerA = Math.round((viewerVotesA / totalViewers) * 10);
-            scaledViewerB = 10 - scaledViewerA;
-          }
+    try {
+      const streamerVoteA = hostPick === 'A' ? 1 : 0;
+      const streamerVoteB = hostPick === 'B' ? 1 : 0;
+      
+      let scaledViewerA = 0;
+      let scaledViewerB = 0;
+      const totalViewers = viewerVotesA + viewerVotesB;
+      
+      if (totalViewers > 0) {
+        if (totalViewers <= 10) {
+          scaledViewerA = viewerVotesA;
+          scaledViewerB = viewerVotesB;
+        } else {
+          scaledViewerA = Math.round((viewerVotesA / totalViewers) * 10);
+          scaledViewerB = 10 - scaledViewerA;
         }
-        
-        const addA = streamerVoteA + scaledViewerA;
-        const addB = streamerVoteB + scaledViewerB;
-
-        // Use RPC to atomically upsert and bypass RLS (Security Definer)
-        const { error: rpcError } = await supabase.rpc('update_multi_vote_stats', {
-          q_id: currentQId,
-          add_a: addA,
-          add_b: addB,
-        });
-
-        if (rpcError) {
-          console.error('[Supabase RPC Error] Failed to update multi vote stats:', rpcError);
-        }
-      } catch (err) {
-        console.error('Background streamer pick stat processing error:', err);
       }
-    })();
+      
+      const addA = streamerVoteA + scaledViewerA;
+      const addB = streamerVoteB + scaledViewerB;
+
+      // Use RPC to atomically upsert and bypass RLS (Security Definer)
+      // AWAIT is required in serverless functions to ensure execution finishes before response is sent
+      const { error: rpcError } = await supabase.rpc('update_multi_vote_stats', {
+        q_id: currentQId,
+        add_a: addA,
+        add_b: addB,
+      });
+
+      if (rpcError) {
+        console.error('[Supabase RPC Error] Failed to update multi vote stats:', rpcError);
+      }
+    } catch (err) {
+      console.error('Streamer pick stat processing error:', err);
+    }
 
     return NextResponse.json({ success: true });
   } catch (error: any) {

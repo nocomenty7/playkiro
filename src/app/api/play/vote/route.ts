@@ -71,21 +71,19 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Invalid stat key' }, { status: 400 });
     }
 
-    // Fire-and-forget background execution
-    (async () => {
-      try {
-        const { error } = await supabase.rpc('increment_vote_stat', {
-          q_id: questionId,
-          stat_key: statKey,
-        });
-        
-        if (error) {
-          console.error('RPC increment_vote_stat failed:', error);
-        }
-      } catch (err) {
-        console.error('Background vote processing error:', err);
+    // AWAIT is required in serverless functions to ensure execution finishes before response is sent
+    try {
+      const { error } = await supabase.rpc('increment_vote_stat', {
+        q_id: questionId,
+        stat_key: statKey,
+      });
+      
+      if (error) {
+        console.error('RPC increment_vote_stat failed:', error);
       }
-    })();
+    } catch (err) {
+      console.error('Vote processing error:', err);
+    }
 
     return NextResponse.json({ success: true });
   } catch (error: any) {
