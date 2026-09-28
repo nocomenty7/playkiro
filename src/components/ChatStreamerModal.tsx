@@ -106,12 +106,12 @@ export default function ChatStreamerModal({ isOpen, onClose }: ChatStreamerModal
       }
 
       if (selectedPlatforms.includes('chzzk') && !chzzkChannelId.trim()) {
-        setErrorMsg('치지직 채널 ID 또는 방송 URL을 입력해 주세요.');
+        setErrorMsg('치지직 채널 URL을 입력해 주세요.');
         return;
       }
 
       if (selectedPlatforms.includes('soop') && !soopBjId.trim()) {
-        setErrorMsg('SOOP BJ 아이디 또는 생방송 URL을 입력해 주세요.');
+        setErrorMsg('SOOP 생방송 URL을 입력해 주세요.');
         return;
       }
 
