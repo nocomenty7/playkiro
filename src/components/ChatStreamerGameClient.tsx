@@ -949,7 +949,7 @@ export default function ChatStreamerGameClient() {
                   스트리머와 가장 잘 통하는 시청자 순위입니다!
                 </p>
                 <a href="https://fairy.hada.io/@playkiro" target="_blank" rel="noopener noreferrer" className="text-sm md:text-base text-neutral-500 hover:text-neutral-400 font-bold transition-colors underline underline-offset-2 decoration-neutral-500/30 hover:decoration-neutral-400">
-                  (재밌었다면? 개발자에게 작은 응원 보내기)
+                  (재밌었다면? 개발자에게 커피 한잔 후원하기)
                 </a>
               </div>
             </div>
