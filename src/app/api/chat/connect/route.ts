@@ -1,9 +1,13 @@
 import { NextResponse } from 'next/server';
+import { headers } from 'next/headers';
 
 export const dynamic = 'force-dynamic';
 
 export async function POST(req: Request) {
   try {
+    const headersList = headers();
+    const userIp = headersList.get('x-forwarded-for') || headersList.get('x-real-ip') || '';
+
     const body = await req.json();
     const { platform = 'chzzk', channelId = '' } = body;
 
@@ -45,6 +49,7 @@ export async function POST(req: Request) {
               const tokenRes = await fetch(`https://comm-api.game.naver.com/nng_main/v1/chats/access-token?channelId=${content.chatChannelId}&chatType=STREAMING`, {
                 headers: {
                   'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
+                  ...(userIp ? { 'X-Forwarded-For': userIp, 'X-Real-IP': userIp } : {}),
                 },
                 cache: 'no-store',
               });
