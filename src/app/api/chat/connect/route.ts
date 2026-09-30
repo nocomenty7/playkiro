@@ -38,6 +38,7 @@ export async function POST(req: Request) {
 
           if (content && content.chatChannelId) {
             let accessToken = '';
+            let extraToken = '';
             try {
               const tokenRes = await fetch(`https://comm-api.game.naver.com/nng_main/v1/chats/access-token?channelId=${content.chatChannelId}&chatType=STREAMING`, {
                 headers: {
@@ -47,6 +48,7 @@ export async function POST(req: Request) {
               if (tokenRes.ok) {
                 const tokenData = await tokenRes.json();
                 accessToken = tokenData?.content?.accessToken || '';
+                extraToken = tokenData?.content?.extraToken || '';
               }
             } catch (e) {
               console.error('Chzzk Token Fetch Error:', e);
@@ -59,6 +61,7 @@ export async function POST(req: Request) {
               chatChannelId: content.chatChannelId,
               channelName: content.channel?.channelName || '치지직 스트리머',
               accessToken,
+              extraToken,
             });
           }
         }

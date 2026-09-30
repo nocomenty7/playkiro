@@ -237,6 +237,7 @@ export default function ChatStreamerGameClient() {
                         channelId: chId,
                         chatChannelId: resData.chatChannelId,
                         accessToken: resData.accessToken || '',
+                        extraToken: resData.extraToken || '',
                       },
                     }
                   : null
@@ -381,6 +382,8 @@ export default function ChatStreamerGameClient() {
               accTkn: config.chzzk.accessToken || '',
               auth: 'READ',
               devType: 2001,
+              uid: null,
+              ...(config.chzzk.extraToken ? { extraToken: config.chzzk.extraToken } : {}),
             },
             tid: 1,
           };
