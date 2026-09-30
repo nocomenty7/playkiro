@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(req: Request) {
   try {
     const body = await req.json();
@@ -44,7 +46,7 @@ export async function POST(req: Request) {
                 headers: {
                   'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
                 },
-                next: { revalidate: 0 },
+                cache: 'no-store',
               });
               if (tokenRes.ok) {
                 const tokenData = await tokenRes.json();
