@@ -44,6 +44,7 @@ export async function POST(req: Request) {
                 headers: {
                   'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
                 },
+                next: { revalidate: 0 },
               });
               if (tokenRes.ok) {
                 const tokenData = await tokenRes.json();
