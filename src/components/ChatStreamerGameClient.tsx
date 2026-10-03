@@ -824,28 +824,28 @@ export default function ChatStreamerGameClient() {
                 <div className="flex items-start gap-2 text-neutral-300">
                   <span className="font-black text-amber-400 shrink-0">1.</span>
                   <p>
-                    <strong className="font-extrabold text-amber-400">[스트리머]</strong> 내 예상 픽을 시청자가 맞추며 투표하는 게임을 할것인지, 시청자도 소신껏 자기의견을 투표하는 게임을 할것인지 기준을 정해 시청자에게 안내해주세요.
+                    <strong className="font-extrabold text-emerald-400">[스트리머]</strong> 내 예상 픽을 시청자가 맞추며 투표하는 게임을 할것인지, 시청자도 소신껏 자기의견을 투표하는 게임을 할것인지 기준을 정해 시청자에게 안내해주세요.
                   </p>
                 </div>
 
                 <div className="flex items-start gap-2 text-neutral-300">
                   <span className="font-black text-amber-400 shrink-0">2.</span>
                   <p>
-                    <strong className="font-extrabold text-purple-400">[시청자]</strong> 스트리머가 안내한 기준에 따라 채팅창에서 <strong className="text-white">!1</strong> 혹은 <strong className="text-white">!2</strong> 로 투표합니다. (투표는 번복 가능하나, 1인당 1표만 반영)
+                    <strong className="font-extrabold text-blue-400">[시청자]</strong> 스트리머가 안내한 기준에 따라 채팅창에서 <strong className="text-white">!1</strong> 혹은 <strong className="text-white">!2</strong> 로 투표합니다. (투표는 번복 가능하나, 1인당 1표만 반영)
                   </p>
                 </div>
 
                 <div className="flex items-start gap-2 text-neutral-300">
                   <span className="font-black text-amber-400 shrink-0">3.</span>
                   <p>
-                    <strong className="font-extrabold text-amber-400">[스트리머]</strong> 투표를 마감하고 싶을때, 하단의 <strong className="font-extrabold text-white">[시청자 투표 마감하기]</strong> 버튼을 누릅니다.
+                    <strong className="font-extrabold text-emerald-400">[스트리머]</strong> 투표를 마감하고 싶을때, 하단의 <strong className="font-extrabold text-white">[시청자 투표 마감하기]</strong> 버튼을 누릅니다.
                   </p>
                 </div>
 
                 <div className="flex items-start gap-2 text-neutral-300">
                   <span className="font-black text-amber-400 shrink-0">4.</span>
                   <p>
-                    <strong className="font-extrabold text-amber-400">[스트리머]</strong> 마감 이후, 본인의 <strong className="font-extrabold text-white">[진짜 취향 선택지]</strong>를 누릅니다.
+                    <strong className="font-extrabold text-emerald-400">[스트리머]</strong> 마감 이후, 본인의 <strong className="font-extrabold text-white">[진짜 취향 선택지]</strong>를 누릅니다.
                   </p>
                 </div>
               </div>
