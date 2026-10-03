@@ -115,7 +115,10 @@ export default function ChatStreamerModal({ isOpen, onClose }: ChatStreamerModal
         return;
       }
 
-
+      if (selectedPlatforms.includes('soop') && soopBjId.includes('/station/')) {
+        setErrorMsg('생방송 주소 URL(예: https://play.sooplive.com/...)을 입력해 주세요.');
+        return;
+      }
     }
 
     setLoading(true);
