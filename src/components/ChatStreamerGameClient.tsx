@@ -831,21 +831,21 @@ export default function ChatStreamerGameClient() {
                 <div className="flex items-start gap-2 text-neutral-300">
                   <span className="font-black text-amber-400 shrink-0">2.</span>
                   <p>
-                    <strong className="font-extrabold text-amber-400">[시청자]</strong> 스트리머가 안내한 기준에 따라 채팅창에서 <strong className="text-white">!1</strong> 혹은 <strong className="text-white">!2</strong> 로 투표합니다. (투표는 번복 가능하나, 1인당 1표만 반영)
+                    <strong className="font-extrabold text-purple-400">[시청자]</strong> 스트리머가 안내한 기준에 따라 채팅창에서 <strong className="text-white">!1</strong> 혹은 <strong className="text-white">!2</strong> 로 투표합니다. (투표는 번복 가능하나, 1인당 1표만 반영)
                   </p>
                 </div>
 
                 <div className="flex items-start gap-2 text-neutral-300">
                   <span className="font-black text-amber-400 shrink-0">3.</span>
                   <p>
-                    <strong className="font-extrabold text-indigo-400">[스트리머]</strong> 투표를 마감하고 싶을때, 하단의 <strong className="font-extrabold text-white">[시청자 투표 마감하기]</strong> 버튼을 누릅니다.
+                    <strong className="font-extrabold text-amber-400">[스트리머]</strong> 투표를 마감하고 싶을때, 하단의 <strong className="font-extrabold text-white">[시청자 투표 마감하기]</strong> 버튼을 누릅니다.
                   </p>
                 </div>
 
                 <div className="flex items-start gap-2 text-neutral-300">
                   <span className="font-black text-amber-400 shrink-0">4.</span>
                   <p>
-                    <strong className="font-extrabold text-indigo-400">[스트리머]</strong> 마감 이후, 본인의 <strong className="font-extrabold text-white">[진짜 취향 선택지]</strong>를 누릅니다.
+                    <strong className="font-extrabold text-amber-400">[스트리머]</strong> 마감 이후, 본인의 <strong className="font-extrabold text-white">[진짜 취향 선택지]</strong>를 누릅니다.
                   </p>
                 </div>
               </div>
@@ -952,7 +952,7 @@ export default function ChatStreamerGameClient() {
                   스트리머와 가장 잘 통하는 시청자 순위입니다!
                 </p>
                 <a href="https://fairy.hada.io/@playkiro" target="_blank" rel="noopener noreferrer" className="text-sm md:text-base text-amber-400/90 hover:text-amber-300 font-black transition-colors underline underline-offset-4 decoration-amber-500/40 hover:decoration-amber-400">
-                  (재밌었다면? 개발자에게 커피 한잔 후원하기)
+                  (재밌었다면? 1인 개발자에게 커피 한잔 후원하기)
                 </a>
               </div>
             </div>
