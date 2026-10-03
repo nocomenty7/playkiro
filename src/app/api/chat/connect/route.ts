@@ -5,7 +5,7 @@ export const dynamic = 'force-dynamic';
 
 export async function POST(req: Request) {
   try {
-    const headersList = headers();
+    const headersList = await headers();
     const userIp = headersList.get('x-forwarded-for') || headersList.get('x-real-ip') || '';
 
     const body = await req.json();
