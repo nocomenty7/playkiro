@@ -49,20 +49,22 @@ export default function SingleCategoryModal({
     if (!isOpen) return;
     const fetchCounts = async () => {
       try {
-        const { data } = await supabase.from('questions').select('category').limit(10000);
-        if (data) {
-          const counts: { [key: string]: number } = {};
-          let total = 0;
-          data.forEach((q: any) => {
-            const cat = q.category?.trim();
-            if (cat) {
-              counts[cat] = (counts[cat] || 0) + 1;
-              total++;
+        const counts: { [key: string]: number } = {};
+        let total = 0;
+        await Promise.all(
+          categoriesConfig.filter(c => c.name !== '전체').map(async (cat) => {
+            const { count } = await supabase
+              .from('questions')
+              .select('*', { count: 'exact', head: true })
+              .eq('category', cat.name);
+            if (count) {
+              counts[cat.name] = count;
+              total += count;
             }
-          });
-          counts['전체'] = total;
-          setQuestionCounts(counts);
-        }
+          })
+        );
+        counts['전체'] = total;
+        setQuestionCounts(counts);
       } catch (e) {
         console.error('Failed to fetch category counts inside SingleCategoryModal:', e);
       }
