@@ -692,7 +692,7 @@ export default function ChatStreamerGameClient() {
     }
 
     try {
-      let query = supabase.from('questions').select('id, category');
+      let query = supabase.from('questions').select('id, category').limit(10000);
       if (config?.categories && !config.categories.includes('전체') && config.categories.length > 0) {
         query = query.in('category', config.categories);
       }

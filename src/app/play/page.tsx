@@ -23,6 +23,7 @@ export default async function PlayPage({ searchParams }: PageProps) {
     const { data: allQuestions, error: allError } = await supabase
       .from('questions')
       .select('id, question_no, category')
+      .limit(10000)
       .order('question_no', { ascending: true });
     
     if (allError) {

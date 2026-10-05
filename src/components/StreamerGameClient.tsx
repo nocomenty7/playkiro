@@ -660,7 +660,7 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
       const currentQId = room.question_ids[room.current_question_index];
 
       // 1. Fetch matching category questions
-      let query = supabase.from('questions').select('id, category');
+      let query = supabase.from('questions').select('id, category').limit(10000);
       if (!room.categories.includes('전체') && room.categories.length > 0) {
         query = query.in('category', room.categories);
       }
@@ -668,7 +668,7 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
       const { data: candidates } = await query;
       let pool = candidates || [];
       if (pool.length === 0) {
-        const { data: allQ } = await supabase.from('questions').select('id, category');
+        const { data: allQ } = await supabase.from('questions').select('id, category').limit(10000);
         pool = allQ || [];
       }
 
@@ -677,7 +677,7 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
 
       if (unusedCandidates.length === 0) {
         // 선택한 카테고리의 남은 문제가 고갈되었다면, 전체 카테고리에서 안 푼 문제를 무작위 징발하여 중복(반복) 출제 방지
-        const { data: allQ } = await supabase.from('questions').select('id, category');
+        const { data: allQ } = await supabase.from('questions').select('id, category').limit(10000);
         pool = allQ || [];
         unusedCandidates = pool.filter((q: any) => !room.question_ids.includes(q.id));
       }

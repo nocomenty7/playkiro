@@ -30,7 +30,7 @@ export async function POST(request: Request) {
     }
 
     // 1. Fetch matching questions from Supabase
-    let query = supabase.from('questions').select('id, category');
+    let query = supabase.from('questions').select('id, category').limit(10000);
 
     if (!categories.includes('전체') && categories.length > 0) {
       query = query.in('category', categories);
@@ -41,7 +41,7 @@ export async function POST(request: Request) {
     let targetPool: any[] = [];
 
     if (fetchError || !questions || questions.length === 0) {
-      const { data: allQuestions, error: allErr } = await supabase.from('questions').select('id');
+      const { data: allQuestions, error: allErr } = await supabase.from('questions').select('id').limit(10000);
       if (allErr || !allQuestions || allQuestions.length === 0) {
         return NextResponse.json({ error: '질문 데이터를 불러올 수 없습니다.' }, { status: 400 });
       }
