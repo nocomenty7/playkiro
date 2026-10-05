@@ -44,7 +44,7 @@ export default function ChatStreamerModal({ isOpen, onClose }: ChatStreamerModal
     if (!isOpen) return;
     const fetchCounts = async () => {
       try {
-        const { data } = await supabase.from('questions').select('category');
+        const { data } = await supabase.from('questions').select('category').limit(10000);
         if (data) {
           const counts: { [key: string]: number } = {};
           let total = 0;

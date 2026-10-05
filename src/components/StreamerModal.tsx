@@ -59,7 +59,7 @@ export default function StreamerModal({ isOpen, onClose }: StreamerModalProps) {
     if (!isOpen) return;
     const fetchCounts = async () => {
       try {
-        const { data } = await supabase.from('questions').select('category');
+        const { data } = await supabase.from('questions').select('category').limit(10000);
         if (data) {
           const counts: { [key: string]: number } = {};
           let total = 0;
