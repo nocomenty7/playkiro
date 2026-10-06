@@ -13,6 +13,7 @@ import SingleCategoryModal from '../components/SingleCategoryModal';
 import ChatStreamerModal from '../components/ChatStreamerModal';
 import TotalVotesCounter from '../components/TotalVotesCounter';
 import Footer from '../components/Footer';
+import { supabase } from '@/lib/supabase';
 
 function LandingClient() {
   const searchParams = useSearchParams();
@@ -25,6 +26,24 @@ function LandingClient() {
   const [showSingleCategoryModal, setShowSingleCategoryModal] = useState(false);
   const [showChatStreamerModal, setShowChatStreamerModal] = useState(false);
   const [isNavigating, setIsNavigating] = useState(false);
+  const [adoptedCount, setAdoptedCount] = useState<number>(0);
+
+  useEffect(() => {
+    const fetchAdoptedCount = async () => {
+      try {
+        const { count } = await supabase
+          .from('suggested_questions')
+          .select('*', { count: 'exact', head: true })
+          .eq('status', 'selected');
+        
+        if (count) setAdoptedCount(count);
+      } catch (e) {
+        console.error('Failed to fetch adopted count:', e);
+      }
+    };
+    fetchAdoptedCount();
+  }, []);
+
   const [selectedCategories, setSelectedCategories] = useState<string[]>(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('kiro_filter_categories');
@@ -189,13 +208,29 @@ function LandingClient() {
               <span>📺 함께 플레이하기 (멀티모드)</span>
             </button>
 
-            <Link
-              href="/suggest"
-              className="w-full flex items-center justify-center gap-2 rounded-2xl bg-zinc-900/60 border border-zinc-700/50 hover:border-amber-500/60 hover:text-amber-400 hover:bg-amber-500/10 text-neutral-200 font-extrabold text-sm px-6 h-12 transition-all hover:scale-[1.01] active:scale-[0.99] cursor-pointer mt-1"
-            >
-              <Lightbulb className="w-4 h-4 text-amber-500" />
-              <span>나만의 기발한 밸런스게임 문제 제안하기</span>
-            </Link>
+            <div className="relative w-full mt-1">
+              <Link
+                href="/suggest"
+                className="w-full flex items-center justify-center gap-2 rounded-2xl bg-zinc-900/60 border border-zinc-700/50 hover:border-amber-500/60 hover:text-amber-400 hover:bg-amber-500/10 text-neutral-200 font-extrabold text-sm px-6 h-12 transition-all hover:scale-[1.01] active:scale-[0.99] cursor-pointer"
+              >
+                <Lightbulb className="w-4 h-4 text-amber-500" />
+                <span>나만의 기발한 밸런스게임 문제 제안하기</span>
+              </Link>
+              
+              {adoptedCount > 0 && (
+                <motion.div 
+                  initial={{ opacity: 0, y: -5 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.5 }}
+                  className="absolute -bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center pointer-events-none"
+                >
+                  <div className="w-2.5 h-2.5 bg-amber-500/20 border-t border-l border-amber-500/30 rotate-45 translate-y-1.5 z-10 backdrop-blur-sm" />
+                  <div className="bg-amber-500/10 border border-amber-500/30 text-amber-400/90 text-[11px] font-bold px-3 py-1.5 rounded-full shadow-[0_0_15px_rgba(245,158,11,0.15)] backdrop-blur-md whitespace-nowrap">
+                    ✨ 채택된 문제: {adoptedCount}개
+                  </div>
+                </motion.div>
+              )}
+            </div>
           </motion.div>
 
           <motion.p 
