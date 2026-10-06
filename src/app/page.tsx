@@ -217,19 +217,17 @@ function LandingClient() {
                 <span>나만의 기발한 밸런스게임 문제 제안하기</span>
               </Link>
               
-              {adoptedCount > 0 && (
-                <motion.div 
-                  initial={{ opacity: 0, y: -5 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.5 }}
-                  className="absolute -bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center pointer-events-none"
-                >
-                  <div className="w-2.5 h-2.5 bg-amber-500/20 border-t border-l border-amber-500/30 rotate-45 translate-y-1.5 z-10 backdrop-blur-sm" />
-                  <div className="bg-amber-500/10 border border-amber-500/30 text-amber-400/90 text-[11px] font-bold px-3 py-1.5 rounded-full shadow-[0_0_15px_rgba(245,158,11,0.15)] backdrop-blur-md whitespace-nowrap">
-                    ✨ 채택된 문제: {adoptedCount}개
-                  </div>
-                </motion.div>
-              )}
+              <motion.div 
+                initial={{ opacity: 0, y: -5 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5 }}
+                className="absolute -bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center pointer-events-none"
+              >
+                <div className="w-2.5 h-2.5 bg-amber-500/20 border-t border-l border-amber-500/30 rotate-45 translate-y-1.5 z-10 backdrop-blur-sm" />
+                <div className="bg-amber-500/10 border border-amber-500/30 text-amber-400/90 text-[11px] font-bold px-3 py-1.5 rounded-full shadow-[0_0_15px_rgba(245,158,11,0.15)] backdrop-blur-md whitespace-nowrap">
+                  ✨ 채택된 문제: {adoptedCount}개
+                </div>
+              </motion.div>
             </div>
           </motion.div>
 
