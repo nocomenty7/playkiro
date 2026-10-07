@@ -35,7 +35,6 @@ export async function POST(req: Request) {
         const res = await fetch(`https://api.chzzk.naver.com/service/v2/channels/${cleanChannelId}/live-detail?t=${timestamp}`, {
           headers: {
             'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-            ...(userIp ? { 'X-Forwarded-For': userIp, 'X-Real-IP': userIp } : {}),
           },
           cache: 'no-store',
           next: { revalidate: 0 },
@@ -48,11 +47,15 @@ export async function POST(req: Request) {
           if (content && content.chatChannelId) {
             let accessToken = '';
             let extraToken = '';
+            
+            // Only pass IPv4 to Naver to prevent 500 Internal Server Error crashes on Naver's end
+            const isIpv4 = userIp && !userIp.includes(':');
+            
             try {
               const tokenRes = await fetch(`https://comm-api.game.naver.com/nng_main/v1/chats/access-token?channelId=${content.chatChannelId}&chatType=STREAMING`, {
                 headers: {
                   'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
-                  ...(userIp ? { 'X-Forwarded-For': userIp, 'X-Real-IP': userIp } : {}),
+                  ...(isIpv4 ? { 'X-Forwarded-For': userIp, 'X-Real-IP': userIp } : {}),
                 },
                 cache: 'no-store',
               });
