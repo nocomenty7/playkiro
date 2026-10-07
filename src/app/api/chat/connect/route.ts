@@ -1,8 +1,36 @@
 import { NextResponse } from 'next/server';
 import { headers } from 'next/headers';
+import https from 'https';
 
 export const dynamic = 'force-dynamic';
-export const runtime = 'edge';
+
+function nativeFetch(url: string, userIp?: string): Promise<{ ok: boolean, status: number, data: any }> {
+  return new Promise((resolve) => {
+    const isIpv4 = userIp && !userIp.includes(':');
+    const reqHeaders: Record<string, string> = {
+      'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+    };
+    if (isIpv4) {
+      reqHeaders['X-Forwarded-For'] = userIp;
+      reqHeaders['X-Real-IP'] = userIp;
+    }
+
+    https.get(url, { headers: reqHeaders }, (res) => {
+      let d = '';
+      res.on('data', chunk => d += chunk);
+      res.on('end', () => {
+        try {
+          const parsed = JSON.parse(d);
+          resolve({ ok: res.statusCode === 200, status: res.statusCode || 500, data: parsed });
+        } catch (e) {
+          resolve({ ok: false, status: res.statusCode || 500, data: null });
+        }
+      });
+    }).on('error', () => {
+      resolve({ ok: false, status: 500, data: null });
+    });
+  });
+}
 
 export async function POST(req: Request) {
   try {
@@ -40,33 +68,21 @@ export async function POST(req: Request) {
         let channelName = '치지직 스트리머';
         let apiErrorStatus = 0;
 
-        let res = await fetch(`https://api.chzzk.naver.com/service/v2/channels/${cleanChannelId}/live-detail?t=${timestamp}`, {
-          headers: {
-            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-          },
-          cache: 'no-store',
-          next: { revalidate: 0 },
-        });
+        let res = await nativeFetch(`https://api.chzzk.naver.com/service/v2/channels/${cleanChannelId}/live-detail?t=${timestamp}`);
 
         if (res.ok) {
-          const data = await res.json();
+          const data = res.data;
           chatChannelId = data?.content?.chatChannelId;
           if (data?.content?.channel?.channelName) {
             channelName = data.content.channel.channelName;
           }
         } else {
           apiErrorStatus = res.status;
-          // Fallback to polling API which might bypass strict WAF rules
-          res = await fetch(`https://api.chzzk.naver.com/polling/v2/channels/${cleanChannelId}/live-status?t=${timestamp}`, {
-            headers: {
-              'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
-            },
-            cache: 'no-store',
-            next: { revalidate: 0 },
-          });
+          // Fallback to polling API
+          res = await nativeFetch(`https://api.chzzk.naver.com/polling/v2/channels/${cleanChannelId}/live-status?t=${timestamp}`);
 
           if (res.ok) {
-            const data = await res.json();
+            const data = res.data;
             chatChannelId = data?.content?.chatChannelId;
           }
         }
@@ -75,22 +91,13 @@ export async function POST(req: Request) {
           let accessToken = '';
           let extraToken = '';
             
-            // Only pass IPv4 to Naver to prevent 500 Internal Server Error crashes on Naver's end
-            const isIpv4 = userIp && !userIp.includes(':');
-            
-            try {
-              const tokenRes = await fetch(`https://comm-api.game.naver.com/nng_main/v1/chats/access-token?channelId=${chatChannelId}&chatType=STREAMING`, {
-                headers: {
-                  'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
-                  ...(isIpv4 ? { 'X-Forwarded-For': userIp, 'X-Real-IP': userIp } : {}),
-                },
-                cache: 'no-store',
-              });
-              if (tokenRes.ok) {
-                const tokenData = await tokenRes.json();
-                accessToken = tokenData?.content?.accessToken || '';
-                extraToken = tokenData?.content?.extraToken || '';
-              } else {
+          try {
+            const tokenRes = await nativeFetch(`https://comm-api.game.naver.com/nng_main/v1/chats/access-token?channelId=${chatChannelId}&chatType=STREAMING`, userIp);
+            if (tokenRes.ok) {
+              const tokenData = tokenRes.data;
+              accessToken = tokenData?.content?.accessToken || '';
+              extraToken = tokenData?.content?.extraToken || '';
+            } else {
                 return NextResponse.json({
                   success: false,
                   error: '치지직 채팅 서버(토큰) 연동에 실패했습니다. (새로고침 후 다시 시도해주세요)'
