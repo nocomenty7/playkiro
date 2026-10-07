@@ -1,36 +1,7 @@
 import { NextResponse } from 'next/server';
 import { headers } from 'next/headers';
-import https from 'https';
 
 export const dynamic = 'force-dynamic';
-
-function nativeFetch(url: string, userIp?: string): Promise<{ ok: boolean, status: number, data: any }> {
-  return new Promise((resolve) => {
-    const isIpv4 = userIp && !userIp.includes(':');
-    const reqHeaders: Record<string, string> = {
-      'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-    };
-    if (isIpv4) {
-      reqHeaders['X-Forwarded-For'] = userIp;
-      reqHeaders['X-Real-IP'] = userIp;
-    }
-
-    https.get(url, { headers: reqHeaders }, (res) => {
-      let d = '';
-      res.on('data', chunk => d += chunk);
-      res.on('end', () => {
-        try {
-          const parsed = JSON.parse(d);
-          resolve({ ok: res.statusCode === 200, status: res.statusCode || 500, data: parsed });
-        } catch (e) {
-          resolve({ ok: false, status: res.statusCode || 500, data: null });
-        }
-      });
-    }).on('error', () => {
-      resolve({ ok: false, status: 500, data: null });
-    });
-  });
-}
 
 export async function POST(req: Request) {
   try {
@@ -58,88 +29,51 @@ export async function POST(req: Request) {
       } else if (cleanChannelId.includes('chzzk.naver.com/')) {
         cleanChannelId = cleanChannelId.split('chzzk.naver.com/')[1]?.split('?')[0] || cleanChannelId;
       }
-      
-      // Ensure completely clean channel ID (exactly 32 hex characters)
-      cleanChannelId = cleanChannelId.replace(/[^a-zA-Z0-9]/g, '');
 
       try {
-        const timestamp = Date.now();
-        let chatChannelId = '';
-        let channelName = '치지직 스트리머';
-        let apiErrorStatus = 0;
-
-        let res = await nativeFetch(`https://api.chzzk.naver.com/service/v2/channels/${cleanChannelId}/live-detail?t=${timestamp}`);
+        const res = await fetch(`https://api.chzzk.naver.com/service/v2/channels/${cleanChannelId}/live-detail`, {
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+          },
+          next: { revalidate: 0 },
+        });
 
         if (res.ok) {
-          const data = res.data;
-          chatChannelId = data?.content?.chatChannelId;
-          if (data?.content?.channel?.channelName) {
-            channelName = data.content.channel.channelName;
-          }
-        } else {
-          apiErrorStatus = res.status;
-          // Fallback to polling API
-          res = await nativeFetch(`https://api.chzzk.naver.com/polling/v2/channels/${cleanChannelId}/live-status?t=${timestamp}`);
+          const data = await res.json();
+          const content = data?.content;
 
-          if (res.ok) {
-            const data = res.data;
-            chatChannelId = data?.content?.chatChannelId;
-          }
-        }
-
-        if (chatChannelId) {
-          let accessToken = '';
-          let extraToken = '';
-            
-          try {
-            const tokenRes = await nativeFetch(`https://comm-api.game.naver.com/nng_main/v1/chats/access-token?channelId=${chatChannelId}&chatType=STREAMING`, userIp);
-            if (tokenRes.ok) {
-              const tokenData = tokenRes.data;
-              accessToken = tokenData?.content?.accessToken || '';
-              extraToken = tokenData?.content?.extraToken || '';
-            } else {
-                return NextResponse.json({
-                  success: false,
-                  error: '치지직 채팅 서버(토큰) 연동에 실패했습니다. (새로고침 후 다시 시도해주세요)'
-                }, { status: 400 });
+          if (content && content.chatChannelId) {
+            let accessToken = '';
+            let extraToken = '';
+            try {
+              const tokenRes = await fetch(`https://comm-api.game.naver.com/nng_main/v1/chats/access-token?channelId=${content.chatChannelId}&chatType=STREAMING`, {
+                headers: {
+                  'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
+                  ...(userIp ? { 'X-Forwarded-For': userIp, 'X-Real-IP': userIp } : {}),
+                },
+                cache: 'no-store',
+              });
+              if (tokenRes.ok) {
+                const tokenData = await tokenRes.json();
+                accessToken = tokenData?.content?.accessToken || '';
+                extraToken = tokenData?.content?.extraToken || '';
               }
             } catch (e) {
               console.error('Chzzk Token Fetch Error:', e);
-              return NextResponse.json({
-                success: false,
-                error: '치지직 채팅 서버(토큰) 통신 오류가 발생했습니다.'
-              }, { status: 500 });
-            }
-
-            if (!accessToken) {
-              return NextResponse.json({
-                success: false,
-                error: '치지직 채팅 접근 토큰을 받아오지 못했습니다. (방송 중이 아닐 수 있습니다)'
-              }, { status: 400 });
             }
 
             return NextResponse.json({
               success: true,
               platform: 'chzzk',
               channelId: cleanChannelId,
-              chatChannelId,
-              channelName,
+              chatChannelId: content.chatChannelId,
+              channelName: content.channel?.channelName || '치지직 스트리머',
               accessToken,
               extraToken,
             });
-        } else if (apiErrorStatus !== 404 && res.status !== 404) {
-          return NextResponse.json({
-            success: false,
-            error: `치지직 서버 통신이 지연되고 있습니다 (상태코드: ${apiErrorStatus || res.status}). 새로고침 후 다시 시도해주세요.`
-          }, { status: 400 });
+          }
         }
-      } catch (e) {
-        console.error('Chzzk Channel Fetch Error:', e);
-        return NextResponse.json({
-          success: false,
-          error: '치지직 채널 정보 조회 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.'
-        }, { status: 500 });
-      }
+      } catch (e) {}
 
       // Fallback for offline / non-broadcasting channels so testing is ALWAYS possible
       return NextResponse.json({
