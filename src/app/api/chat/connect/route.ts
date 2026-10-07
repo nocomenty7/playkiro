@@ -30,10 +30,17 @@ export async function POST(req: Request) {
       } else if (cleanChannelId.includes('chzzk.naver.com/')) {
         cleanChannelId = cleanChannelId.split('chzzk.naver.com/')[1]?.split('?')[0] || cleanChannelId;
       }
+      
+      // Ensure completely clean channel ID (exactly 32 hex characters)
+      cleanChannelId = cleanChannelId.replace(/[^a-zA-Z0-9]/g, '');
 
       try {
         const timestamp = Date.now();
-        const res = await fetch(`https://api.chzzk.naver.com/service/v2/channels/${cleanChannelId}/live-detail?t=${timestamp}`, {
+        let chatChannelId = '';
+        let channelName = '치지직 스트리머';
+        let apiErrorStatus = 0;
+
+        let res = await fetch(`https://api.chzzk.naver.com/service/v2/channels/${cleanChannelId}/live-detail?t=${timestamp}`, {
           headers: {
             'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
           },
@@ -43,17 +50,36 @@ export async function POST(req: Request) {
 
         if (res.ok) {
           const data = await res.json();
-          const content = data?.content;
+          chatChannelId = data?.content?.chatChannelId;
+          if (data?.content?.channel?.channelName) {
+            channelName = data.content.channel.channelName;
+          }
+        } else {
+          apiErrorStatus = res.status;
+          // Fallback to polling API which might bypass strict WAF rules
+          res = await fetch(`https://api.chzzk.naver.com/polling/v2/channels/${cleanChannelId}/live-status?t=${timestamp}`, {
+            headers: {
+              'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
+            },
+            cache: 'no-store',
+            next: { revalidate: 0 },
+          });
 
-          if (content && content.chatChannelId) {
-            let accessToken = '';
-            let extraToken = '';
+          if (res.ok) {
+            const data = await res.json();
+            chatChannelId = data?.content?.chatChannelId;
+          }
+        }
+
+        if (chatChannelId) {
+          let accessToken = '';
+          let extraToken = '';
             
             // Only pass IPv4 to Naver to prevent 500 Internal Server Error crashes on Naver's end
             const isIpv4 = userIp && !userIp.includes(':');
             
             try {
-              const tokenRes = await fetch(`https://comm-api.game.naver.com/nng_main/v1/chats/access-token?channelId=${content.chatChannelId}&chatType=STREAMING`, {
+              const tokenRes = await fetch(`https://comm-api.game.naver.com/nng_main/v1/chats/access-token?channelId=${chatChannelId}&chatType=STREAMING`, {
                 headers: {
                   'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
                   ...(isIpv4 ? { 'X-Forwarded-For': userIp, 'X-Real-IP': userIp } : {}),
@@ -89,16 +115,15 @@ export async function POST(req: Request) {
               success: true,
               platform: 'chzzk',
               channelId: cleanChannelId,
-              chatChannelId: content.chatChannelId,
-              channelName: content.channel?.channelName || '치지직 스트리머',
+              chatChannelId,
+              channelName,
               accessToken,
               extraToken,
             });
-          }
-        } else if (res.status !== 404) {
+        } else if (apiErrorStatus !== 404 && res.status !== 404) {
           return NextResponse.json({
             success: false,
-            error: `치지직 서버 통신이 지연되고 있습니다 (상태코드: ${res.status}). 새로고침 후 다시 시도해주세요.`
+            error: `치지직 서버 통신이 지연되고 있습니다 (상태코드: ${apiErrorStatus || res.status}). 새로고침 후 다시 시도해주세요.`
           }, { status: 400 });
         }
       } catch (e) {
