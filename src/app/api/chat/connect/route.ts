@@ -57,6 +57,11 @@ export async function POST(req: Request) {
                 const tokenData = await tokenRes.json();
                 accessToken = tokenData?.content?.accessToken || '';
                 extraToken = tokenData?.content?.extraToken || '';
+              } else {
+                return NextResponse.json({
+                  success: false,
+                  error: '치지직 채팅 서버(토큰) 연동에 실패했습니다. (새로고침 후 다시 시도해주세요)'
+                }, { status: 400 });
               }
             } catch (e) {
               console.error('Chzzk Token Fetch Error:', e);
@@ -72,17 +77,20 @@ export async function POST(req: Request) {
               extraToken,
             });
           }
+        } else if (res.status !== 404) {
+          return NextResponse.json({
+            success: false,
+            error: `[치지직] 치지직 서버 통신이 지연되고 있습니다 (상태코드: ${res.status}). 새로고침 후 다시 시도해주세요.`
+          }, { status: 400 });
         }
-      } catch (e) {}
+      } catch (e) {
+        console.error(e);
+      }
 
-      // Fallback for offline / non-broadcasting channels so testing is ALWAYS possible
       return NextResponse.json({
-        success: true,
-        isDemo: true,
-        platform: 'chzzk',
-        channelId: cleanChannelId,
-        channelName: '치지직 스트리머 (미방송 데모)',
-      });
+        success: false,
+        error: '치지직 채널 정보 조회 중 오류가 발생했습니다. (존재하지 않거나 일시적인 통신 장애일 수 있습니다)'
+      }, { status: 400 });
     } else if (platform === 'soop') {
       let cleanBjId = trimmedId;
       // Support both sooplive.co.kr and sooplive.com
