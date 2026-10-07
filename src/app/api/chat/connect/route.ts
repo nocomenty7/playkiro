@@ -80,7 +80,7 @@ export async function POST(req: Request) {
         } else if (res.status !== 404) {
           return NextResponse.json({
             success: false,
-            error: `치지직 서버 통신이 지연되고 있습니다 (상태코드: ${res.status}). 새로고침 후 다시 시도해주세요.`
+            error: `치지직 서버 통신이 지연되고 있습니다 (상태코드: ${res.status}). 증상이 계속되는 경우 방만들기 모드를 이용해주세요.`
           }, { status: 400 });
         }
       } catch (e) {
