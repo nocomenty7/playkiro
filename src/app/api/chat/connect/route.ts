@@ -34,6 +34,7 @@ export async function POST(req: Request) {
         const res = await fetch(`https://api.chzzk.naver.com/service/v2/channels/${cleanChannelId}/live-detail`, {
           headers: {
             'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            ...(userIp ? { 'X-Forwarded-For': userIp, 'X-Real-IP': userIp } : {}),
           },
           next: { revalidate: 0 },
         });
@@ -57,9 +58,25 @@ export async function POST(req: Request) {
                 const tokenData = await tokenRes.json();
                 accessToken = tokenData?.content?.accessToken || '';
                 extraToken = tokenData?.content?.extraToken || '';
+              } else {
+                return NextResponse.json({
+                  success: false,
+                  error: '치지직 채팅 서버(토큰) 연동에 실패했습니다. (새로고침 후 다시 시도해주세요)'
+                }, { status: 400 });
               }
             } catch (e) {
               console.error('Chzzk Token Fetch Error:', e);
+              return NextResponse.json({
+                success: false,
+                error: '치지직 채팅 서버(토큰) 통신 오류가 발생했습니다.'
+              }, { status: 500 });
+            }
+
+            if (!accessToken) {
+              return NextResponse.json({
+                success: false,
+                error: '치지직 채팅 접근 토큰을 받아오지 못했습니다. (방송 중이 아닐 수 있습니다)'
+              }, { status: 400 });
             }
 
             return NextResponse.json({
@@ -72,8 +89,19 @@ export async function POST(req: Request) {
               extraToken,
             });
           }
+        } else if (res.status !== 404) {
+          return NextResponse.json({
+            success: false,
+            error: `치지직 서버 통신이 지연되고 있습니다 (상태코드: ${res.status}). 새로고침 후 다시 시도해주세요.`
+          }, { status: 400 });
         }
-      } catch (e) {}
+      } catch (e) {
+        console.error('Chzzk Channel Fetch Error:', e);
+        return NextResponse.json({
+          success: false,
+          error: '치지직 채널 정보 조회 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.'
+        }, { status: 500 });
+      }
 
       // Fallback for offline / non-broadcasting channels so testing is ALWAYS possible
       return NextResponse.json({
