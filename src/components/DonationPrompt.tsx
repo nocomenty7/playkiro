@@ -143,8 +143,6 @@ export default function DonationPrompt({ onClose, variant = 'inline' }: Donation
               <span className="mt-0.5 text-[10px] md:text-xs font-bold text-zinc-500 leading-tight">오늘 그만 보기</span>
             </button>
 
-            <span className="self-center text-[11px] md:text-sm font-black italic text-zinc-600 shrink-0">VS</span>
-
             <motion.a
               id="donation-prompt-donate"
               href={DONATION_URL}
@@ -152,9 +150,10 @@ export default function DonationPrompt({ onClose, variant = 'inline' }: Donation
               rel="noopener noreferrer"
               onClick={handleDonate}
               whileTap={{ scale: 0.97 }}
-              className="flex-[1.4] h-14 md:h-16 flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-sm md:text-lg font-black text-zinc-950 shadow-[0_4px_20px_rgba(245,158,11,0.3)] transition-all"
+              className="flex-[1.4] h-14 md:h-16 flex flex-col items-center justify-center rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 shadow-[0_4px_20px_rgba(245,158,11,0.3)] transition-all"
             >
-              ☕ 커피 한 잔 후원하기
+              <span className="text-sm md:text-base font-black text-zinc-950 leading-tight">☕ 커피 한 잔 후원하기</span>
+              <span className="mt-0.5 text-[10px] md:text-xs font-bold text-zinc-900/60 leading-tight">후원페이지 이동</span>
             </motion.a>
           </div>
         </div>
