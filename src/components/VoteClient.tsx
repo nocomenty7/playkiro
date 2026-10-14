@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { BarChart3, ChevronRight, Share2, Trophy } from 'lucide-react';
 import Link from 'next/link';
@@ -10,6 +10,7 @@ import OnboardingModal from './OnboardingModal';
 import StatsBottomSheet from './StatsBottomSheet';
 import ShareSheet from './ShareSheet';
 import Navigation from './Navigation';
+import DonationPrompt, { registerVoteForDonation, markDonationPromptShown } from './DonationPrompt';
 
 interface Question {
   id: string;
@@ -62,6 +63,19 @@ export default function VoteClient({
   const [lastMenuClickTime, setLastMenuClickTime] = useState<number>(0);
   const router = useRouter();
   const [nextPrefetchedId, setNextPrefetchedId] = useState<string | null>(null);
+
+  // DONATION PROMPT (shown after every 5 fresh votes, snoozed 3d on close / 7d on donate)
+  const [showDonation, setShowDonation] = useState(false);
+  const [donationVotedCount, setDonationVotedCount] = useState(0);
+  const donationTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const overlayOpenRef = useRef(false);
+  overlayOpenRef.current = showOnboarding || showStats || showShareSheet || showDrawer;
+
+  useEffect(() => {
+    return () => {
+      if (donationTimerRef.current) clearTimeout(donationTimerRef.current);
+    };
+  }, []);
 
   // ACCIDENTAL CLICK PROTECTION: vote cooldown on question change
   const [voteCooldown, setVoteCooldown] = useState(true);
@@ -260,6 +274,17 @@ export default function VoteClient({
     if (!votedList.includes(question.id)) {
       votedList.push(question.id);
       localStorage.setItem('kiro_voted_questions', JSON.stringify(votedList));
+    }
+
+    // Donation prompt trigger (delayed so the result animation plays first)
+    if (registerVoteForDonation()) {
+      if (donationTimerRef.current) clearTimeout(donationTimerRef.current);
+      donationTimerRef.current = setTimeout(() => {
+        if (overlayOpenRef.current) return; // retry on a later vote
+        markDonationPromptShown();
+        setDonationVotedCount(votedList.length);
+        setShowDonation(true);
+      }, 1200);
     }
 
     const gender = userInfo?.gender || '미선택';
@@ -669,6 +694,16 @@ export default function VoteClient({
       </footer>
 
 
+
+      <AnimatePresence>
+        {showDonation && (
+          <DonationPrompt
+            key="donation-prompt"
+            votedCount={donationVotedCount}
+            onClose={() => setShowDonation(false)}
+          />
+        )}
+      </AnimatePresence>
 
       <AnimatePresence>
         {showOnboarding && (
