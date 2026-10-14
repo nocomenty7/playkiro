@@ -8,6 +8,7 @@ import { Users, Lock, Play, ArrowRight, Copy, Check, Sparkles, LogOut, Home, Bar
 import { supabase } from '@/lib/supabase';
 import StatsBottomSheet from './StatsBottomSheet';
 import ThemeToggle from './ThemeToggle';
+import DonationPrompt, { isDonationSnoozed, markDonationPromptShown } from './DonationPrompt';
 
 interface StreamerGameClientProps {
   pin: string;
@@ -493,6 +494,18 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
 
     return () => clearInterval(interval);
   }, [isHost, room?.id, room?.status, activeQId]);
+
+  // DONATION PROMPT: host only (never viewers / OBS overlay), after the 5th question's result
+  const [showDonation, setShowDonation] = useState(false);
+  useEffect(() => {
+    if (isOverlay || !isHost || room?.status !== 'RESULT' || room?.current_question_index !== 4) return;
+    if (isDonationSnoozed()) return;
+    const timer = setTimeout(() => {
+      markDonationPromptShown();
+      setShowDonation(true);
+    }, 1500);
+    return () => clearTimeout(timer);
+  }, [isOverlay, isHost, room?.status, room?.current_question_index]);
 
   const handleVoteSubmit = async (voteOption: 'A' | 'B') => {
     if (!room || room.status !== 'VOTING' || !myParticipantId) return;
@@ -1512,6 +1525,16 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
 
         </div>
       )}
+
+      <AnimatePresence>
+        {showDonation && (
+          <DonationPrompt
+            key="donation-prompt"
+            variant="floating"
+            onClose={() => setShowDonation(false)}
+          />
+        )}
+      </AnimatePresence>
 
     </div>
   );

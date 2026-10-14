@@ -30,6 +30,7 @@ import {
 import { supabase } from '../lib/supabase';
 import ThemeToggle from './ThemeToggle';
 import StatsBottomSheet from './StatsBottomSheet';
+import DonationPrompt, { isDonationSnoozed, markDonationPromptShown } from './DonationPrompt';
 
 interface ChatRoomConfig {
   pin?: string;
@@ -100,6 +101,18 @@ export default function ChatStreamerGameClient() {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }, [status]);
+
+  // DONATION PROMPT: streamer screen only (never the OBS overlay), after the 5th question's result
+  const [showDonation, setShowDonation] = useState(false);
+  useEffect(() => {
+    if (isOverlay || status !== 'RESULT' || currentIndex !== 4) return;
+    if (isDonationSnoozed()) return;
+    const timer = setTimeout(() => {
+      markDonationPromptShown();
+      setShowDonation(true);
+    }, 1500);
+    return () => clearTimeout(timer);
+  }, [isOverlay, status, currentIndex]);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -1308,6 +1321,16 @@ export default function ChatStreamerGameClient() {
           </div>
         </div>
       )}
+
+      <AnimatePresence>
+        {showDonation && (
+          <DonationPrompt
+            key="donation-prompt"
+            variant="floating"
+            onClose={() => setShowDonation(false)}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }

@@ -64,9 +64,8 @@ export default function VoteClient({
   const router = useRouter();
   const [nextPrefetchedId, setNextPrefetchedId] = useState<string | null>(null);
 
-  // DONATION PROMPT (shown after every 5 fresh votes, snoozed 3d on close / 7d on donate)
+  // DONATION PROMPT (shown after every 5 fresh votes, snoozed until midnight on close / 7d on donate)
   const [showDonation, setShowDonation] = useState(false);
-  const [donationVotedCount, setDonationVotedCount] = useState(0);
   const donationTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const overlayOpenRef = useRef(false);
   overlayOpenRef.current = showOnboarding || showStats || showShareSheet || showDrawer;
@@ -282,7 +281,6 @@ export default function VoteClient({
       donationTimerRef.current = setTimeout(() => {
         if (overlayOpenRef.current) return; // retry on a later vote
         markDonationPromptShown();
-        setDonationVotedCount(votedList.length);
         setShowDonation(true);
       }, 1200);
     }
@@ -699,7 +697,6 @@ export default function VoteClient({
         {showDonation && (
           <DonationPrompt
             key="donation-prompt"
-            votedCount={donationVotedCount}
             onClose={() => setShowDonation(false)}
           />
         )}
