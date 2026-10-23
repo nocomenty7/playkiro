@@ -9,6 +9,7 @@ import { supabase } from '@/lib/supabase';
 import StatsBottomSheet from './StatsBottomSheet';
 import ThemeToggle from './ThemeToggle';
 import DonationPrompt, { isDonationSnoozed, markDonationPromptShown } from './DonationPrompt';
+import { getStreamerHistory, addToStreamerHistory, pickReplacementQuestion } from '@/lib/questionHistory';
 
 interface StreamerGameClientProps {
   pin: string;
@@ -672,31 +673,25 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
     try {
       const currentQId = room.question_ids[room.current_question_index];
 
-      // 1. Fetch matching category questions
-      let query = supabase.from('questions').select('id, category').limit(10000);
-      if (!room.categories.includes('전체') && room.categories.length > 0) {
-        query = query.in('category', room.categories);
-      }
+      // 1. Fetch category questions (server-side filter) + full pool for fallback, in parallel
+      const useAllCategories = !room.categories || room.categories.includes('전체') || room.categories.length === 0;
+      const fullQuery = supabase.from('questions').select('id, category').limit(10000);
+      const [fullRes, catRes] = await Promise.all([
+        fullQuery,
+        useAllCategories
+          ? Promise.resolve(null)
+          : supabase.from('questions').select('id, category').in('category', room.categories).limit(10000),
+      ]);
+      const fullPool: any[] = fullRes.data || [];
+      const categoryPool: any[] = useAllCategories ? fullPool : catRes?.data || [];
 
-      const { data: candidates } = await query;
-      let pool = candidates || [];
-      if (pool.length === 0) {
-        const { data: allQ } = await supabase.from('questions').select('id, category').limit(10000);
-        pool = allQ || [];
-      }
-
-      // Filter out existing question IDs
-      let unusedCandidates = pool.filter((q: any) => !room.question_ids.includes(q.id));
-
-      if (unusedCandidates.length === 0) {
-        // 선택한 카테고리의 남은 문제가 고갈되었다면, 전체 카테고리에서 안 푼 문제를 무작위 징발하여 중복(반복) 출제 방지
-        const { data: allQ } = await supabase.from('questions').select('id, category').limit(10000);
-        pool = allQ || [];
-        unusedCandidates = pool.filter((q: any) => !room.question_ids.includes(q.id));
-      }
-
-      const replacementPool = unusedCandidates.length > 0 ? unusedCandidates : pool;
-      const newQuestion = replacementPool[Math.floor(Math.random() * replacementPool.length)];
+      // 현재 방 문제 + 이전 라운드(브라우저 기록) 문제를 제외하고 대체 문제 선정
+      const newQuestion = pickReplacementQuestion(
+        categoryPool,
+        fullPool,
+        room.question_ids,
+        getStreamerHistory()
+      );
 
       if (!newQuestion) {
         alert('대체할 수 있는 다른 질문이 없습니다.');
@@ -708,6 +703,9 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
       // Replace current question_id in array
       const updatedQuestionIds = [...room.question_ids];
       updatedQuestionIds[room.current_question_index] = newQuestion.id;
+
+      // 대체로 출제된 문제도 이력에 기록 (다음 라운드 중복 방지)
+      addToStreamerHistory([newQuestion.id]);
 
 
       // Instant Optimistic UI Update (0ms)

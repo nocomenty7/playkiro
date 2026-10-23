@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Tv, Users, ArrowRight, Loader2 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
+import { getStreamerHistory, addToStreamerHistory, clearStreamerHistory } from '@/lib/questionHistory';
 
 interface StreamerModalProps {
   isOpen: boolean;
@@ -144,15 +145,7 @@ export default function StreamerModal({ isOpen, onClose }: StreamerModalProps) {
 
     try {
       const sessionId = getSessionId();
-      let usedQuestionIds: string[] = [];
-      try {
-        const storedUsed = localStorage.getItem('kiro_streamer_used_questions');
-        if (storedUsed) {
-          usedQuestionIds = JSON.parse(storedUsed);
-        }
-      } catch (e) {
-        usedQuestionIds = [];
-      }
+      const usedQuestionIds: string[] = getStreamerHistory();
 
       const res = await fetch('/api/streamer/create-room', {
         method: 'POST',
@@ -184,13 +177,7 @@ export default function StreamerModal({ isOpen, onClose }: StreamerModalProps) {
       }
 
       // Record selected questions into streamer used questions history
-      try {
-        const newIds: string[] = data.selectedQuestionIds || [];
-        const nextUsed = Array.from(new Set([...usedQuestionIds, ...newIds]));
-        localStorage.setItem('kiro_streamer_used_questions', JSON.stringify(nextUsed));
-      } catch (e) {
-        // ignore storage errors
-      }
+      addToStreamerHistory(data.selectedQuestionIds || []);
 
       onClose();
       router.push(`/streamer/${data.pin}`);
@@ -489,9 +476,7 @@ export default function StreamerModal({ isOpen, onClose }: StreamerModalProps) {
                   <button
                     type="button"
                     onClick={() => {
-                      try {
-                        localStorage.removeItem('kiro_streamer_used_questions');
-                      } catch (e) {}
+                      clearStreamerHistory();
                       setCompletedAlert({ isOpen: false, title: '', message: '' });
                       setErrorMsg('스트리머 풀었던 문제 이력이 초기화되었습니다. 방을 다시 생성해 주세요.');
                     }}

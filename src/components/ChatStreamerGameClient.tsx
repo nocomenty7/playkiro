@@ -31,6 +31,7 @@ import { supabase } from '../lib/supabase';
 import ThemeToggle from './ThemeToggle';
 import StatsBottomSheet from './StatsBottomSheet';
 import DonationPrompt, { isDonationSnoozed, markDonationPromptShown } from './DonationPrompt';
+import { getStreamerHistory, addToStreamerHistory, pickReplacementQuestion } from '../lib/questionHistory';
 
 interface ChatRoomConfig {
   pin?: string;
@@ -705,17 +706,34 @@ export default function ChatStreamerGameClient() {
     }
 
     try {
-      let query = supabase.from('questions').select('id, category').limit(10000);
-      if (config?.categories && !config.categories.includes('전체') && config.categories.length > 0) {
-        query = query.in('category', config.categories);
+      const cats: string[] = config?.categories || [];
+      const useAllCategories = cats.length === 0 || cats.includes('전체');
+      const [fullRes, catRes] = await Promise.all([
+        supabase.from('questions').select('id, category').limit(10000),
+        useAllCategories
+          ? Promise.resolve(null)
+          : supabase.from('questions').select('id, category').in('category', cats).limit(10000),
+      ]);
+      const fullPool: any[] = fullRes.data || [];
+      const categoryPool: any[] = useAllCategories ? fullPool : catRes?.data || [];
+
+      // 현재 방 문제 + 이전 라운드(브라우저 기록) 문제를 제외하고 대체 문제 선정
+      const replacement = pickReplacementQuestion(
+        categoryPool,
+        fullPool,
+        room.question_ids,
+        getStreamerHistory()
+      );
+
+      if (!replacement) {
+        alert('대체할 수 있는 다른 질문이 없습니다.');
+        return;
       }
-      const { data: poolData } = await query;
-      const candidates = (poolData || []).filter((q: any) => !room.question_ids.includes(q.id));
-      const replacement = candidates.length > 0 ? candidates[Math.floor(Math.random() * candidates.length)] : poolData?.[0];
 
       if (replacement) {
         const newQuestionIds = [...room.question_ids];
         newQuestionIds[currentIndex] = replacement.id;
+        addToStreamerHistory([replacement.id]);
 
         setLiveVotes({});
         setStatus('VOTING');
