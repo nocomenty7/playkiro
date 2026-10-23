@@ -105,7 +105,7 @@ export default function PlayModeSelectModal({
                       </span>
                     </div>
                     <p className="text-xs text-zinc-500 dark:text-neutral-400 mt-1 leading-relaxed break-keep">
-                      호스트가 방을 개설하고 시청자들은 화면의 QR코드나 PIN 번호로 입장하여 투표합니다.
+                      호스트가 방을 개설하고 시청자들은 화면의 PIN 번호로 입장하여 투표합니다.
                     </p>
                   </div>
                 </div>
