@@ -123,7 +123,7 @@ function LandingClient() {
             animate={{ opacity: 1, y: 0 }}
             className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 px-4 py-1 text-xs font-black text-emerald-455 tracking-wider uppercase"
           >
-            <Sparkles className="h-3.5 w-3.5" /> 별도의 회원가입 · 로그인 없이 즉시 플레이
+            <Sparkles className="h-3.5 w-3.5" /> 평소 생각지 못했던 대화소재가 한가득
           </motion.div>
           
           <motion.h1 
