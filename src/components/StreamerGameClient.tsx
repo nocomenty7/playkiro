@@ -1390,8 +1390,8 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
       {/* Streamer Host Control Panel with High-Visibility Golden Highlight & Loading Spinners */}
       {!isOverlay && isHost && room.status !== 'FINISHED' && (
         <div className="w-full max-w-md mx-auto p-4 shrink-0">
-          <div className="w-full bg-gradient-to-b from-amber-500/15 via-zinc-950 to-zinc-950 border-2 border-amber-400/60 shadow-[0_0_35px_rgba(245,158,11,0.25)] rounded-3xl p-5 space-y-4">
-            <div className="flex items-center justify-between text-sm md:text-base font-black text-neutral-300 border-b border-amber-500/20 pb-3">
+          <div className="host-control-panel w-full bg-gradient-to-b from-amber-500/15 via-zinc-950 to-zinc-950 border-2 border-amber-400/60 shadow-[0_0_35px_rgba(245,158,11,0.25)] rounded-3xl p-5 space-y-4">
+            <div className="hcp-header flex items-center justify-between text-sm md:text-base font-black text-neutral-300 border-b border-amber-500/20 pb-3">
               <span className="flex items-center gap-1.5 font-black text-amber-300 text-xs md:text-sm tracking-wide bg-amber-500/10 px-3 py-1 rounded-xl border border-amber-500/30">
                 👑 스트리머 조작 패널
               </span>
@@ -1457,7 +1457,7 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
                   {isHost && (
                     <button
                       onClick={handleResumeVoting}
-                      className="text-xs font-bold text-neutral-400 hover:text-white underline underline-offset-2 transition-colors cursor-pointer shrink-0"
+                      className="hcp-cancel text-xs font-bold text-neutral-400 hover:text-white underline underline-offset-2 transition-colors cursor-pointer shrink-0"
                     >
                       마감 취소
                     </button>
@@ -1510,10 +1510,10 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
             )}
 
             {/* OBS Widget */}
-            <div className="bg-purple-950/25 border border-purple-500/30 rounded-2xl p-3 space-y-2 text-xs">
+            <div className="hcp-obs bg-purple-950/25 border border-purple-500/30 rounded-2xl p-3 space-y-2 text-xs">
               <button
                 onClick={handleCopyOverlayUrl}
-                className="w-full py-2.5 px-3 rounded-xl bg-purple-500/20 border border-purple-500/40 hover:bg-purple-500/30 text-purple-300 text-[11px] md:text-xs font-black transition cursor-pointer flex items-center justify-center gap-1.5"
+                className="hcp-obs-btn w-full py-2.5 px-3 rounded-xl bg-purple-500/20 border border-purple-500/40 hover:bg-purple-500/30 text-purple-300 text-[11px] md:text-xs font-black transition cursor-pointer flex items-center justify-center gap-1.5"
               >
                 <span>(선택사항) 🎥 OBS / 프릭샷 오버레이 URL 복사</span>
                 {copiedOverlay ? <Check className="w-3.5 h-3.5 text-emerald-300" /> : <Copy className="w-3.5 h-3.5" />}

@@ -204,6 +204,46 @@ html.light .bg-black\/65 {
   background-color: rgba(15, 23, 42, 0.55) !important;
 }
 
+/* 7. Streamer Host Control Panel (Light Mode Only — Dark Mode Untouched) */
+html.light .host-control-panel {
+  background-image: linear-gradient(to bottom, #fffbeb 0%, #ffffff 55%, #ffffff 100%) !important;
+  background-color: #ffffff !important;
+  border-color: #fcd34d !important;
+  box-shadow: 0 10px 30px -5px rgba(245, 158, 11, 0.14), 0 4px 12px rgba(15, 23, 42, 0.06) !important;
+}
+
+html.light .host-control-panel .hcp-header {
+  border-bottom-color: #fde68a !important;
+}
+
+html.light .host-control-panel .bg-amber-500\/10 {
+  background-color: #fef3c7 !important;
+  border-color: #fcd34d !important;
+}
+
+html.light .host-control-panel .hcp-cancel {
+  color: #64748b !important;
+}
+
+html.light .host-control-panel .hcp-cancel:hover {
+  color: #0f172a !important;
+}
+
+html.light .host-control-panel .hcp-obs {
+  background-color: #faf5ff !important;
+  border-color: #e9d5ff !important;
+}
+
+html.light .host-control-panel .hcp-obs-btn {
+  background-color: #f3e8ff !important;
+  border-color: #d8b4fe !important;
+  color: #6b21a8 !important;
+}
+
+html.light .host-control-panel .hcp-obs-btn:hover {
+  background-color: #e9d5ff !important;
+}
+
 /* Infinite Marquee Animations for Vercel/Linear Style Landing Page */
 @keyframes marquee {
   0% {
