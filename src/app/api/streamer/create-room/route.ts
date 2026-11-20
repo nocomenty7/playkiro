@@ -77,11 +77,6 @@ export async function POST(request: Request) {
       resolvedTotalQuestions = formatted.length;
       resolvedCategories = [pack.title];
       resolvedPackCode = pack.code;
-
-      // Increment pack play count (best-effort)
-      try {
-        await supabase.rpc('increment_pack_play_count', { pack_code: pack.code });
-      } catch {}
     } else {
       // 1. Fetch matching questions from Supabase
       let query = supabase.from('questions').select('id, category').limit(10000);

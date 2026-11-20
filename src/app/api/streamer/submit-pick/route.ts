@@ -100,6 +100,20 @@ export async function POST(request: Request) {
             console.warn('[Custom Pack Multi Vote] RPC warning:', packRpcErr.message);
           }
         }
+
+        // Also increment play_count by number of players who answered this question (host + viewers)
+        const playedIncrement = Math.max(1, 1 + (viewerVotesA || 0) + (viewerVotesB || 0));
+        const { data: packRow } = await supabase
+          .from('custom_packs')
+          .select('play_count')
+          .eq('code', room.pack_code)
+          .maybeSingle();
+        if (packRow) {
+          await supabase
+            .from('custom_packs')
+            .update({ play_count: (packRow.play_count || 0) + playedIncrement })
+            .eq('code', room.pack_code);
+        }
       } else if (!isCustomPackRoom) {
         // Official questions: Use RPC to atomically upsert into global vote_stats
         const { error: rpcError } = await supabase.rpc('update_multi_vote_stats', {

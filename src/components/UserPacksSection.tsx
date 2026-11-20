@@ -52,7 +52,7 @@ export default function UserPacksSection() {
         params.set('limit', String(PAGE_SIZE));
         params.set('offset', String(offset));
 
-        const res = await fetch(`/api/packs?${params.toString()}`);
+        const res = await fetch(`/api/packs?${params.toString()}`, { cache: 'no-store' });
         const data = await res.json();
         if (!res.ok || !data.success) {
           throw new Error(data.error || '목록을 불러오지 못했습니다.');

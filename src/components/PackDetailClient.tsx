@@ -30,6 +30,7 @@ import {
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 import ShareSheet from '@/components/ShareSheet';
+import PlayModeSelectModal from '@/components/PlayModeSelectModal';
 import {
   CustomPack,
   CustomPackQuestionStat,
@@ -67,6 +68,9 @@ export default function PackDetailClient({ pack }: PackDetailClientProps) {
   const [questionStats, setQuestionStats] = useState<Record<string, CustomPackQuestionStat>>(
     () => pack.question_stats || {}
   );
+
+  // Multi Mode Select modal (reuses PlayModeSelectModal)
+  const [showPlayModeModal, setShowPlayModeModal] = useState(false);
 
   // PIN Room modal state
   const [showPinModal, setShowPinModal] = useState(false);
@@ -113,15 +117,13 @@ export default function PackDetailClient({ pack }: PackDetailClientProps) {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  // Start Single Mode
+  // Start Single Mode (play_count increments per played question in handleSinglePick)
   const handleStartSingle = () => {
     setSingleIndex(0);
     setSingleChoices([]);
     setSingleFinished(false);
     setJustPicked(null);
     setSingleActive(true);
-    setPlayCount((prev) => prev + 1);
-    fetch(`/api/packs/${encodeURIComponent(pack.code)}/play`, { method: 'POST' }).catch(() => {});
   };
 
   const handleSinglePick = (choice: 'A' | 'B') => {
@@ -130,7 +132,7 @@ export default function PackDetailClient({ pack }: PackDetailClientProps) {
 
     setJustPicked(choice);
 
-    // Prevent duplicate counting per browser while still allowing full replay animation
+    // Prevent duplicate ratio counting per browser while still counting every played question
     const storageKey = `kiro_pack_voted_${pack.code}`;
     let alreadyVoted = false;
     try {
@@ -142,6 +144,9 @@ export default function PackDetailClient({ pack }: PackDetailClientProps) {
         localStorage.setItem(storageKey, JSON.stringify(votedMap));
       }
     } catch {}
+
+    // Always increment played question count optimistically
+    setPlayCount((prev) => prev + 1);
 
     if (!alreadyVoted) {
       // Optimistic +1 for instant 0ms dopamine animation
@@ -155,21 +160,30 @@ export default function PackDetailClient({ pack }: PackDetailClientProps) {
           },
         };
       });
+    }
 
-      // Persist atomically to DB & sync live counts from other players
-      fetch(`/api/packs/${encodeURIComponent(pack.code)}/vote`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ questionId: q.id, option: choice }),
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          if (data?.success && data.stats && typeof data.stats === 'object') {
+    // Persist played question count (+1 always) & vote stats (first vote only) to DB
+    fetch(`/api/packs/${encodeURIComponent(pack.code)}/vote`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        questionId: q.id,
+        option: choice,
+        countVote: !alreadyVoted,
+      }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data?.success) {
+          if (data.stats && typeof data.stats === 'object') {
             setQuestionStats(data.stats);
           }
-        })
-        .catch(() => {});
-    }
+          if (typeof data.playCount === 'number') {
+            setPlayCount(data.playCount);
+          }
+        }
+      })
+      .catch(() => {});
   };
 
   const handleSingleNext = () => {
@@ -899,42 +913,23 @@ export default function PackDetailClient({ pack }: PackDetailClientProps) {
                 <span>{formatPackDate(pack.created_at)}</span>
               </div>
 
-              {/* 3 Play Mode Launchers */}
+              {/* 2 Clean Play Mode Launchers (Single + Multi reusing PlayModeSelectModal) */}
               <div className="pt-3 border-t border-zinc-800/70 space-y-3">
                 <button
                   type="button"
                   onClick={handleStartSingle}
                   className="w-full py-4 rounded-2xl bg-brand-yellow hover:bg-[#e0b240] text-zinc-950 font-black text-sm md:text-base shadow-[0_0_28px_rgba(245,195,82,0.28)] transition-all hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-2 cursor-pointer"
                 >
-                  <Play className="h-4 w-4 fill-zinc-950" />
                   <span>👤 이 팩으로 혼자 플레이하기 (싱글모드)</span>
                 </button>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setChatError('');
-                      setShowChatModal(true);
-                    }}
-                    className="w-full py-3.5 px-4 rounded-2xl border border-purple-500/40 bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 font-black text-xs md:text-sm transition-all hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-2 cursor-pointer"
-                  >
-                    <MessageSquare className="h-4 w-4 shrink-0" />
-                    <span>채팅 연동 방송하기 (치지직·숲)</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setPinError('');
-                      setShowPinModal(true);
-                    }}
-                    className="w-full py-3.5 px-4 rounded-2xl border border-amber-500/35 bg-zinc-900 hover:bg-zinc-800 text-neutral-100 font-black text-xs md:text-sm transition-all hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-2 cursor-pointer"
-                  >
-                    <Users className="h-4 w-4 text-amber-400 shrink-0" />
-                    <span>방 만들기 (PIN 입장코드)</span>
-                  </button>
-                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowPlayModeModal(true)}
+                  className="w-full py-4 rounded-2xl bg-zinc-900 border border-zinc-700 hover:bg-zinc-800 text-white font-black text-sm md:text-base transition-all hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  <span>📺 이 팩으로 함께 플레이하기 (멀티모드)</span>
+                </button>
               </div>
             </section>
 
@@ -995,6 +990,22 @@ export default function PackDetailClient({ pack }: PackDetailClientProps) {
       <div className="shrink-0 mt-auto">
         <Footer />
       </div>
+
+      {/* Modal 0: Reuse Existing Multi-Mode Selection Popup */}
+      <PlayModeSelectModal
+        isOpen={showPlayModeModal}
+        onClose={() => setShowPlayModeModal(false)}
+        onSelectChatIntegration={() => {
+          setShowPlayModeModal(false);
+          setChatError('');
+          setShowChatModal(true);
+        }}
+        onSelectDirectJoin={() => {
+          setShowPlayModeModal(false);
+          setPinError('');
+          setShowPinModal(true);
+        }}
+      />
 
       {/* Modal 1: Create PIN Room with this Pack */}
       <AnimatePresence>
