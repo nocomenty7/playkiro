@@ -612,7 +612,7 @@ function PackCreateContent() {
                   className="w-full py-3.5 rounded-2xl border border-dashed border-zinc-700 hover:border-amber-400/60 bg-zinc-900/30 hover:bg-amber-500/5 text-neutral-300 hover:text-amber-400 font-extrabold text-xs md:text-sm flex items-center justify-center gap-1.5 transition-all cursor-pointer"
                 >
                   <Plus className="h-4 w-4" />
-                  <span>질문 추가하기 ({questions.length} / {MAX_PACK_QUESTIONS})</span>
+                  <span>{questions.length + 1}번째 질문 추가하기</span>
                 </button>
               )}
             </section>
