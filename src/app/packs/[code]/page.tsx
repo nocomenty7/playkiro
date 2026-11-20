@@ -63,10 +63,10 @@ export default async function PackDetailPage({ params }: PageProps) {
         <p className="text-xs text-neutral-400">링크가 올바른지 확인하거나 다른 공개 밸런스질문 팩을 둘러보세요.</p>
         <div className="flex items-center gap-2 pt-2">
           <Link
-            href="/packs"
+            href="/#user-packs"
             className="px-5 py-3 rounded-xl bg-brand-yellow text-zinc-950 font-black text-xs hover:bg-[#e0b240] transition"
           >
-            공개 팩 목록 보기
+            밸런스게임 목록 보기
           </Link>
           <Link
             href="/"

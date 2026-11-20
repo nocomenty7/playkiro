@@ -379,7 +379,7 @@ export default function PackDetailClient({ pack }: PackDetailClientProps) {
           throw new Error(data.error || '삭제에 실패했습니다.');
         }
         alert('밸런스질문 팩이 삭제되었습니다.');
-        router.push('/packs');
+        router.push('/#user-packs');
       }
     } catch (err: any) {
       setManageError(err.message || '오류가 발생했습니다.');
@@ -704,11 +704,11 @@ export default function PackDetailClient({ pack }: PackDetailClientProps) {
             </button>
           ) : (
             <Link
-              href="/packs"
+              href="/#user-packs"
               className="inline-flex items-center gap-1.5 text-xs font-extrabold text-neutral-400 hover:text-amber-400 transition-colors"
             >
               <ArrowLeft className="h-3.5 w-3.5" />
-              <span>공개 팩 목록</span>
+              <span>밸런스게임 목록</span>
             </Link>
           )}
 

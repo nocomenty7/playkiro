@@ -291,10 +291,10 @@ function PackCreateContent() {
                 <ExternalLink className="w-4 h-4" />
               </Link>
               <Link
-                href="/packs"
+                href="/#user-packs"
                 className="w-full py-3 rounded-xl bg-zinc-800/80 hover:bg-zinc-800 border border-zinc-700/60 text-neutral-200 font-bold text-xs transition"
               >
-                공개 밸런스질문 팩 목록으로 이동
+                메인 밸런스게임 목록으로 이동
               </Link>
             </div>
           </motion.div>
@@ -321,11 +321,11 @@ function PackCreateContent() {
         {/* Back link & Title */}
         <div className="space-y-3">
           <Link
-            href={editCode ? `/packs/${editCode}` : '/packs'}
+            href={editCode ? `/packs/${editCode}` : '/#user-packs'}
             className="inline-flex items-center gap-1.5 text-xs font-extrabold text-neutral-400 hover:text-amber-400 transition-colors"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
-            <span>{editCode ? '팩 페이지로 돌아가기' : '공개 팩 목록으로 돌아가기'}</span>
+            <span>{editCode ? '팩 페이지로 돌아가기' : '메인 목록으로 돌아가기'}</span>
           </Link>
 
           <div className="space-y-1.5">

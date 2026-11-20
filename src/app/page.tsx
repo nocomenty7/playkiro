@@ -1,19 +1,19 @@
 'use client';
 
 import React, { useState, useEffect, Suspense } from 'react';
-import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, Trophy, Users, ShieldAlert, BrainCircuit, BarChart3, Loader2, Tv, RotateCcw, HelpCircle, BookOpen, Lightbulb } from 'lucide-react';
+import { Sparkles, Play } from 'lucide-react';
 import Navigation from '../components/Navigation';
 import StreamerModal from '../components/StreamerModal';
 import NoticePopup from '../components/NoticePopup';
 import PlayModeSelectModal from '../components/PlayModeSelectModal';
 import SingleCategoryModal from '../components/SingleCategoryModal';
 import ChatStreamerModal from '../components/ChatStreamerModal';
+import BasicPlayModeModal from '../components/BasicPlayModeModal';
 import TotalVotesCounter from '../components/TotalVotesCounter';
+import UserPacksSection from '../components/UserPacksSection';
 import Footer from '../components/Footer';
-import { supabase } from '@/lib/supabase';
 
 function LandingClient() {
   const searchParams = useSearchParams();
@@ -21,28 +21,12 @@ function LandingClient() {
   const q = searchParams.get('q');
 
   const [showDrawer, setShowDrawer] = useState(false);
+  const [showBasicPlayModal, setShowBasicPlayModal] = useState(false);
   const [showStreamerModal, setShowStreamerModal] = useState(false);
   const [showPlayModeModal, setShowPlayModeModal] = useState(false);
   const [showSingleCategoryModal, setShowSingleCategoryModal] = useState(false);
   const [showChatStreamerModal, setShowChatStreamerModal] = useState(false);
   const [isNavigating, setIsNavigating] = useState(false);
-  const [adoptedCount, setAdoptedCount] = useState<number>(0);
-
-  useEffect(() => {
-    const fetchAdoptedCount = async () => {
-      try {
-        const { count } = await supabase
-          .from('suggested_questions')
-          .select('*', { count: 'exact', head: true })
-          .eq('status', 'selected');
-        
-        if (count) setAdoptedCount(count);
-      } catch (e) {
-        console.error('Failed to fetch adopted count:', e);
-      }
-    };
-    fetchAdoptedCount();
-  }, []);
 
   const [selectedCategories, setSelectedCategories] = useState<string[]>(() => {
     if (typeof window !== 'undefined') {
@@ -86,26 +70,25 @@ function LandingClient() {
     updateSelectedCategories(next);
   };
 
-  // Sample dilemmas for the premium infinite marquee animation
+  // Sample dilemmas for the infinite marquee animation
   const sampleDilemmasRow1 = [
-    { a: "평생 두통", b: "평생 치통", cat: "극한 밸런스게임" },
-    { a: "10년 전으로 복귀", b: "10억 받기", cat: "돈" },
-    { a: "재입대하기", b: "모든 기기 환불하기", cat: "극한 밸런스게임" },
-    { a: "투명인간 되기", b: "시간추월 가능하기", cat: "상상" },
-    { a: "평생 사과만 먹기", b: "평생 바나나만 먹기", cat: "음식" },
+    { a: '평생 두통', b: '평생 치통', cat: '극한 밸런스게임' },
+    { a: '10년 전으로 복귀', b: '10억 받기', cat: '돈' },
+    { a: '재입대하기', b: '모든 기기 환불하기', cat: '극한 밸런스게임' },
+    { a: '투명인간 되기', b: '시간추월 가능하기', cat: '상상' },
+    { a: '평생 사과만 먹기', b: '평생 바나나만 먹기', cat: '음식' },
   ];
 
   const sampleDilemmasRow2 = [
-    { a: "연인과 매일 연락", b: "주 1회 연락", cat: "관계" },
-    { a: "여름만 10년", b: "겨울만 10년", cat: "일상" },
-    { a: "삭발로 살기", b: "장발로 살기", cat: "스타일" },
-    { a: "평생 독서", b: "평생 운동", cat: "여가" },
-    { a: "민초 고수", b: "반민초 파", cat: "음식" },
+    { a: '연인과 매일 연락', b: '주 1회 연락', cat: '관계' },
+    { a: '여름만 10년', b: '겨울만 10년', cat: '일상' },
+    { a: '삭발로 살기', b: '장발로 살기', cat: '스타일' },
+    { a: '평생 독서', b: '평생 운동', cat: '여가' },
+    { a: '민초 고수', b: '반민초 파', cat: '음식' },
   ];
 
   return (
     <div className="relative h-[100dvh] overflow-y-auto w-full mx-auto flex flex-col justify-between overflow-x-hidden bg-[#080911] bg-[radial-gradient(circle_at_top,_rgba(99,102,241,0.1),_transparent_60%)] text-white font-sans">
-      
       <Navigation
         selectedCategories={selectedCategories}
         onToggleCategory={onToggleCategoryWrapper}
@@ -113,35 +96,34 @@ function LandingClient() {
         setShowDrawer={setShowDrawer}
       />
 
-      {/* Main Spacious Content Area */}
-      <main className="flex-1 flex flex-col px-4 sm:px-6 py-8 md:py-12 space-y-12 md:space-y-16 max-w-xl md:max-w-4xl lg:max-w-6xl mx-auto w-full">
-        
-        {/* Hero Section */}
-        <section className="text-center space-y-6 pt-2 md:pt-6">
-          <motion.div 
+      {/* Main Content Area */}
+      <main className="flex-1 flex flex-col px-4 sm:px-6 py-8 md:py-10 space-y-10 md:space-y-12 max-w-xl md:max-w-4xl lg:max-w-6xl mx-auto w-full">
+        {/* Hero Section (Official PlayKiro Basic Questions) */}
+        <section className="text-center space-y-5 pt-1 md:pt-4">
+          <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 px-4 py-1 text-xs font-black text-emerald-455 tracking-wider uppercase"
           >
             <Sparkles className="h-3.5 w-3.5" /> 평소 생각지 못했던 대화소재가 한가득
           </motion.div>
-          
-          <motion.h1 
+
+          <motion.h1
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
+            transition={{ delay: 0.08 }}
             className="text-3xl md:text-4xl lg:text-5xl font-kiro leading-snug tracking-tight text-neutral-100 px-2 break-keep"
           >
             내 <span className="text-brand-yellow">취향</span>은 어느 쪽?
             <br />
-            끝없는 밸런스게임, <span className="text-brand-yellow font-['MaruBuriBold']">'기로'</span>
+            끝없는 밸런스게임, <span className="text-brand-yellow font-['MaruBuriBold']">&apos;기로&apos;</span>
           </motion.h1>
 
-          {/* Modern SaaS Value Propositions */}
-          <motion.div 
+          {/* Key Value Props */}
+          <motion.div
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.15 }}
+            transition={{ delay: 0.12 }}
             className="flex flex-col sm:flex-row flex-wrap items-center justify-center gap-2 sm:gap-5 text-xs sm:text-sm font-extrabold text-neutral-300"
           >
             <span className="flex items-center gap-1">⚡️ 가입없이 0초 실행</span>
@@ -150,18 +132,21 @@ function LandingClient() {
             <span className="flex items-center gap-1">🔁 중복문제 없이 플레이</span>
           </motion.div>
 
-          {/* Dynamic Infinite Marquee Section (Moved Up to create Marquee -> CTA order) */}
-          <div className="w-full overflow-hidden space-y-4 py-4 relative">
+          {/* Dynamic Infinite Marquee */}
+          <div className="w-full overflow-hidden space-y-3.5 py-2.5 relative">
             <div className="absolute left-0 top-0 bottom-0 w-16 bg-gradient-to-r from-[#080911] to-transparent z-10 pointer-events-none" />
             <div className="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-[#080911] to-transparent z-10 pointer-events-none" />
 
             {/* Row 1 - Slide Left */}
-            <div 
+            <div
               className="flex gap-4 animate-marquee whitespace-nowrap"
               style={{ animationPlayState: showDrawer ? 'paused' : 'running' }}
             >
               {[...sampleDilemmasRow1, ...sampleDilemmasRow1].map((dil, idx) => (
-                <div key={idx} className="inline-flex items-center gap-2 rounded-2xl border border-zinc-900 bg-zinc-950/60 px-4 py-3 text-xs md:text-sm font-extrabold text-neutral-200 shadow-md">
+                <div
+                  key={idx}
+                  className="inline-flex items-center gap-2 rounded-2xl border border-zinc-900 bg-zinc-950/60 px-4 py-2.5 text-xs md:text-sm font-extrabold text-neutral-200 shadow-md"
+                >
                   <span className="text-zinc-500 font-normal">{dil.cat}</span>
                   <span className="text-amber-400">{dil.a}</span>
                   <span className="text-zinc-650 px-1">VS</span>
@@ -171,12 +156,15 @@ function LandingClient() {
             </div>
 
             {/* Row 2 - Slide Right */}
-            <div 
+            <div
               className="flex gap-4 animate-marquee-reverse whitespace-nowrap"
               style={{ animationPlayState: showDrawer ? 'paused' : 'running' }}
             >
               {[...sampleDilemmasRow2, ...sampleDilemmasRow2].map((dil, idx) => (
-                <div key={idx} className="inline-flex items-center gap-2 rounded-2xl border border-zinc-900 bg-zinc-950/60 px-4 py-3 text-xs md:text-sm font-extrabold text-neutral-200 shadow-md">
+                <div
+                  key={idx}
+                  className="inline-flex items-center gap-2 rounded-2xl border border-zinc-900 bg-zinc-950/60 px-4 py-2.5 text-xs md:text-sm font-extrabold text-neutral-200 shadow-md"
+                >
                   <span className="text-zinc-500 font-normal">{dil.cat}</span>
                   <span className="text-amber-400">{dil.a}</span>
                   <span className="text-zinc-650 px-1">VS</span>
@@ -186,219 +174,45 @@ function LandingClient() {
             </div>
           </div>
 
-          {/* Primary CTA - Mode Split */}
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.95 }}
+          {/* Primary Single Unified CTA -> Branches to Single / Multi */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.96 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.2 }}
-            className="pt-2 max-w-sm md:max-w-md mx-auto space-y-3 relative"
+            transition={{ delay: 0.16 }}
+            className="pt-1 max-w-sm md:max-w-md mx-auto space-y-3 relative"
           >
             <TotalVotesCounter />
             <button
-              onClick={() => setShowSingleCategoryModal(true)}
-              className="w-full flex items-center justify-center gap-2 rounded-2xl bg-brand-yellow hover:bg-[#e0b240] text-zinc-950 font-black text-base px-6 h-14 shadow-[0_0_30px_rgba(245,195,82,0.3)] transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+              type="button"
+              onClick={() => setShowBasicPlayModal(true)}
+              className="w-full flex items-center justify-center gap-2.5 rounded-2xl bg-brand-yellow hover:bg-[#e0b240] text-zinc-950 font-black text-base md:text-lg px-6 h-14 md:h-15 shadow-[0_0_32px_rgba(245,195,82,0.32)] transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
             >
-              <span>👤 혼자 플레이하기 (싱글모드)</span>
+              <Play className="w-5 h-5 fill-zinc-950" />
+              <span>기본 문제로 바로 플레이하기</span>
             </button>
-
-            <button
-              onClick={() => setShowPlayModeModal(true)}
-              className="w-full flex items-center justify-center gap-2 rounded-2xl bg-zinc-900 border border-zinc-700 hover:bg-zinc-800 text-white font-black text-base px-6 h-14 transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
-            >
-              <span>📺 함께 플레이하기 (멀티모드)</span>
-            </button>
-
-            <Link
-              href="/packs"
-              className="w-full flex items-center justify-center gap-2 rounded-2xl bg-zinc-900/75 border border-purple-500/35 hover:border-purple-400/70 hover:bg-purple-500/10 text-neutral-100 font-black text-sm px-6 h-12 transition-all hover:scale-[1.01] active:scale-[0.99] cursor-pointer"
-            >
-              <Sparkles className="w-4 h-4 text-purple-400" />
-              <span>나만의 밸런스질문 팩 만들기 · 둘러보기</span>
-              <span className="ml-0.5 px-1.5 py-0.5 rounded-md bg-purple-500/15 border border-purple-500/30 text-purple-300 text-[10px] font-black">
-                NEW
-              </span>
-            </Link>
           </motion.div>
 
-          <motion.p 
-            initial={{ opacity: 0, y: 15 }}
+          <motion.p
+            initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.25 }}
-            className="text-xs md:text-sm text-neutral-400 max-w-lg mx-auto leading-relaxed pt-2"
+            transition={{ delay: 0.2 }}
+            className="text-xs md:text-sm text-neutral-400 max-w-lg mx-auto leading-relaxed pt-1"
           >
-            1,000개가 넘는 기상천외한 질문들로 당신의 무의식을 들여다보세요.{"\n"}
-            성별, 연령대별 실시간 통계 분석을 통해 타인과의 가치관 싱크율을 체크합니다.
+            혼자 푸는 싱글모드부터 치지직·SOOP 채팅 연동, 친구·연인과 함께하는 방 만들기까지 바로 시작해 보세요.
           </motion.p>
-
         </section>
 
-        {/* Vercel Style Spacious Feature Cards */}
-        <section className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
-          
-          <div className="group rounded-3xl border border-zinc-900 bg-zinc-900/10 p-8 space-y-4 hover:border-zinc-800 transition-all duration-300">
-            <div className="h-12 w-12 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400">
-              <RotateCcw className="h-6 w-6" />
-            </div>
-            <h3 className="text-xl font-extrabold text-neutral-100 selection:bg-transparent">
-              중복 문제 없는 100% 릴레이 출제
-            </h3>
-            <p className="text-sm text-neutral-450 leading-relaxed">
-              브라우저의 데이터나 캐시를 삭제하지 않는 한, 언제 접속하셔도 중복 없이 항상 고유의 문제를 끝없이 이어서 풀 수 있습니다.
-            </p>
-          </div>
+        {/* Clear Section Divider */}
+        <div className="relative flex items-center justify-center py-1">
+          <div className="w-full border-t-2 border-zinc-800/80" />
+          <span className="shrink-0 mx-4 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-[11px] font-black text-neutral-400 tracking-wider">
+            COMMUNITY PACKS
+          </span>
+          <div className="w-full border-t-2 border-zinc-800/80" />
+        </div>
 
-          <div className="group rounded-3xl border border-zinc-900 bg-zinc-900/10 p-8 space-y-4 hover:border-zinc-800 transition-all duration-300">
-            <div className="h-12 w-12 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400">
-              <BrainCircuit className="h-6 w-6" />
-            </div>
-            <h3 className="text-xl font-extrabold text-neutral-100">8가지 고유 카테고리 필터링</h3>
-            <p className="text-sm text-neutral-450 leading-relaxed mb-2">
-              전체 혹은 음식, 일상, 스타일, 여가, 관계, 돈, 상상, 그리고 초매운맛 극한 밸런스게임까지. 원하는 카테고리만 쏙 골라 즐길 수 있습니다.
-            </p>
-            {/* Embedded Category Preview Showcase */}
-            <div className="pt-2 rounded-2xl overflow-hidden border border-zinc-850 bg-zinc-950/60 shadow-inner">
-              <img
-                src="/images/previews/category-preview.png"
-                alt="Notion Category Filter Preview"
-                className="w-full h-auto object-cover opacity-95"
-              />
-            </div>
-          </div>
-
-          <div className="group rounded-3xl border border-zinc-900 bg-zinc-900/10 p-8 space-y-4 hover:border-zinc-800 transition-all duration-300">
-            <div className="h-12 w-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
-              <BarChart3 className="h-6 w-6" />
-            </div>
-            <h3 className="text-xl font-extrabold text-neutral-100">성별 및 연령대 통계 시각화</h3>
-            <p className="text-sm text-neutral-450 leading-relaxed mb-2">
-              내가 투표한 즉시 다른 플레이어들의 선호도가 실시간으로 통계 차트에 집계됩니다. 나와 동일한 성별, 연령대가 나열된 고도화된 타겟 분석을 만나보세요.
-            </p>
-            {/* Embedded Stats Graphic Showcase */}
-            <div className="pt-2 flex flex-col gap-3 rounded-2xl overflow-hidden shadow-inner">
-              <div className="border border-zinc-850 bg-zinc-950/60 rounded-2xl overflow-hidden">
-                <img
-                  src="/images/previews/stats-preview.png"
-                  alt="Realtime Stats Preview 1"
-                  className="w-full h-auto object-cover opacity-95"
-                />
-              </div>
-              <div className="border border-zinc-850 bg-zinc-950/60 rounded-2xl overflow-hidden">
-                <img
-                  src="/images/previews/stats-preview2.png"
-                  alt="Realtime Stats Preview 2"
-                  className="w-full h-auto object-cover opacity-95"
-                />
-              </div>
-            </div>
-          </div>
-
-          <div className="group rounded-3xl border border-zinc-900 bg-zinc-900/10 p-8 space-y-4 hover:border-zinc-800 transition-all duration-300">
-            <div className="h-12 w-12 rounded-2xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400">
-              <Tv className="h-6 w-6" />
-            </div>
-            <h3 className="text-xl font-extrabold text-neutral-100">함께 플레이하기</h3>
-            <p className="text-sm text-neutral-450 leading-relaxed">
-              치지직/SOOP 방송 채팅 연동 및 PIN 코드 접속 등 다양한 시참 방식을 제공합니다. 시청자가 스트리머의 취향과 선택을 예측하거나, 본인의 의견으로 투표하여 소통의 즐거움을 극대화해보세요. (OBS 오버레이 제공(선택사항))
-            </p>
-            
-            {/* Embedded Multi-mode Preview Showcase */}
-            <div className="pt-2 flex flex-col gap-3 rounded-2xl overflow-hidden shadow-inner">
-              <div className="border border-zinc-850 bg-zinc-950/60 rounded-2xl overflow-hidden">
-                <img
-                  src="/images/previews/multi1.png"
-                  alt="Multi Mode Preview 1"
-                  className="w-full h-auto object-cover opacity-95"
-                />
-              </div>
-              <div className="border border-zinc-850 bg-zinc-950/60 rounded-2xl overflow-hidden">
-                <img
-                  src="/images/previews/multi2.png"
-                  alt="Multi Mode Preview 2"
-                  className="w-full h-auto object-cover opacity-95"
-                />
-              </div>
-            </div>
-          </div>
-
-          <div className="group rounded-3xl border border-zinc-900 bg-zinc-900/10 p-8 space-y-4 hover:border-zinc-800 transition-all duration-300">
-            <div className="h-12 w-12 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
-              <Users className="h-6 w-6" />
-            </div>
-            <h3 className="text-xl font-extrabold text-neutral-100">로그인 없는 제로-레이턴시 이용</h3>
-            <p className="text-sm text-neutral-450 leading-relaxed">
-              불필요한 가입 절차 없이, 익명으로 누르면 즉시 연산 데이터베이스에 기록됩니다. 로컬 스토리지에 자동 저장되므로 중복 투표 없이 쾌적한 밸런싱이 가능합니다.
-            </p>
-          </div>
-          
-        </section>
-
-        {/* Informative Blog Content Block */}
-        <section className="border-t border-zinc-900/60 pt-16 max-w-xl mx-auto space-y-8 text-neutral-350 leading-relaxed text-sm md:text-base">
-          <p className="indent-4 leading-loose">
-            현대인들은 매일 수많은 선택의 기로에 놓입니다. 오늘 점심은 무엇을 먹을지, 주말에는 어떤 여가를 즐길지, 혹은 인간관계에서 어떤 태도를 취해야 할지 끊임없이 고민합니다. <strong className="text-neutral-100 font-extrabold">'기로'</strong>는 이러한 일상적인 고민부터, 상상조차 하기 싫은 극한의 딜레마까지 1,000개가 넘는 다양한 밸런스 게임을 통해 여러분의 숨겨진 심리와 취향을 탐구하는 종합 엔터테인먼트 플랫폼입니다.
-          </p>
-
-          <div className="rounded-2xl border border-zinc-900 bg-zinc-900/20 p-6 space-y-3">
-            <h4 className="text-base font-extrabold text-neutral-200 flex items-center gap-2">
-              <Trophy className="h-4.5 w-4.5 text-amber-500" /> 왜 사람들은 밸런스 게임에 열광할까요?
-            </h4>
-            <p className="text-xs md:text-sm text-neutral-400 leading-relaxed">
-              심리학적으로 인간은 극단적인 상황에 놓였을 때 비로소 자신의 본성과 우선순위를 가장 명확하게 드러낸다고 합니다. 일시불로 보상을 받을지 혹은 연금 형태로 장기적 가치를 추구할지와 같은 미세한 질문들조차 사람의 기본 철학과 자아를 투영합니다. 나와 같은 선택을 한 사람이 얼마나 되는지 확인하며 깊은 공감대를 형성해 보세요.
-            </p>
-          </div>
-
-          {/* New AdSense Text-Rich Section: Playkiro Guide */}
-          <div className="rounded-2xl border border-zinc-900 bg-blue-500/5 p-6 space-y-4 mt-8">
-            <h4 className="text-lg font-extrabold text-blue-400 flex items-center gap-2 border-b border-zinc-900/50 pb-3">
-              <BookOpen className="h-5 w-5" /> 기로(Playkiro) 상세 이용 가이드
-            </h4>
-            <div className="space-y-4 text-xs md:text-sm text-neutral-400 leading-loose">
-              <div>
-                <strong className="text-neutral-200 text-sm">1. 싱글 모드 (솔로 플레이)</strong>
-                <p>가장 대중적이고 기본적인 밸런스 게임 모드입니다. 주제 카테고리를 선택하면 무작위로 극한의 딜레마 질문들이 쏟아집니다. 주어진 두 가지 선택지 중 당신의 직감에 가장 가까운 답변을 클릭해 보세요. 선택 즉시 다른 사람들이 어떤 답변을 주로 선택했는지 확인할 수 있으며, 연령대별 및 성별 투표 통계가 화려한 시각적 그래프로 즉각 제공됩니다. 다른 사람들과 나의 가치관이 어떻게 다르고 비슷한지 분석해보며 통찰을 얻을 수 있습니다.</p>
-              </div>
-              <div>
-                <strong className="text-neutral-200 text-sm">2. 방 만들기 모드 (시참형 멀티플레이)</strong>
-                <p>스트리머나 모임의 호스트가 '방 만들기' 버튼을 눌러 고유의 PIN 코드를 생성하는 방식입니다. 시청자들이나 지인들은 별도의 앱 설치나 로그인 없이 스마트폰 브라우저를 통해 기로 웹사이트에 접속한 뒤, 호스트가 공유한 PIN 코드를 입력하기만 하면 즉시 플레이 룸에 입장할 수 있습니다. 호스트가 질문을 넘길 때마다 참가자들의 화면도 자동으로 동기화되며, 모두가 실시간으로 투표한 결과가 호스트의 메인 화면에 취합되어 득점 게이지 형태로 역동적인 연출과 함께 공개됩니다.</p>
-              </div>
-              <div>
-                <strong className="text-neutral-200 text-sm">3. 채팅 연동 모드 (치지직/SOOP 시참)</strong>
-                <p>방송을 진행하는 스트리머를 위한 최적의 라이브 연동 솔루션입니다. 본인의 치지직 채널 ID 또는 SOOP(구 아프리카TV) 방송 주소를 입력하면, 기로 서버가 방송의 실시간 채팅창을 즉시 분석하여 연동합니다. 시청자들이 채팅창에 `!1` 혹은 `!2` 라고 타이핑하는 것만으로 투표가 집계되며, 이 모든 과정은 방송 화면에 띄울 수 있는 깔끔한 OBS 전용 오버레이 투명 배경 화면을 통해 생생하게 송출됩니다. 번거로운 코드 공유조차 필요 없는 혁신적인 양방향 소통을 경험하세요.</p>
-              </div>
-            </div>
-          </div>
-
-          {/* New AdSense Text-Rich Section: FAQ */}
-          <div className="rounded-2xl border border-zinc-900 bg-zinc-900/30 p-6 space-y-4 mt-8">
-            <h4 className="text-lg font-extrabold text-neutral-200 flex items-center gap-2 border-b border-zinc-900/50 pb-3">
-              <HelpCircle className="h-5 w-5 text-emerald-400" /> 자주 묻는 질문 (FAQ)
-            </h4>
-            <div className="space-y-4 text-xs md:text-sm text-neutral-400 leading-relaxed">
-              <div className="space-y-1">
-                <strong className="text-neutral-300 block">Q. 밸런스 게임 질문들은 어떻게 선정되나요?</strong>
-                <p>기로의 데이터베이스에 등록된 1,000개 이상의 질문들은 대중성, 토론의 여지, 그리고 유머러스함을 기준으로 엄격하게 선정됩니다. 전문 큐레이터들이 지속적으로 트렌드를 분석하여 매주 새로운 질문들을 업데이트하며, 유저들이 너무 불쾌감을 느끼거나 과도하게 논란이 될 수 있는 주제들은 내부 가이드라인에 따라 필터링하고 있습니다.</p>
-              </div>
-              <div className="space-y-1">
-                <strong className="text-neutral-300 block">Q. 내 투표 결과는 어떻게 저장되며, 개인정보를 수집하나요?</strong>
-                <p>기로는 회원가입이 완전히 생략된 익명 플랫폼입니다. 싱글 모드 투표 시 사용자의 브라우저 내 '로컬 스토리지(Local Storage)' 기술을 활용하여 참여 내역만을 기록하므로 중복 투표를 방지합니다. 사용자가 선택적으로 입력하는 연령대나 성별 정보 외에 어떠한 개인 식별 정보(전화번호, 이메일, IP 등)도 수집, 추적 혹은 판매하지 않으므로 안심하고 이용하실 수 있습니다.</p>
-              </div>
-              <div className="space-y-1">
-                <strong className="text-neutral-300 block">Q. 스트리머 모드에서 치지직과 SOOP 채팅을 동시에 연동할 수 있나요?</strong>
-                <p>네, 가능합니다! 기로의 다중 플랫폼 연동 기술을 통해 치지직(Chzzk)과 SOOP(구 아프리카TV) 양쪽의 플랫폼 정보를 동시에 입력하고 게임을 시작할 수 있습니다. 두 플랫폼에서 올라오는 시청자들의 실시간 투표 데이터를 하나의 통계 게이지바로 실시간 합산하여 보여주므로, 동시 송출을 진행하는 스트리머 분들도 시청자들의 여론을 한 번에 모아서 확인하실 수 있습니다.</p>
-              </div>
-              <div className="space-y-1">
-                <strong className="text-neutral-300 block">Q. 결과 통계에서 성별과 연령대 데이터는 왜 중요한가요?</strong>
-                <p>단순히 A와 B의 비율을 아는 것을 넘어, 남녀 간의 가치관 차이나 10대와 30대의 관점 차이를 확인하는 것은 밸런스 게임의 묘미를 극대화합니다. '사랑 vs 우정' 이나 '돈 vs 명예' 같은 클래식한 질문들에서도 연령대별로 뚜렷하게 나뉘는 사회학적 선호도를 시각화된 차트로 분석해 보면 매우 흥미로운 대화 주제가 탄생합니다.</p>
-              </div>
-              <div className="space-y-1">
-                <strong className="text-neutral-300 block">Q. 모바일 기기로도 쾌적하게 플레이가 가능한가요?</strong>
-                <p>물론입니다. 기로는 모바일 우선(Mobile-First) 디자인 원칙을 적용하여 개발되었습니다. 반응형 웹 기술이 적용되어 있어 아이폰, 안드로이드 스마트폰, 태블릿 등 어떤 디바이스 환경에서도 PC와 동일한 부드러운 애니메이션 효과와 직관적인 터치 인터페이스를 제공받으실 수 있습니다.</p>
-              </div>
-            </div>
-          </div>
-
-        </section>
-
+        {/* User-Created Balance Game Packs Feed (16 per batch + Load More) */}
+        <UserPacksSection />
       </main>
 
       {/* Global Trust Footer */}
@@ -419,7 +233,21 @@ function LandingClient() {
         )}
       </AnimatePresence>
 
-      {/* Play Mode Selection Modal */}
+      {/* Basic Mode Branch Modal (Single vs Multi) */}
+      <BasicPlayModeModal
+        isOpen={showBasicPlayModal}
+        onClose={() => setShowBasicPlayModal(false)}
+        onSelectSingle={() => {
+          setShowBasicPlayModal(false);
+          setShowSingleCategoryModal(true);
+        }}
+        onSelectMulti={() => {
+          setShowBasicPlayModal(false);
+          setShowPlayModeModal(true);
+        }}
+      />
+
+      {/* Play Mode Selection Modal (Chat Integration vs Room PIN) */}
       <PlayModeSelectModal
         isOpen={showPlayModeModal}
         onClose={() => setShowPlayModeModal(false)}
