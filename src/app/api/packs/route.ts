@@ -130,7 +130,7 @@ export async function POST(request: Request) {
     if (insertError || !inserted) {
       console.error('Failed to insert custom pack:', insertError);
       return NextResponse.json(
-        { error: insertError?.message || '기로 팩 저장에 실패했습니다.' },
+        { error: insertError?.message || '밸런스질문 팩 저장에 실패했습니다.' },
         { status: 500 }
       );
     }

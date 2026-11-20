@@ -213,23 +213,10 @@ function LandingClient() {
               className="w-full flex items-center justify-center gap-2 rounded-2xl bg-zinc-900/75 border border-purple-500/35 hover:border-purple-400/70 hover:bg-purple-500/10 text-neutral-100 font-black text-sm px-6 h-12 transition-all hover:scale-[1.01] active:scale-[0.99] cursor-pointer"
             >
               <Sparkles className="w-4 h-4 text-purple-400" />
-              <span>나만의 기로 팩 만들기 · 둘러보기</span>
+              <span>나만의 밸런스질문 팩 만들기 · 둘러보기</span>
               <span className="ml-0.5 px-1.5 py-0.5 rounded-md bg-purple-500/15 border border-purple-500/30 text-purple-300 text-[10px] font-black">
                 NEW
               </span>
-            </Link>
-
-            <Link
-              href="/suggest"
-              className="w-full flex items-center justify-center gap-2 rounded-2xl bg-zinc-900/60 border border-zinc-700/50 hover:border-amber-500/60 hover:text-amber-400 hover:bg-amber-500/10 text-neutral-200 font-extrabold text-sm px-6 h-12 transition-all hover:scale-[1.01] active:scale-[0.99] cursor-pointer mt-1"
-            >
-              <Lightbulb className="w-4 h-4 text-amber-500" />
-              <span>나만의 기발한 밸런스게임 문제 제안하기</span>
-              {adoptedCount > 0 && (
-                <span className="ml-1 px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs shadow-[0_0_10px_rgba(245,158,11,0.1)]">
-                  채택 {adoptedCount}개
-                </span>
-              )}
             </Link>
           </motion.div>
 

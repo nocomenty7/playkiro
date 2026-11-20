@@ -80,7 +80,7 @@ function PackCreateContent() {
         const res = await fetch(`/api/packs/${encodeURIComponent(editCode)}`);
         const data = await res.json();
         if (!res.ok || !data.success || !data.pack) {
-          throw new Error(data.error || '수정할 기로 팩을 불러올 수 없습니다.');
+          throw new Error(data.error || '수정할 밸런스질문 팩을 불러올 수 없습니다.');
         }
 
         const p = data.pack;
@@ -119,7 +119,7 @@ function PackCreateContent() {
 
   const handleRemoveQuestion = (localId: string) => {
     if (questions.length <= MIN_PACK_QUESTIONS) {
-      alert(`기로 팩은 최소 ${MIN_PACK_QUESTIONS}개 이상의 질문이 필요합니다.`);
+      alert(`밸런스질문 팩은 최소 ${MIN_PACK_QUESTIONS}개 이상의 질문이 필요합니다.`);
       return;
     }
     setQuestions((prev) => prev.filter((q) => q.localId !== localId));
@@ -205,7 +205,7 @@ function PackCreateContent() {
 
       const data = await res.json();
       if (!res.ok || !data.success) {
-        throw new Error(data.error || '기로 팩 저장에 실패했습니다.');
+        throw new Error(data.error || '밸런스질문 팩 저장에 실패했습니다.');
       }
 
       if (editCode) {
@@ -260,7 +260,7 @@ function PackCreateContent() {
 
             <div className="space-y-1.5">
               <h1 className="text-xl md:text-2xl font-black text-neutral-100">
-                {editCode ? '기로 팩이 수정되었어요!' : '나만의 기로 팩 완성!'}
+                {editCode ? '밸런스질문 팩이 수정되었어요!' : '나만의 밸런스질문 팩 완성!'}
               </h1>
               <p className="text-xs md:text-sm text-neutral-400 break-keep leading-relaxed">
                 아래 링크를 친구·연인·스트리머 팬카페에 공유하면 누구나 바로 플레이하거나 채팅 연동 방송을 시작할 수 있어요.
@@ -287,14 +287,14 @@ function PackCreateContent() {
                 href={`/packs/${createdCode}`}
                 className="w-full py-3.5 rounded-xl bg-brand-yellow hover:bg-[#e0b240] text-zinc-950 font-black text-sm flex items-center justify-center gap-1.5 transition"
               >
-                <span>만든 기로 팩 열기</span>
+                <span>만든 밸런스질문 팩 열기</span>
                 <ExternalLink className="w-4 h-4" />
               </Link>
               <Link
                 href="/packs"
                 className="w-full py-3 rounded-xl bg-zinc-800/80 hover:bg-zinc-800 border border-zinc-700/60 text-neutral-200 font-bold text-xs transition"
               >
-                공개 기로 팩 목록으로 이동
+                공개 밸런스질문 팩 목록으로 이동
               </Link>
             </div>
           </motion.div>
@@ -330,7 +330,7 @@ function PackCreateContent() {
 
           <div className="space-y-1.5">
             <h1 className="text-2xl md:text-3xl font-black tracking-tight text-neutral-100">
-              {editCode ? '기로 팩 수정하기' : '나만의 기로 팩 만들기'}
+              {editCode ? '밸런스질문 팩 수정하기' : '나만의 밸런스질문 팩 만들기'}
             </h1>
             <p className="text-xs md:text-sm text-neutral-400 leading-relaxed break-keep">
               회원가입 없이 5~30개의 밸런스게임 질문을 묶어 나만의 팩을 만들어보세요. 여기서 만든 질문은 공식 문제 풀에 섞이지 않고, 이 팩 전용으로만 플레이됩니다.
@@ -470,7 +470,7 @@ function PackCreateContent() {
                           전체 공개 (추천)
                         </div>
                         <p className="text-[11px] text-neutral-400 mt-0.5 leading-snug">
-                          공개 기로 팩 목록에 등록되어 누구나 검색하고 플레이할 수 있어요.
+                          공개 밸런스질문 팩 목록에 등록되어 누구나 검색하고 플레이할 수 있어요.
                         </p>
                       </div>
                     </button>
@@ -632,7 +632,7 @@ function PackCreateContent() {
                 ) : (
                   <>
                     <Sparkles className="h-5 w-5" />
-                    <span>{editCode ? '기로 팩 수정 완료하기' : '나만의 기로 팩 만들기 완료'}</span>
+                    <span>{editCode ? '밸런스질문 팩 수정 완료하기' : '나만의 밸런스질문 팩 만들기 완료'}</span>
                   </>
                 )}
               </button>

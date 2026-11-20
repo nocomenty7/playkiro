@@ -46,7 +46,7 @@ export async function POST(request: Request) {
         .maybeSingle();
 
       if (packErr || !pack || !Array.isArray(pack.questions) || pack.questions.length === 0) {
-        return NextResponse.json({ error: '존재하지 않거나 질문이 없는 기로 팩입니다.' }, { status: 404 });
+        return NextResponse.json({ error: '존재하지 않거나 질문이 없는 밸런스질문 팩입니다.' }, { status: 404 });
       }
 
       const formatted = pack.questions.map((q: any, idx: number) => ({

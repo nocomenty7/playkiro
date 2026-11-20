@@ -99,7 +99,7 @@ export default function Navigation({
                     onClick={() => setShowDrawer(false)}
                     className="flex items-center justify-between gap-3 rounded-2xl bg-zinc-900/50 hover:bg-zinc-900 border border-zinc-900 p-3 text-xs font-extrabold text-neutral-250 transition-all hover:border-zinc-800"
                   >
-                    <span>나만의 기로 팩</span>
+                    <span>나만의 밸런스질문 팩</span>
                     <span className="px-1.5 py-0.5 rounded-md bg-purple-500/15 border border-purple-500/30 text-purple-400 text-[10px] font-black">
                       NEW
                     </span>

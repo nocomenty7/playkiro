@@ -87,7 +87,7 @@ export default function PacksDirectoryPage() {
               <Sparkles className="h-3.5 w-3.5" /> 로그인 없이 5분 만에 제작 · 공유
             </div>
             <h1 className="text-2xl md:text-3xl font-black tracking-tight text-neutral-100">
-              나만의 <span className="text-brand-yellow">기로 팩</span> 둘러보기
+              나만의 <span className="text-brand-yellow">밸런스질문 팩</span> 둘러보기
             </h1>
             <p className="text-xs md:text-sm text-neutral-400 leading-relaxed break-keep max-w-xl">
               유저들이 직접 만든 테마별 밸런스게임 팩을 혼자 풀거나, 스트리머 채팅 연동·방 만들기로 함께 즐겨보세요.
@@ -99,7 +99,7 @@ export default function PacksDirectoryPage() {
             className="shrink-0 inline-flex items-center justify-center gap-2 rounded-2xl bg-brand-yellow hover:bg-[#e0b240] text-zinc-950 font-black text-sm px-5 h-12 shadow-[0_0_25px_rgba(245,195,82,0.25)] transition-all hover:scale-[1.02] active:scale-[0.98]"
           >
             <Plus className="h-4 w-4 stroke-[3]" />
-            <span>새 기로 팩 만들기</span>
+            <span>새 밸런스질문 팩 만들기</span>
           </Link>
         </section>
 
@@ -186,7 +186,7 @@ export default function PacksDirectoryPage() {
         {!loading && !errorMsg && (
           <div className="flex items-center justify-between text-xs text-neutral-500 font-bold">
             <span>
-              공개된 기로 팩 <strong className="text-neutral-200">{total}</strong>개
+              공개된 밸런스질문 팩 <strong className="text-neutral-200">{total}</strong>개
             </span>
             <span>카드 클릭 시 바로 플레이 또는 방송 연동 가능</span>
           </div>
@@ -196,7 +196,7 @@ export default function PacksDirectoryPage() {
         {loading ? (
           <div className="flex flex-col items-center justify-center py-20 gap-3 text-neutral-400">
             <Loader2 className="h-7 w-7 animate-spin text-amber-400" />
-            <span className="text-xs font-bold">기로 팩을 불러오는 중...</span>
+            <span className="text-xs font-bold">밸런스질문 팩을 불러오는 중...</span>
           </div>
         ) : errorMsg ? (
           <div className="rounded-3xl border border-zinc-800 bg-zinc-900/40 p-10 text-center space-y-3">
@@ -217,8 +217,8 @@ export default function PacksDirectoryPage() {
             <div className="space-y-1">
               <h2 className="text-base font-black text-neutral-100">
                 {searchQuery || selectedCategory !== '전체'
-                  ? '조건에 맞는 기로 팩이 없어요'
-                  : '아직 공개된 기로 팩이 없어요'}
+                  ? '조건에 맞는 밸런스질문 팩이 없어요'
+                  : '아직 공개된 밸런스질문 팩이 없어요'}
               </h2>
               <p className="text-xs text-neutral-400">
                 첫 번째로 나만의 기발한 밸런스게임 팩을 만들어보세요! (5~30문제)
@@ -229,7 +229,7 @@ export default function PacksDirectoryPage() {
               className="inline-flex items-center gap-1.5 rounded-xl bg-brand-yellow hover:bg-[#e0b240] text-zinc-950 font-black text-xs px-5 py-3 transition-all"
             >
               <Plus className="h-4 w-4 stroke-[3]" />
-              <span>첫 기로 팩 만들기</span>
+              <span>첫 밸런스질문 팩 만들기</span>
             </Link>
           </div>
         ) : (

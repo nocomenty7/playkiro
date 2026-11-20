@@ -21,7 +21,7 @@ export async function GET(
       .maybeSingle();
 
     if (error || !data) {
-      return NextResponse.json({ error: '존재하지 않거나 삭제된 기로 팩입니다.' }, { status: 404 });
+      return NextResponse.json({ error: '존재하지 않거나 삭제된 밸런스질문 팩입니다.' }, { status: 404 });
     }
 
     return NextResponse.json({ success: true, pack: data });
@@ -51,7 +51,7 @@ export async function PATCH(
       .maybeSingle();
 
     if (fetchErr || !existing) {
-      return NextResponse.json({ error: '존재하지 않는 기로 팩입니다.' }, { status: 404 });
+      return NextResponse.json({ error: '존재하지 않는 밸런스질문 팩입니다.' }, { status: 404 });
     }
 
     if (!verifyPackPassword(existing.code, password, existing.password_hash)) {
@@ -120,7 +120,7 @@ export async function DELETE(
       .maybeSingle();
 
     if (fetchErr || !existing) {
-      return NextResponse.json({ error: '존재하지 않는 기로 팩입니다.' }, { status: 404 });
+      return NextResponse.json({ error: '존재하지 않는 밸런스질문 팩입니다.' }, { status: 404 });
     }
 
     if (!verifyPackPassword(existing.code, password, existing.password_hash)) {

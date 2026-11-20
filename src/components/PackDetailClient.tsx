@@ -309,7 +309,7 @@ export default function PackDetailClient({ pack }: PackDetailClientProps) {
         if (!res.ok || !data.success) {
           throw new Error(data.error || '삭제에 실패했습니다.');
         }
-        alert('기로 팩이 삭제되었습니다.');
+        alert('밸런스질문 팩이 삭제되었습니다.');
         router.push('/packs');
       }
     } catch (err: any) {
@@ -731,7 +731,7 @@ export default function PackDetailClient({ pack }: PackDetailClientProps) {
               </button>
 
               <div className="space-y-1 pr-8">
-                <span className="text-[11px] font-black text-amber-400">나만의 기로 팩 · 방 만들기</span>
+                <span className="text-[11px] font-black text-amber-400">나만의 밸런스질문 팩 · 방 만들기</span>
                 <h3 className="text-lg font-black text-white leading-snug break-keep">{pack.title}</h3>
                 <p className="text-xs text-neutral-400">
                   이 팩의 {pack.questions.length}문제로 친구·연인·게스트가 PIN 코드로 입장하는 방을 개설합니다.
@@ -819,7 +819,7 @@ export default function PackDetailClient({ pack }: PackDetailClientProps) {
               </button>
 
               <div className="space-y-1 pr-8">
-                <span className="text-[11px] font-black text-purple-400">나만의 기로 팩 · 채팅 연동 방송</span>
+                <span className="text-[11px] font-black text-purple-400">나만의 밸런스질문 팩 · 채팅 연동 방송</span>
                 <h3 className="text-lg font-black text-white leading-snug break-keep">{pack.title}</h3>
                 <p className="text-xs text-neutral-400">
                   이 팩의 {pack.questions.length}문제로 치지직/SOOP 채팅 투표(!1, !2)를 바로 진행합니다.
@@ -967,7 +967,7 @@ export default function PackDetailClient({ pack }: PackDetailClientProps) {
                 </div>
                 <div>
                   <h3 className="text-base font-black text-white">
-                    {manageModal.mode === 'edit' ? '기로 팩 수정하기' : '기로 팩 삭제하기'}
+                    {manageModal.mode === 'edit' ? '밸런스질문 팩 수정하기' : '밸런스질문 팩 삭제하기'}
                   </h3>
                   <p className="text-xs text-neutral-400">
                     생성 시 설정한 숫자 4자리 비밀번호를 입력해 주세요.
