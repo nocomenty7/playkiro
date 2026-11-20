@@ -5,6 +5,11 @@ export interface CustomPackQuestion {
   option_b: string;
 }
 
+export interface CustomPackQuestionStat {
+  a: number;
+  b: number;
+}
+
 export interface CustomPack {
   id: string;
   code: string;
@@ -16,6 +21,7 @@ export interface CustomPack {
   questions: CustomPackQuestion[];
   question_count: number;
   play_count: number;
+  question_stats?: Record<string, CustomPackQuestionStat>;
   created_at: string;
   updated_at?: string;
 }

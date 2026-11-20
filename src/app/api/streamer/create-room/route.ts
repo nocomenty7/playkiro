@@ -55,6 +55,7 @@ export async function POST(request: Request) {
       const formatted = pack.questions.map((q: any) => ({
         // rooms.question_ids is UUID[], so ensure every custom question ID is a valid UUID
         id: typeof q.id === 'string' && UUID_REGEX.test(q.id) ? q.id : crypto.randomUUID(),
+        pack_question_id: q.id,
         title: q.title || '둘 중 하나를 선택한다면?',
         option_a: q.option_a,
         option_b: q.option_b,

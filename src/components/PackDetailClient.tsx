@@ -32,9 +32,16 @@ import Footer from '@/components/Footer';
 import ShareSheet from '@/components/ShareSheet';
 import {
   CustomPack,
+  CustomPackQuestionStat,
   getPackCategoryBadgeClass,
   formatPackDate,
 } from '@/lib/customPacks';
+
+const formatVoteCount = (count: number) => {
+  if (count >= 10000) return `${(count / 10000).toFixed(1)}만`;
+  if (count >= 1000) return `${(count / 1000).toFixed(1)}천`;
+  return count.toLocaleString();
+};
 
 interface PackDetailClientProps {
   pack: CustomPack;
@@ -57,6 +64,9 @@ export default function PackDetailClient({ pack }: PackDetailClientProps) {
   const [singleFinished, setSingleFinished] = useState(false);
   const [justPicked, setJustPicked] = useState<'A' | 'B' | null>(null);
   const [showShareSheet, setShowShareSheet] = useState(false);
+  const [questionStats, setQuestionStats] = useState<Record<string, CustomPackQuestionStat>>(
+    () => pack.question_stats || {}
+  );
 
   // PIN Room modal state
   const [showPinModal, setShowPinModal] = useState(false);
@@ -115,7 +125,51 @@ export default function PackDetailClient({ pack }: PackDetailClientProps) {
   };
 
   const handleSinglePick = (choice: 'A' | 'B') => {
+    const q = pack.questions[singleIndex];
+    if (!q || justPicked) return;
+
     setJustPicked(choice);
+
+    // Prevent duplicate counting per browser while still allowing full replay animation
+    const storageKey = `kiro_pack_voted_${pack.code}`;
+    let alreadyVoted = false;
+    try {
+      const votedMap = JSON.parse(localStorage.getItem(storageKey) || '{}');
+      if (votedMap[q.id]) {
+        alreadyVoted = true;
+      } else {
+        votedMap[q.id] = choice;
+        localStorage.setItem(storageKey, JSON.stringify(votedMap));
+      }
+    } catch {}
+
+    if (!alreadyVoted) {
+      // Optimistic +1 for instant 0ms dopamine animation
+      setQuestionStats((prev) => {
+        const cur = prev[q.id] || { a: 0, b: 0 };
+        return {
+          ...prev,
+          [q.id]: {
+            a: (cur.a || 0) + (choice === 'A' ? 1 : 0),
+            b: (cur.b || 0) + (choice === 'B' ? 1 : 0),
+          },
+        };
+      });
+
+      // Persist atomically to DB & sync live counts from other players
+      fetch(`/api/packs/${encodeURIComponent(pack.code)}/vote`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ questionId: q.id, option: choice }),
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data?.success && data.stats && typeof data.stats === 'object') {
+            setQuestionStats(data.stats);
+          }
+        })
+        .catch(() => {});
+    }
   };
 
   const handleSingleNext = () => {
@@ -337,12 +391,22 @@ export default function PackDetailClient({ pack }: PackDetailClientProps) {
   const hasPickedCurrent = justPicked !== null;
   const isLastQuestion = singleIndex + 1 >= pack.questions.length;
 
-  // Official Single Mode UI (identical layout & styling to VoteClient) while solving pack questions
+  // Official Single Mode UI (identical layout, dynamic bar & live stats to VoteClient) while solving pack questions
   if (singleActive && !singleFinished && currentQ) {
     const shareUrl =
       typeof window !== 'undefined'
         ? `${window.location.origin}/packs/${pack.code}`
         : `https://playkiro.com/packs/${pack.code}`;
+
+    const qStat = questionStats[currentQ.id] || { a: 0, b: 0 };
+    const votesA = qStat.a || 0;
+    const votesB = qStat.b || 0;
+    const totalVotes = votesA + votesB;
+    const percentA = totalVotes > 0 ? Number(((votesA / totalVotes) * 100).toFixed(1)) : 50.0;
+    const percentB = totalVotes > 0 ? Number((100 - percentA).toFixed(1)) : 50.0;
+    const displayGrowA =
+      totalVotes > 0 ? Math.max(30, Math.min(70, Math.round((votesA / totalVotes) * 100))) : 50;
+    const displayGrowB = 100 - displayGrowA;
 
     return (
       <div className="relative flex h-[100dvh] w-full max-w-md md:max-w-2xl lg:max-w-3xl mx-auto flex-col justify-between overflow-hidden bg-[#080911] bg-[radial-gradient(circle_at_top,_rgba(99,102,241,0.07),_transparent_60%)] text-white font-sans select-none">
@@ -373,6 +437,11 @@ export default function PackDetailClient({ pack }: PackDetailClientProps) {
                 <span className="inline-flex items-center rounded-full bg-amber-500/10 border border-amber-500/30 px-2.5 py-1 text-xs font-black text-amber-400 tracking-wide">
                   {singleIndex + 1} / {pack.questions.length}
                 </span>
+                {totalVotes < 10 && (
+                  <span className="inline-flex items-center rounded-full bg-yellow-500/10 border border-yellow-500/30 px-2 py-0.5 text-[9px] font-black text-yellow-500 tracking-wider uppercase animate-pulse">
+                    NEW
+                  </span>
+                )}
                 <span className="hidden sm:inline-flex items-center rounded-full bg-zinc-900/80 border border-zinc-800 px-2.5 py-1 text-xs font-extrabold text-neutral-400 truncate max-w-[160px]">
                   제작: {pack.author_nickname}
                 </span>
@@ -406,46 +475,67 @@ export default function PackDetailClient({ pack }: PackDetailClientProps) {
               </h1>
             </div>
 
-            {/* Voting Stack Container (Exact VoteClient Vertical A/B Stack) */}
+            {/* Voting Stack Container (Exact VoteClient Vertical A/B Stack with Live Stats) */}
             <div className="flex-grow flex flex-col gap-3 mt-3.5 min-h-0 relative">
               {/* Card Option A (Top) */}
               <motion.button
                 key={`${currentQ.id}-A`}
                 type="button"
                 layout
-                transition={{ type: 'spring', damping: 14, stiffness: 120 }}
-                style={{ flexGrow: hasPickedCurrent ? (justPicked === 'A' ? 58 : 42) : 50 }}
-                whileTap={{ scale: 0.98 }}
+                transition={{ type: 'spring', damping: 11, stiffness: 90 }}
+                style={{ flexGrow: hasPickedCurrent ? displayGrowA : 50 }}
+                whileTap={{ scale: hasPickedCurrent ? 1 : 0.98 }}
+                disabled={hasPickedCurrent}
                 onClick={() => handleSinglePick('A')}
-                className={`relative flex w-full flex-col items-center justify-center overflow-hidden rounded-2xl py-3.5 px-4 transition-all duration-300 text-left border cursor-pointer ${
+                className={`relative flex w-full flex-col items-center justify-center overflow-hidden rounded-2xl py-3.5 px-4 transition-all duration-300 text-left border ${
                   hasPickedCurrent
                     ? justPicked === 'A'
                       ? 'bg-zinc-900/90 border-amber-500/50 shadow-[0_0_15px_rgba(245,158,11,0.15)]'
-                      : 'bg-zinc-950/40 border-zinc-900/80 opacity-60 hover:opacity-85'
-                    : 'bg-zinc-900/50 border-zinc-800/80 hover:bg-zinc-900/80 hover:border-zinc-700'
+                      : 'bg-zinc-950/40 border-zinc-900/80 opacity-60'
+                    : 'bg-zinc-900/50 border-zinc-800/80 hover:bg-zinc-900/80 hover:border-zinc-700 cursor-pointer'
                 }`}
               >
-                {justPicked === 'A' && (
-                  <div className="absolute bottom-3 right-3 z-20 flex items-center gap-1 rounded-full bg-amber-500 px-2.5 py-0.5 text-[10px] font-black text-zinc-950 shadow-md">
+                {hasPickedCurrent && justPicked === 'A' && (
+                  <div className="absolute bottom-3 right-3 z-20 flex items-center gap-1 rounded-full bg-amber-500 px-2 py-0.5 text-[9px] font-black text-zinc-950 shadow-md">
                     <span>✓</span>
                     <span>선택함</span>
                   </div>
                 )}
 
-                {justPicked === 'A' && (
+                {hasPickedCurrent && (
                   <motion.div
                     initial={{ scaleX: 0 }}
                     animate={{ scaleX: 1 }}
-                    transition={{ duration: 0.4, ease: 'easeOut' }}
-                    className="absolute inset-0 z-0 opacity-10 bg-amber-500"
-                    style={{ width: '100%', transformOrigin: 'left' }}
+                    transition={{ duration: 0.6, ease: 'easeOut' }}
+                    className={`absolute inset-0 z-0 opacity-10 ${
+                      justPicked === 'A' ? 'bg-amber-500' : 'bg-neutral-400'
+                    }`}
+                    style={{ width: `${percentA}%`, transformOrigin: 'left' }}
                   />
                 )}
 
                 <div className="relative z-10 flex flex-col items-center text-center w-full max-w-sm pointer-events-none gap-1.5">
-                  <p className="text-xl md:text-2xl font-kiro leading-[1.15] text-neutral-100 max-h-28 overflow-y-auto no-scrollbar break-keep">
+                  <p className="text-xl md:text-2xl font-kiro leading-[1.15] text-neutral-100 max-h-24 overflow-y-auto no-scrollbar break-keep">
                     {currentQ.option_a}
                   </p>
+
+                  <AnimatePresence>
+                    {hasPickedCurrent && (
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ type: 'spring', damping: 15 }}
+                        className="flex items-baseline justify-center gap-1.5 mt-1"
+                      >
+                        <span className="text-3xl md:text-4xl font-black text-amber-400">
+                          {percentA.toFixed(1)}%
+                        </span>
+                        <span className="text-xs text-neutral-500 font-extrabold">
+                          ({formatVoteCount(votesA)}명)
+                        </span>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
               </motion.button>
 
@@ -454,39 +544,60 @@ export default function PackDetailClient({ pack }: PackDetailClientProps) {
                 key={`${currentQ.id}-B`}
                 type="button"
                 layout
-                transition={{ type: 'spring', damping: 14, stiffness: 120 }}
-                style={{ flexGrow: hasPickedCurrent ? (justPicked === 'B' ? 58 : 42) : 50 }}
-                whileTap={{ scale: 0.98 }}
+                transition={{ type: 'spring', damping: 11, stiffness: 90 }}
+                style={{ flexGrow: hasPickedCurrent ? displayGrowB : 50 }}
+                whileTap={{ scale: hasPickedCurrent ? 1 : 0.98 }}
+                disabled={hasPickedCurrent}
                 onClick={() => handleSinglePick('B')}
-                className={`relative flex w-full flex-col items-center justify-center overflow-hidden rounded-2xl py-3.5 px-4 transition-all duration-300 text-left border cursor-pointer ${
+                className={`relative flex w-full flex-col items-center justify-center overflow-hidden rounded-2xl py-3.5 px-4 transition-all duration-300 text-left border ${
                   hasPickedCurrent
                     ? justPicked === 'B'
                       ? 'bg-zinc-900/90 border-emerald-500/50 shadow-[0_0_15px_rgba(16,185,129,0.15)]'
-                      : 'bg-zinc-950/40 border-zinc-900/80 opacity-60 hover:opacity-85'
-                    : 'bg-zinc-900/50 border-zinc-800/80 hover:bg-zinc-900/80 hover:border-zinc-700'
+                      : 'bg-zinc-950/40 border-zinc-900/80 opacity-60'
+                    : 'bg-zinc-900/50 border-zinc-800/80 hover:bg-zinc-900/80 hover:border-zinc-700 cursor-pointer'
                 }`}
               >
-                {justPicked === 'B' && (
-                  <div className="absolute bottom-3 right-3 z-20 flex items-center gap-1 rounded-full bg-emerald-500 px-2.5 py-0.5 text-[10px] font-black text-zinc-950 shadow-md">
+                {hasPickedCurrent && justPicked === 'B' && (
+                  <div className="absolute bottom-3 right-3 z-20 flex items-center gap-1 rounded-full bg-emerald-500 px-2 py-0.5 text-[9px] font-black text-zinc-950 shadow-md">
                     <span>✓</span>
                     <span>선택함</span>
                   </div>
                 )}
 
-                {justPicked === 'B' && (
+                {hasPickedCurrent && (
                   <motion.div
                     initial={{ scaleX: 0 }}
                     animate={{ scaleX: 1 }}
-                    transition={{ duration: 0.4, ease: 'easeOut' }}
-                    className="absolute inset-0 z-0 opacity-10 bg-emerald-500"
-                    style={{ width: '100%', transformOrigin: 'left' }}
+                    transition={{ duration: 0.6, ease: 'easeOut' }}
+                    className={`absolute inset-0 z-0 opacity-10 ${
+                      justPicked === 'B' ? 'bg-emerald-500' : 'bg-neutral-400'
+                    }`}
+                    style={{ width: `${percentB}%`, transformOrigin: 'left' }}
                   />
                 )}
 
                 <div className="relative z-10 flex flex-col items-center text-center w-full max-w-sm pointer-events-none gap-1.5">
-                  <p className="text-xl md:text-2xl font-kiro leading-[1.15] text-neutral-100 max-h-28 overflow-y-auto no-scrollbar break-keep">
+                  <p className="text-xl md:text-2xl font-kiro leading-[1.15] text-neutral-100 max-h-24 overflow-y-auto no-scrollbar break-keep">
                     {currentQ.option_b}
                   </p>
+
+                  <AnimatePresence>
+                    {hasPickedCurrent && (
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ type: 'spring', damping: 15 }}
+                        className="flex items-baseline justify-center gap-1.5 mt-1"
+                      >
+                        <span className="text-3xl md:text-4xl font-black text-emerald-400">
+                          {percentB.toFixed(1)}%
+                        </span>
+                        <span className="text-xs text-neutral-500 font-extrabold">
+                          ({formatVoteCount(votesB)}명)
+                        </span>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
               </motion.button>
             </div>
@@ -662,35 +773,52 @@ export default function PackDetailClient({ pack }: PackDetailClientProps) {
               <div className="space-y-2.5 max-h-[48vh] overflow-y-auto pr-1 no-scrollbar">
                 {pack.questions.map((q, idx) => {
                   const picked = singleChoices[idx];
+                  const st = questionStats[q.id] || { a: 0, b: 0 };
+                  const sum = (st.a || 0) + (st.b || 0);
+                  const pctA = sum > 0 ? Math.round(((st.a || 0) / sum) * 100) : 50;
+                  const pctB = sum > 0 ? 100 - pctA : 50;
                   return (
                     <div
                       key={q.id}
                       className="rounded-2xl border border-zinc-800/80 bg-zinc-950/60 p-3.5 space-y-1.5"
                     >
-                      <div className="flex items-center gap-2 text-[11px] font-extrabold text-neutral-500">
-                        <span className="text-amber-400">Q{idx + 1}</span>
-                        <span className="truncate">{q.title}</span>
+                      <div className="flex items-center justify-between gap-2 text-[11px] font-extrabold text-neutral-500">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <span className="text-amber-400 shrink-0">Q{idx + 1}</span>
+                          <span className="truncate">{q.title}</span>
+                        </div>
+                        {sum > 0 && (
+                          <span className="text-[10px] text-neutral-500 shrink-0">
+                            {formatVoteCount(sum)}명 참여
+                          </span>
+                        )}
                       </div>
                       <div className="grid grid-cols-2 gap-2 text-xs font-black">
                         <div
-                          className={`rounded-xl px-3 py-2 border transition ${
+                          className={`rounded-xl px-3 py-2 border transition flex items-center justify-between gap-1.5 ${
                             picked === 'A'
                               ? 'border-amber-400 bg-amber-500/15 text-amber-300'
-                              : 'border-zinc-800/80 bg-zinc-900/40 text-neutral-500 line-through opacity-60'
+                              : 'border-zinc-800/80 bg-zinc-900/40 text-neutral-500 opacity-65'
                           }`}
                         >
-                          {picked === 'A' ? '✓ ' : ''}
-                          {q.option_a}
+                          <span className="truncate">
+                            {picked === 'A' ? '✓ ' : ''}
+                            {q.option_a}
+                          </span>
+                          {sum > 0 && <span className="text-[10px] shrink-0 font-black">{pctA}%</span>}
                         </div>
                         <div
-                          className={`rounded-xl px-3 py-2 border transition ${
+                          className={`rounded-xl px-3 py-2 border transition flex items-center justify-between gap-1.5 ${
                             picked === 'B'
                               ? 'border-emerald-400 bg-emerald-500/15 text-emerald-300'
-                              : 'border-zinc-800/80 bg-zinc-900/40 text-neutral-500 line-through opacity-60'
+                              : 'border-zinc-800/80 bg-zinc-900/40 text-neutral-500 opacity-65'
                           }`}
                         >
-                          {picked === 'B' ? '✓ ' : ''}
-                          {q.option_b}
+                          <span className="truncate">
+                            {picked === 'B' ? '✓ ' : ''}
+                            {q.option_b}
+                          </span>
+                          {sum > 0 && <span className="text-[10px] shrink-0 font-black">{pctB}%</span>}
                         </div>
                       </div>
                     </div>

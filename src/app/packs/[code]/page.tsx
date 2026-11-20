@@ -14,14 +14,16 @@ interface PageProps {
 async function fetchPackByCode(code: string): Promise<CustomPack | null> {
   const { data, error } = await supabase
     .from('custom_packs')
-    .select(
-      'id, code, title, description, author_nickname, category, is_public, questions, question_count, play_count, created_at, updated_at'
-    )
+    .select('*')
     .eq('code', code)
     .maybeSingle();
 
   if (error || !data) return null;
-  return data as CustomPack;
+  const { password_hash: _hidden, ...safePack } = data as any;
+  return {
+    ...safePack,
+    question_stats: safePack.question_stats || {},
+  } as CustomPack;
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {

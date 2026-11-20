@@ -14,9 +14,7 @@ export async function GET(
 
     const { data, error } = await supabase
       .from('custom_packs')
-      .select(
-        'id, code, title, description, author_nickname, category, is_public, questions, question_count, play_count, created_at, updated_at'
-      )
+      .select('*')
       .eq('code', code)
       .maybeSingle();
 
@@ -24,7 +22,11 @@ export async function GET(
       return NextResponse.json({ error: '존재하지 않거나 삭제된 밸런스질문 팩입니다.' }, { status: 404 });
     }
 
-    return NextResponse.json({ success: true, pack: data });
+    const { password_hash: _hidden, ...safePack } = data as any;
+    return NextResponse.json({
+      success: true,
+      pack: { ...safePack, question_stats: safePack.question_stats || {} },
+    });
   } catch (err) {
     console.error('GET /api/packs/[code] exception:', err);
     return NextResponse.json({ error: '서버 오류가 발생했습니다.' }, { status: 500 });
