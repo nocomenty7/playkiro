@@ -98,7 +98,7 @@ export function validatePackPayload(
     }
 
     sanitizedQuestions.push({
-      id: `custom_q_${i + 1}`,
+      id: crypto.randomUUID(),
       title: qTitle || '둘 중 하나를 선택한다면?',
       option_a: optionA,
       option_b: optionB,

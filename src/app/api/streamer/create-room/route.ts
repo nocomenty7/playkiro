@@ -1,5 +1,8 @@
+import crypto from 'node:crypto';
 import { NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
+
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export async function POST(request: Request) {
   try {
@@ -49,8 +52,9 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: '존재하지 않거나 질문이 없는 밸런스질문 팩입니다.' }, { status: 404 });
       }
 
-      const formatted = pack.questions.map((q: any, idx: number) => ({
-        id: q.id || `custom_q_${idx + 1}`,
+      const formatted = pack.questions.map((q: any) => ({
+        // rooms.question_ids is UUID[], so ensure every custom question ID is a valid UUID
+        id: typeof q.id === 'string' && UUID_REGEX.test(q.id) ? q.id : crypto.randomUUID(),
         title: q.title || '둘 중 하나를 선택한다면?',
         option_a: q.option_a,
         option_b: q.option_b,
