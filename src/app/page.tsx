@@ -230,7 +230,7 @@ function LandingClient() {
         <div className="relative flex items-center justify-center py-1">
           <div className="w-full border-t-2 border-zinc-800/80" />
           <span className="shrink-0 mx-4 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-[11px] font-black text-neutral-400 tracking-wider">
-            COMMUNITY PACKS
+            USER&apos;S PACKS
           </span>
           <div className="w-full border-t-2 border-zinc-800/80" />
         </div>
