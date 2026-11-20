@@ -219,8 +219,14 @@ export default function ChatStreamerGameClient() {
           setShowHostGuide(true);
         }
 
-        // Fetch exact ordered questions by ID array from DB
-        if (roomData.question_ids && roomData.question_ids.length > 0) {
+        // Fetch exact ordered questions: custom_questions for custom packs, otherwise official `questions` table
+        if (Array.isArray(roomData.custom_questions) && roomData.custom_questions.length > 0) {
+          const qMap = new Map(roomData.custom_questions.map((q: any) => [q.id, q]));
+          const orderedQuestions = (roomData.question_ids || [])
+            .map((id: string) => qMap.get(id))
+            .filter(Boolean);
+          setQuestions(orderedQuestions.length > 0 ? orderedQuestions : roomData.custom_questions);
+        } else if (roomData.question_ids && roomData.question_ids.length > 0) {
           const { data: qData } = await supabase
             .from('questions')
             .select('*')
@@ -295,15 +301,23 @@ export default function ChatStreamerGameClient() {
 
             // Question IDs array updated
             if (JSON.stringify(newRoom.question_ids) !== JSON.stringify(room.question_ids)) {
-              const { data: qData } = await supabase
-                .from('questions')
-                .select('*')
-                .in('id', newRoom.question_ids);
+              if (Array.isArray(newRoom.custom_questions) && newRoom.custom_questions.length > 0) {
+                const qMap = new Map(newRoom.custom_questions.map((q: any) => [q.id, q]));
+                const orderedQuestions = (newRoom.question_ids || [])
+                  .map((id: string) => qMap.get(id))
+                  .filter(Boolean);
+                setQuestions(orderedQuestions.length > 0 ? orderedQuestions : newRoom.custom_questions);
+              } else {
+                const { data: qData } = await supabase
+                  .from('questions')
+                  .select('*')
+                  .in('id', newRoom.question_ids);
 
-              if (qData) {
-                const qMap = new Map(qData.map((q: any) => [q.id, q]));
-                const orderedQuestions = newRoom.question_ids.map((id: string) => qMap.get(id)).filter(Boolean);
-                setQuestions(orderedQuestions);
+                if (qData) {
+                  const qMap = new Map(qData.map((q: any) => [q.id, q]));
+                  const orderedQuestions = newRoom.question_ids.map((id: string) => qMap.get(id)).filter(Boolean);
+                  setQuestions(orderedQuestions);
+                }
               }
             }
           }
@@ -1218,8 +1232,8 @@ export default function ChatStreamerGameClient() {
               </div>
             )}
 
-            {/* Detailed Stats Button Revealed AFTER Streamer Pick (RESULT status) */}
-            {status === 'RESULT' && !isOverlay && (
+            {/* Detailed Stats Button Revealed AFTER Streamer Pick (RESULT status, official questions only) */}
+            {status === 'RESULT' && !isOverlay && !room?.pack_code && (
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -1248,7 +1262,7 @@ export default function ChatStreamerGameClient() {
               </span>
               
               <div className="flex items-center gap-3">
-                {['VOTING', 'LOCKED'].includes(status) && (
+                {['VOTING', 'LOCKED'].includes(status) && !room?.pack_code && (
                   <button
                     onClick={handlePassQuestion}
                     className="flex items-center gap-1 text-xs md:text-sm text-amber-400 hover:text-amber-300 font-extrabold cursor-pointer"

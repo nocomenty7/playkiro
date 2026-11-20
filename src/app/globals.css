@@ -52,7 +52,9 @@ html.light .bg-\[\#0d0e1d\] {
 
 html.light .bg-zinc-950,
 html.light .bg-zinc-950\/40,
+html.light .bg-zinc-950\/50,
 html.light .bg-zinc-950\/60,
+html.light .bg-zinc-950\/70,
 html.light .bg-zinc-950\/80,
 html.light .bg-zinc-950\/90 {
   background-color: #ffffff !important;
@@ -60,8 +62,12 @@ html.light .bg-zinc-950\/90 {
 
 html.light .bg-zinc-900,
 html.light .bg-zinc-900\/30,
+html.light .bg-zinc-900\/40,
+html.light .bg-zinc-900\/45,
 html.light .bg-zinc-900\/50,
 html.light .bg-zinc-900\/60,
+html.light .bg-zinc-900\/70,
+html.light .bg-zinc-900\/75,
 html.light .bg-zinc-900\/80,
 html.light .bg-zinc-900\/90 {
   background-color: #f1f5f9 !important;
@@ -69,7 +75,8 @@ html.light .bg-zinc-900\/90 {
 
 /* Progress bar empty track & button backgrounds in Light Mode */
 html.light .bg-zinc-850,
-html.light .bg-zinc-800 {
+html.light .bg-zinc-800,
+html.light .bg-zinc-800\/80 {
   background-color: #e2e8f0 !important;
 }
 
@@ -145,6 +152,15 @@ html.light .text-emerald-500 {
 html.light .text-rose-400,
 html.light .text-rose-500 {
   color: #be123c !important; /* Deep rose 700 */
+}
+
+html.light .text-purple-300,
+html.light .text-purple-400 {
+  color: #7e22ce !important; /* Deep purple 700 */
+}
+
+html.light .text-pink-400 {
+  color: #be185d !important; /* Deep pink 700 */
 }
 
 /* 5. Option Cards & Interactive Components in Light Mode */

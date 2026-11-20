@@ -73,6 +73,8 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
   const activeQId = room?.question_ids?.[room?.current_question_index];
   const activeQIdRef = useRef<string | null>(null);
   const roomStatusRef = useRef<string | null>(null);
+  const customQuestionsRef = useRef<any[] | null>(null);
+  customQuestionsRef.current = Array.isArray(room?.custom_questions) ? room.custom_questions : null;
 
   useEffect(() => {
     activeQIdRef.current = activeQId || null;
@@ -253,7 +255,10 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
         }
 
         // Load Question Data for current_question_index
-        await fetchQuestionForIndex(roomData.question_ids[roomData.current_question_index]);
+        if (Array.isArray(roomData.custom_questions)) {
+          customQuestionsRef.current = roomData.custom_questions;
+        }
+        await fetchQuestionForIndex(roomData.question_ids[roomData.current_question_index], roomData.custom_questions);
         await fetchParticipants(roomData.id);
 
         setLoading(false);
@@ -281,9 +286,17 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
     };
   }, [room?.id, room?.host_id, mySessionId]);
 
-  // Fetch Question details
-  const fetchQuestionForIndex = async (qId: string) => {
+  // Fetch Question details (reads from room.custom_questions for custom packs; otherwise official questions table)
+  const fetchQuestionForIndex = async (qId: string, customListOverride?: any[] | null) => {
     if (!qId) return;
+    const customList = Array.isArray(customListOverride) ? customListOverride : customQuestionsRef.current;
+    if (Array.isArray(customList) && customList.length > 0) {
+      const matched = customList.find((q: any) => q.id === qId);
+      if (matched) {
+        setCurrentQuestion(matched);
+        return;
+      }
+    }
     const { data } = await supabase.from('questions').select('*').eq('id', qId).single();
     if (data) setCurrentQuestion(data);
   };
@@ -1354,8 +1367,8 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
               </div>
             )}
 
-            {/* Detailed Stats Button Revealed AFTER Streamer Pick (RESULT status) */}
-            {!isOverlay && room.status === 'RESULT' && (
+            {/* Detailed Stats Button Revealed AFTER Streamer Pick (RESULT status, official questions only) */}
+            {!isOverlay && room.status === 'RESULT' && !room.pack_code && (
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -1398,7 +1411,7 @@ export default function StreamerGameClient({ pin, viewerNickname, isOverlay = fa
               
               {/* Question Pass & Room Finish Actions */}
               <div className="flex items-center gap-3">
-                {['VOTING', 'LOCKED'].includes(room.status) && (
+                {['VOTING', 'LOCKED'].includes(room.status) && !room.pack_code && (
                   <button
                     disabled={submittingPass || !!actionLoading}
                     onClick={handleHostPassQuestion}

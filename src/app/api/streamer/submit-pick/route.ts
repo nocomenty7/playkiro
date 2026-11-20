@@ -13,7 +13,7 @@ export async function POST(request: Request) {
     // 1. Verify host permission & Prevent double execution
     const { data: room, error: roomError } = await supabase
       .from('rooms')
-      .select('id, host_id, question_ids, current_question_index, status')
+      .select('*')
       .eq('id', roomId)
       .single();
 
@@ -61,41 +61,44 @@ export async function POST(request: Request) {
       })
       .eq('id', roomId);
 
-    // 4. Multi-Player DB Sync
-    try {
-      const streamerVoteA = hostPick === 'A' ? 1 : 0;
-      const streamerVoteB = hostPick === 'B' ? 1 : 0;
-      
-      let scaledViewerA = 0;
-      let scaledViewerB = 0;
-      const totalViewers = viewerVotesA + viewerVotesB;
-      
-      if (totalViewers > 0) {
-        if (totalViewers <= 10) {
-          scaledViewerA = viewerVotesA;
-          scaledViewerB = viewerVotesB;
-        } else {
-          scaledViewerA = Math.round((viewerVotesA / totalViewers) * 10);
-          scaledViewerB = 10 - scaledViewerA;
+    // 4. Multi-Player DB Sync (Skip for custom packs so custom IDs never pollute global vote_stats)
+    const isCustomPackRoom = Boolean(room.pack_code) || String(currentQId || '').startsWith('custom_q_');
+    if (!isCustomPackRoom) {
+      try {
+        const streamerVoteA = hostPick === 'A' ? 1 : 0;
+        const streamerVoteB = hostPick === 'B' ? 1 : 0;
+        
+        let scaledViewerA = 0;
+        let scaledViewerB = 0;
+        const totalViewers = viewerVotesA + viewerVotesB;
+        
+        if (totalViewers > 0) {
+          if (totalViewers <= 10) {
+            scaledViewerA = viewerVotesA;
+            scaledViewerB = viewerVotesB;
+          } else {
+            scaledViewerA = Math.round((viewerVotesA / totalViewers) * 10);
+            scaledViewerB = 10 - scaledViewerA;
+          }
         }
-      }
-      
-      const addA = streamerVoteA + scaledViewerA;
-      const addB = streamerVoteB + scaledViewerB;
+        
+        const addA = streamerVoteA + scaledViewerA;
+        const addB = streamerVoteB + scaledViewerB;
 
-      // Use RPC to atomically upsert and bypass RLS (Security Definer)
-      // AWAIT is required in serverless functions to ensure execution finishes before response is sent
-      const { error: rpcError } = await supabase.rpc('update_multi_vote_stats', {
-        q_id: currentQId,
-        add_a: addA,
-        add_b: addB,
-      });
+        // Use RPC to atomically upsert and bypass RLS (Security Definer)
+        // AWAIT is required in serverless functions to ensure execution finishes before response is sent
+        const { error: rpcError } = await supabase.rpc('update_multi_vote_stats', {
+          q_id: currentQId,
+          add_a: addA,
+          add_b: addB,
+        });
 
-      if (rpcError) {
-        console.error('[Supabase RPC Error] Failed to update multi vote stats:', rpcError);
+        if (rpcError) {
+          console.error('[Supabase RPC Error] Failed to update multi vote stats:', rpcError);
+        }
+      } catch (err) {
+        console.error('Streamer pick stat processing error:', err);
       }
-    } catch (err) {
-      console.error('Streamer pick stat processing error:', err);
     }
 
     return NextResponse.json({ success: true });

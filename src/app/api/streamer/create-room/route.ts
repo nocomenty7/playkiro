@@ -12,6 +12,8 @@ export async function POST(request: Request) {
       usedQuestionIds = [],
       roomMode = 'pin',
       platforms = null,
+      packCode = null,
+      shuffleOrder = false,
     } = body;
 
     if (!hostSessionId) {
@@ -29,64 +31,112 @@ export async function POST(request: Request) {
       console.warn('Background cleanup warning:', cleanErr);
     }
 
-    // 1. Fetch matching questions from Supabase
-    let query = supabase.from('questions').select('id, category').limit(10000);
+    let selectedQuestionIds: string[] = [];
+    let resolvedTotalQuestions = totalQuestions;
+    let resolvedCategories = categories;
+    let customQuestionsPayload: any[] | null = null;
+    let resolvedPackCode: string | null = null;
 
-    if (!categories.includes('전체') && categories.length > 0) {
-      query = query.in('category', categories);
-    }
+    if (packCode && typeof packCode === 'string') {
+      // Custom Pack Mode: load questions exclusively from custom_packs (never mixes with official `questions` table)
+      const { data: pack, error: packErr } = await supabase
+        .from('custom_packs')
+        .select('code, title, author_nickname, questions')
+        .eq('code', packCode.trim())
+        .maybeSingle();
 
-    const { data: questions, error: fetchError } = await query;
-
-    let targetPool: any[] = [];
-
-    if (fetchError || !questions || questions.length === 0) {
-      const { data: allQuestions, error: allErr } = await supabase.from('questions').select('id').limit(10000);
-      if (allErr || !allQuestions || allQuestions.length === 0) {
-        return NextResponse.json({ error: '질문 데이터를 불러올 수 없습니다.' }, { status: 400 });
+      if (packErr || !pack || !Array.isArray(pack.questions) || pack.questions.length === 0) {
+        return NextResponse.json({ error: '존재하지 않거나 질문이 없는 기로 팩입니다.' }, { status: 404 });
       }
-      targetPool = allQuestions;
+
+      const formatted = pack.questions.map((q: any, idx: number) => ({
+        id: q.id || `custom_q_${idx + 1}`,
+        title: q.title || '둘 중 하나를 선택한다면?',
+        option_a: q.option_a,
+        option_b: q.option_b,
+        emoji_a: null,
+        emoji_b: null,
+        category: pack.title,
+        suggested_by: pack.author_nickname,
+      }));
+
+      if (shuffleOrder) {
+        for (let i = formatted.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [formatted[i], formatted[j]] = [formatted[j], formatted[i]];
+        }
+      }
+
+      customQuestionsPayload = formatted;
+      selectedQuestionIds = formatted.map((q: any) => q.id);
+      resolvedTotalQuestions = formatted.length;
+      resolvedCategories = [pack.title];
+      resolvedPackCode = pack.code;
+
+      // Increment pack play count (best-effort)
+      try {
+        await supabase.rpc('increment_pack_play_count', { pack_code: pack.code });
+      } catch {}
     } else {
-      targetPool = questions;
+      // 1. Fetch matching questions from Supabase
+      let query = supabase.from('questions').select('id, category').limit(10000);
+
+      if (!categories.includes('전체') && categories.length > 0) {
+        query = query.in('category', categories);
+      }
+
+      const { data: questions, error: fetchError } = await query;
+
+      let targetPool: any[] = [];
+
+      if (fetchError || !questions || questions.length === 0) {
+        const { data: allQuestions, error: allErr } = await supabase.from('questions').select('id').limit(10000);
+        if (allErr || !allQuestions || allQuestions.length === 0) {
+          return NextResponse.json({ error: '질문 데이터를 불러올 수 없습니다.' }, { status: 400 });
+        }
+        targetPool = allQuestions;
+      } else {
+        targetPool = questions;
+      }
+
+      // Deduplication: Filter out previously played questions for this streamer
+      const availablePool = targetPool.filter((q) => !usedQuestionIds.includes(q.id));
+
+      // If no unplayed questions remain in the selected category
+      if (availablePool.length === 0) {
+        return NextResponse.json(
+          {
+            success: false,
+            code: 'ALL_QUESTIONS_COMPLETED',
+            error: '선택하신 카테고리 내의 모든 문제를 이미 다 풀었습니다.',
+          },
+          { status: 400 }
+        );
+      }
+
+      // If remaining unplayed questions are fewer than requested totalQuestions
+      if (availablePool.length < totalQuestions) {
+        return NextResponse.json(
+          {
+            success: false,
+            code: 'NOT_ENOUGH_UNPLAYED_QUESTIONS',
+            remainingCount: availablePool.length,
+            totalRequested: totalQuestions,
+            error: `선택하신 카테고리의 안 푼 남은 문제(${availablePool.length}개)가 설정한 문제 수(${totalQuestions}개)보다 적습니다. 다른 카테고리를 추가하거나 문제 수를 줄여주세요.`,
+          },
+          { status: 400 }
+        );
+      }
+
+      // True Unbiased Fisher-Yates (Knuth) Shuffle Algorithm on availablePool
+      const shuffled = [...availablePool];
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      }
+
+      selectedQuestionIds = shuffled.slice(0, Math.min(totalQuestions, shuffled.length)).map((q) => q.id);
     }
-
-    // Deduplication: Filter out previously played questions for this streamer
-    const availablePool = targetPool.filter((q) => !usedQuestionIds.includes(q.id));
-
-    // If no unplayed questions remain in the selected category
-    if (availablePool.length === 0) {
-      return NextResponse.json(
-        {
-          success: false,
-          code: 'ALL_QUESTIONS_COMPLETED',
-          error: '선택하신 카테고리 내의 모든 문제를 이미 다 풀었습니다.',
-        },
-        { status: 400 }
-      );
-    }
-
-    // If remaining unplayed questions are fewer than requested totalQuestions
-    if (availablePool.length < totalQuestions) {
-      return NextResponse.json(
-        {
-          success: false,
-          code: 'NOT_ENOUGH_UNPLAYED_QUESTIONS',
-          remainingCount: availablePool.length,
-          totalRequested: totalQuestions,
-          error: `선택하신 카테고리의 안 푼 남은 문제(${availablePool.length}개)가 설정한 문제 수(${totalQuestions}개)보다 적습니다. 다른 카테고리를 추가하거나 문제 수를 줄여주세요.`,
-        },
-        { status: 400 }
-      );
-    }
-
-    // True Unbiased Fisher-Yates (Knuth) Shuffle Algorithm on availablePool
-    const shuffled = [...availablePool];
-    for (let i = shuffled.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-    }
-
-    const selectedQuestionIds = shuffled.slice(0, Math.min(totalQuestions, shuffled.length)).map((q) => q.id);
 
     // 2. Generate unique 6-digit numeric PIN
     let pin = '';
@@ -107,22 +157,27 @@ export async function POST(request: Request) {
     }
 
     // 3. Insert new room into `rooms` table
+    const roomInsertPayload: Record<string, any> = {
+      pin,
+      host_id: hostSessionId,
+      host_nickname: hostNickname,
+      room_mode: roomMode,
+      platforms: platforms,
+      categories: resolvedCategories,
+      total_questions: resolvedTotalQuestions,
+      question_ids: selectedQuestionIds,
+      current_question_index: 0,
+      status: 'VOTING',
+    };
+
+    if (customQuestionsPayload && resolvedPackCode) {
+      roomInsertPayload.custom_questions = customQuestionsPayload;
+      roomInsertPayload.pack_code = resolvedPackCode;
+    }
+
     const { data: room, error: insertError } = await supabase
       .from('rooms')
-      .insert([
-        {
-          pin,
-          host_id: hostSessionId,
-          host_nickname: hostNickname,
-          room_mode: roomMode,
-          platforms: platforms,
-          categories,
-          total_questions: totalQuestions, // Maintain requested goal for UI (e.g. 50), even if actual db pool is smaller
-          question_ids: selectedQuestionIds,
-          current_question_index: 0,
-          status: 'VOTING',
-        },
-      ])
+      .insert([roomInsertPayload])
       .select('*')
       .single();
 
