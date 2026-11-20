@@ -84,7 +84,7 @@ export default function PacksDirectoryPage() {
         <section className="flex flex-col md:flex-row md:items-end justify-between gap-5 border-b border-zinc-900 pb-6">
           <div className="space-y-2.5">
             <div className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 px-3.5 py-1 text-xs font-black text-amber-400">
-              <Sparkles className="h-3.5 w-3.5" /> 로그인 없이 1분 만에 제작 · 공유
+              <Sparkles className="h-3.5 w-3.5" /> 로그인 없이 5분 만에 제작 · 공유
             </div>
             <h1 className="text-2xl md:text-3xl font-black tracking-tight text-neutral-100">
               나만의 <span className="text-brand-yellow">기로 팩</span> 둘러보기
