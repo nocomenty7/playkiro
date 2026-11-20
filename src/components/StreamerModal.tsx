@@ -126,7 +126,7 @@ export default function StreamerModal({ isOpen, onClose }: StreamerModalProps) {
     const trimmedNickname = hostNickname.trim();
 
     if (!trimmedNickname) {
-      setErrorMsg('스트리머 닉네임을 입력해 주세요.');
+      setErrorMsg('호스트 닉네임을 입력해 주세요.');
       return;
     }
 
@@ -250,8 +250,8 @@ export default function StreamerModal({ isOpen, onClose }: StreamerModalProps) {
               <Tv className="w-6 h-6" />
             </div>
             <div>
-              <h2 className="text-xl font-black text-zinc-900 dark:text-white tracking-tight">함께 플레이하기 (방을 만들고 시청자가 입장)</h2>
-              <p className="text-xs text-zinc-500 dark:text-neutral-400">실시간으로 스트리머의 취향을 예측해보세요!</p>
+              <h2 className="text-xl font-black text-zinc-900 dark:text-white tracking-tight">함께 플레이하기 (방을 만들고 게스트가 입장)</h2>
+              <p className="text-xs text-zinc-500 dark:text-neutral-400">실시간으로 친구, 연인, 가족의 취향을 확인해보세요!</p>
             </div>
           </div>
 
@@ -269,7 +269,7 @@ export default function StreamerModal({ isOpen, onClose }: StreamerModalProps) {
               }`}
             >
               <Users className="w-4 h-4 text-zinc-950" />
-              <span>입장하기 (시청자)</span>
+              <span>입장하기 (게스트)</span>
             </button>
 
             <button
@@ -284,7 +284,7 @@ export default function StreamerModal({ isOpen, onClose }: StreamerModalProps) {
               }`}
             >
               <Tv className="w-4 h-4" />
-              <span>방 만들기 (스트리머)</span>
+              <span>방 만들기 (호스트)</span>
             </button>
           </div>
 
@@ -310,7 +310,7 @@ export default function StreamerModal({ isOpen, onClose }: StreamerModalProps) {
               </div>
 
               <div>
-                <label className="block text-xs font-extrabold text-zinc-700 dark:text-neutral-300 mb-1.5">시청자 닉네임</label>
+                <label className="block text-xs font-extrabold text-zinc-700 dark:text-neutral-300 mb-1.5">게스트 닉네임</label>
                 <input
                   type="text"
                   placeholder="본인 닉네임을 입력하세요."
@@ -344,7 +344,7 @@ export default function StreamerModal({ isOpen, onClose }: StreamerModalProps) {
           {activeTab === 'create' && (
             <form onSubmit={handleCreateRoom} className="space-y-4 max-h-[60vh] overflow-y-auto pr-1 no-scrollbar">
               <div>
-                <label className="block text-xs font-extrabold text-zinc-700 dark:text-neutral-300 mb-1.5">스트리머 닉네임</label>
+                <label className="block text-xs font-extrabold text-zinc-700 dark:text-neutral-300 mb-1.5">호스트 닉네임</label>
                 <input
                   type="text"
                   placeholder="본인 닉네임을 입력하세요."

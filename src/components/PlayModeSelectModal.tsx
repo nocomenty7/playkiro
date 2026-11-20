@@ -65,15 +65,18 @@ export default function PlayModeSelectModal({
               onClick={onSelectChatIntegration}
               className="w-full text-left group relative rounded-2xl border border-purple-200 dark:border-purple-500/40 bg-gradient-to-r from-purple-50 via-white to-white dark:from-purple-500/10 dark:via-zinc-900/80 dark:to-zinc-900 p-4 transition-all hover:border-purple-300 dark:hover:border-purple-400 hover:scale-[1.01] active:scale-[0.99] cursor-pointer shadow-sm dark:shadow-lg"
             >
-              <div className="flex items-start justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="p-2.5 rounded-xl bg-purple-100 dark:bg-purple-500/20 border border-purple-200 dark:border-purple-500/40 text-purple-500 dark:text-purple-400">
+              <div className="flex items-start justify-between gap-2">
+                <div className="flex items-center gap-3 flex-1 min-w-0">
+                  <div className="p-2.5 rounded-xl bg-purple-100 dark:bg-purple-500/20 border border-purple-200 dark:border-purple-500/40 text-purple-500 dark:text-purple-400 shrink-0">
                     <MessageSquare className="w-5 h-5" />
                   </div>
-                  <div>
-                    <div className="flex items-center gap-2">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between gap-2 flex-wrap">
                       <span className="font-black text-sm text-zinc-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-300 transition-colors">
                         1. 채팅 연동 방식 (치지직, 숲 지원)
+                      </span>
+                      <span className="shrink-0 px-2 py-0.5 rounded-md bg-purple-100 dark:bg-purple-500/20 border border-purple-300 dark:border-purple-500/40 text-purple-600 dark:text-purple-300 text-[10px] font-black leading-tight">
+                        스트리머 추천
                       </span>
                     </div>
                     <p className="text-xs text-zinc-500 dark:text-neutral-400 mt-1 leading-relaxed break-keep">
@@ -93,19 +96,22 @@ export default function PlayModeSelectModal({
               }}
               className="w-full text-left group relative rounded-2xl border border-amber-200 dark:border-amber-500/40 bg-gradient-to-r from-amber-50 via-white to-white dark:from-amber-500/10 dark:via-zinc-900/80 dark:to-zinc-900 p-4 transition-all hover:border-amber-300 dark:hover:border-amber-400 hover:scale-[1.01] active:scale-[0.99] cursor-pointer shadow-sm dark:shadow-lg"
             >
-              <div className="flex items-start justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="p-2.5 rounded-xl bg-amber-100 dark:bg-amber-500/20 border border-amber-200 dark:border-amber-500/40 text-amber-500 dark:text-amber-400">
+              <div className="flex items-start justify-between gap-2">
+                <div className="flex items-center gap-3 flex-1 min-w-0">
+                  <div className="p-2.5 rounded-xl bg-amber-100 dark:bg-amber-500/20 border border-amber-200 dark:border-amber-500/40 text-amber-500 dark:text-amber-400 shrink-0">
                     <Users className="w-5 h-5" />
                   </div>
-                  <div>
-                    <div className="flex items-center gap-2">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between gap-2 flex-wrap">
                       <span className="font-black text-sm text-zinc-900 dark:text-white group-hover:text-amber-600 dark:group-hover:text-amber-300 transition-colors">
                         2. 방 만들기 방식 (입장코드)
                       </span>
+                      <span className="shrink-0 px-2 py-0.5 rounded-md bg-amber-100 dark:bg-amber-500/20 border border-amber-300 dark:border-amber-500/40 text-amber-700 dark:text-amber-300 text-[10px] font-black leading-tight">
+                        친구, 연인, 가족 추천
+                      </span>
                     </div>
                     <p className="text-xs text-zinc-500 dark:text-neutral-400 mt-1 leading-relaxed break-keep">
-                      호스트가 방을 개설하고 시청자들은 화면의 PIN 번호로 입장하여 투표합니다.
+                      호스트가 방을 개설하고 게스트는 화면의 PIN 번호로 입장하여 투표합니다.
                     </p>
                   </div>
                 </div>
