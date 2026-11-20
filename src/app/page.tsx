@@ -10,7 +10,6 @@ import NoticePopup from '../components/NoticePopup';
 import PlayModeSelectModal from '../components/PlayModeSelectModal';
 import SingleCategoryModal from '../components/SingleCategoryModal';
 import ChatStreamerModal from '../components/ChatStreamerModal';
-import BasicPlayModeModal from '../components/BasicPlayModeModal';
 import TotalVotesCounter from '../components/TotalVotesCounter';
 import UserPacksSection from '../components/UserPacksSection';
 import Footer from '../components/Footer';
@@ -21,7 +20,7 @@ function LandingClient() {
   const q = searchParams.get('q');
 
   const [showDrawer, setShowDrawer] = useState(false);
-  const [showBasicPlayModal, setShowBasicPlayModal] = useState(false);
+  const [showBasicOptions, setShowBasicOptions] = useState(false);
   const [showStreamerModal, setShowStreamerModal] = useState(false);
   const [showPlayModeModal, setShowPlayModeModal] = useState(false);
   const [showSingleCategoryModal, setShowSingleCategoryModal] = useState(false);
@@ -174,7 +173,7 @@ function LandingClient() {
             </div>
           </div>
 
-          {/* Primary Single Unified CTA -> Branches to Single / Multi */}
+          {/* Primary CTA -> Expands inline into Single / Multi (no double popup) */}
           <motion.div
             initial={{ opacity: 0, scale: 0.96 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -182,24 +181,49 @@ function LandingClient() {
             className="pt-1 max-w-sm md:max-w-md mx-auto space-y-3 relative"
           >
             <TotalVotesCounter />
-            <button
-              type="button"
-              onClick={() => setShowBasicPlayModal(true)}
-              className="w-full flex items-center justify-center gap-2.5 rounded-2xl bg-brand-yellow hover:bg-[#e0b240] text-zinc-950 font-black text-base md:text-lg px-6 h-14 md:h-15 shadow-[0_0_32px_rgba(245,195,82,0.32)] transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
-            >
-              <Play className="w-5 h-5 fill-zinc-950" />
-              <span>기본 문제로 바로 플레이하기</span>
-            </button>
-          </motion.div>
+            <AnimatePresence mode="wait" initial={false}>
+              {!showBasicOptions ? (
+                <motion.button
+                  key="basic-trigger"
+                  type="button"
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -6 }}
+                  transition={{ duration: 0.18 }}
+                  onClick={() => setShowBasicOptions(true)}
+                  className="w-full flex items-center justify-center gap-2.5 rounded-2xl bg-brand-yellow hover:bg-[#e0b240] text-zinc-950 font-black text-base md:text-lg px-6 h-14 shadow-[0_0_32px_rgba(245,195,82,0.32)] transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+                >
+                  <Play className="w-5 h-5 fill-zinc-950" />
+                  <span>기본 문제로 바로 플레이하기</span>
+                </motion.button>
+              ) : (
+                <motion.div
+                  key="basic-choices"
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}
+                  transition={{ duration: 0.2 }}
+                  className="space-y-3"
+                >
+                  <button
+                    type="button"
+                    onClick={() => setShowSingleCategoryModal(true)}
+                    className="w-full flex items-center justify-center gap-2 rounded-2xl bg-brand-yellow hover:bg-[#e0b240] text-zinc-950 font-black text-base px-6 h-14 shadow-[0_0_30px_rgba(245,195,82,0.3)] transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+                  >
+                    <span>👤 혼자 플레이하기 (싱글모드)</span>
+                  </button>
 
-          <motion.p
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="text-xs md:text-sm text-neutral-400 max-w-lg mx-auto leading-relaxed pt-1"
-          >
-            혼자 푸는 싱글모드부터 치지직·SOOP 채팅 연동, 친구·연인과 함께하는 방 만들기까지 바로 시작해 보세요.
-          </motion.p>
+                  <button
+                    type="button"
+                    onClick={() => setShowPlayModeModal(true)}
+                    className="w-full flex items-center justify-center gap-2 rounded-2xl bg-zinc-900 border border-zinc-700 hover:bg-zinc-800 text-white font-black text-base px-6 h-14 transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+                  >
+                    <span>📺 함께 플레이하기 (멀티모드)</span>
+                  </button>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </motion.div>
         </section>
 
         {/* Clear Section Divider */}
@@ -232,20 +256,6 @@ function LandingClient() {
           </motion.div>
         )}
       </AnimatePresence>
-
-      {/* Basic Mode Branch Modal (Single vs Multi) */}
-      <BasicPlayModeModal
-        isOpen={showBasicPlayModal}
-        onClose={() => setShowBasicPlayModal(false)}
-        onSelectSingle={() => {
-          setShowBasicPlayModal(false);
-          setShowSingleCategoryModal(true);
-        }}
-        onSelectMulti={() => {
-          setShowBasicPlayModal(false);
-          setShowPlayModeModal(true);
-        }}
-      />
 
       {/* Play Mode Selection Modal (Chat Integration vs Room PIN) */}
       <PlayModeSelectModal

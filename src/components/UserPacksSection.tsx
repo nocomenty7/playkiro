@@ -4,7 +4,6 @@ import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import {
-  Sparkles,
   Plus,
   Search,
   Flame,
@@ -22,7 +21,7 @@ import {
   formatPackDate,
 } from '@/lib/customPacks';
 
-const PAGE_SIZE = 16;
+const PAGE_SIZE = 18;
 
 export default function UserPacksSection() {
   const [packs, setPacks] = useState<CustomPackSummary[]>([]);
@@ -99,10 +98,7 @@ export default function UserPacksSection() {
     <section id="user-packs" className="w-full space-y-6 pt-2">
       {/* Section Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-        <div className="space-y-2 text-left">
-          <div className="inline-flex items-center gap-1.5 rounded-full bg-purple-500/10 border border-purple-500/25 px-3 py-1 text-[11px] font-black text-purple-400">
-            <Sparkles className="h-3.5 w-3.5" /> 로그인 없이 5분 만에 제작 · 공유
-          </div>
+        <div className="space-y-1.5 text-left">
           <h2 className="text-2xl md:text-3xl font-black tracking-tight text-neutral-100">
             유저가 만든 <span className="text-brand-yellow">밸런스게임 목록</span>
           </h2>
@@ -205,7 +201,6 @@ export default function UserPacksSection() {
           <span>
             총 <strong className="text-neutral-200">{total.toLocaleString()}</strong>개의 밸런스게임 팩
           </span>
-          <span className="hidden sm:inline">싱글 · 채팅연동 · 방만들기 모두 바로 가능</span>
         </div>
       )}
 
@@ -251,7 +246,7 @@ export default function UserPacksSection() {
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {packs.map((pack, idx) => (
               <motion.div
                 key={pack.id}
@@ -285,8 +280,8 @@ export default function UserPacksSection() {
                     </div>
 
                     {/* Title & Description */}
-                    <div className="space-y-1">
-                      <h3 className="text-base font-black text-neutral-100 group-hover:text-brand-yellow transition-colors line-clamp-1">
+                    <div className="space-y-1.5">
+                      <h3 className="text-base font-black text-neutral-100 group-hover:text-brand-yellow transition-colors line-clamp-2 leading-snug break-keep">
                         {pack.title}
                       </h3>
                       {pack.description && (
@@ -296,23 +291,28 @@ export default function UserPacksSection() {
                       )}
                     </div>
 
-                    {/* Question #1 Preview */}
+                    {/* Question #1 Preview (Stacked cleanly for 3-col cards) */}
                     {pack.preview_question && (
-                      <div className="rounded-xl bg-zinc-950/60 border border-zinc-800/80 px-3 py-2 flex items-center gap-2 text-xs font-extrabold overflow-hidden">
-                        <span className="text-amber-400 truncate max-w-[44%]">
-                          {pack.preview_question.option_a}
-                        </span>
-                        <span className="text-[10px] text-neutral-500 font-black shrink-0">VS</span>
-                        <span className="text-emerald-400 truncate max-w-[44%]">
-                          {pack.preview_question.option_b}
-                        </span>
+                      <div className="rounded-xl bg-zinc-950/60 border border-zinc-800/80 px-3 py-2.5 space-y-1.5 text-xs font-extrabold">
+                        <div className="flex items-center gap-1.5 min-w-0">
+                          <span className="shrink-0 text-[10px] font-black text-amber-400/80">A</span>
+                          <span className="text-amber-400 truncate">
+                            {pack.preview_question.option_a}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-1.5 min-w-0">
+                          <span className="shrink-0 text-[10px] font-black text-emerald-400/80">B</span>
+                          <span className="text-emerald-400 truncate">
+                            {pack.preview_question.option_b}
+                          </span>
+                        </div>
                       </div>
                     )}
                   </div>
 
                   {/* Card Footer */}
                   <div className="mt-4 pt-3 border-t border-zinc-800/60 flex items-center justify-between text-[11px] text-neutral-500 font-bold">
-                    <div className="flex items-center gap-2 truncate">
+                    <div className="flex items-center gap-1.5 truncate">
                       <span className="truncate">by {pack.author_nickname}</span>
                       <span>·</span>
                       <span className="shrink-0">{formatPackDate(pack.created_at)}</span>
