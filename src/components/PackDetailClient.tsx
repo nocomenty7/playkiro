@@ -13,6 +13,8 @@ import {
   MessageSquare,
   ChevronDown,
   ChevronUp,
+  ChevronRight,
+  Share2,
   Lock,
   Trash2,
   Pencil,
@@ -27,6 +29,7 @@ import {
 } from 'lucide-react';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
+import ShareSheet from '@/components/ShareSheet';
 import {
   CustomPack,
   getPackCategoryBadgeClass,
@@ -53,6 +56,7 @@ export default function PackDetailClient({ pack }: PackDetailClientProps) {
   const [singleChoices, setSingleChoices] = useState<('A' | 'B')[]>([]);
   const [singleFinished, setSingleFinished] = useState(false);
   const [justPicked, setJustPicked] = useState<'A' | 'B' | null>(null);
+  const [showShareSheet, setShowShareSheet] = useState(false);
 
   // PIN Room modal state
   const [showPinModal, setShowPinModal] = useState(false);
@@ -111,19 +115,30 @@ export default function PackDetailClient({ pack }: PackDetailClientProps) {
   };
 
   const handleSinglePick = (choice: 'A' | 'B') => {
-    if (justPicked) return;
     setJustPicked(choice);
-    const nextChoices = [...singleChoices, choice];
+  };
 
-    setTimeout(() => {
-      setSingleChoices(nextChoices);
+  const handleSingleNext = () => {
+    if (!justPicked) return;
+    const nextChoices = [...singleChoices];
+    nextChoices[singleIndex] = justPicked;
+    setSingleChoices(nextChoices);
+
+    if (singleIndex + 1 >= pack.questions.length) {
       setJustPicked(null);
-      if (singleIndex + 1 >= pack.questions.length) {
-        setSingleFinished(true);
-      } else {
-        setSingleIndex((prev) => prev + 1);
-      }
-    }, 320);
+      setSingleFinished(true);
+    } else {
+      const nextIdx = singleIndex + 1;
+      setSingleIndex(nextIdx);
+      setJustPicked(nextChoices[nextIdx] || null);
+    }
+  };
+
+  const handleSinglePrev = () => {
+    if (singleIndex <= 0) return;
+    const prevIdx = singleIndex - 1;
+    setSingleIndex(prevIdx);
+    setJustPicked(singleChoices[prevIdx] || null);
   };
 
   // Create PIN Room with this Pack
@@ -319,6 +334,239 @@ export default function PackDetailClient({ pack }: PackDetailClientProps) {
   };
 
   const currentQ = pack.questions[singleIndex];
+  const hasPickedCurrent = justPicked !== null;
+  const isLastQuestion = singleIndex + 1 >= pack.questions.length;
+
+  // Official Single Mode UI (identical layout & styling to VoteClient) while solving pack questions
+  if (singleActive && !singleFinished && currentQ) {
+    const shareUrl =
+      typeof window !== 'undefined'
+        ? `${window.location.origin}/packs/${pack.code}`
+        : `https://playkiro.com/packs/${pack.code}`;
+
+    return (
+      <div className="relative flex h-[100dvh] w-full max-w-md md:max-w-2xl lg:max-w-3xl mx-auto flex-col justify-between overflow-hidden bg-[#080911] bg-[radial-gradient(circle_at_top,_rgba(99,102,241,0.07),_transparent_60%)] text-white font-sans select-none">
+        <Navigation
+          selectedCategories={['전체']}
+          onToggleCategory={() => {}}
+          showDrawer={showDrawer}
+          setShowDrawer={setShowDrawer}
+        />
+
+        {/* Main Dynamic Content Area (Mirrors VoteClient) */}
+        <main className="flex-1 flex flex-col min-h-0 px-4 py-3 justify-between">
+          {/* Game Capture Area */}
+          <div
+            id="game-capture-area"
+            className="flex flex-col bg-[#0b0c16]/50 pt-2.5 pb-4 px-4 rounded-3xl border border-zinc-900/80 gap-2 flex-1 min-h-0"
+          >
+            {/* Header Row: Category, Progress & Author (Left) + Back & Share (Right) */}
+            <div className="flex items-center justify-between gap-2 shrink-0">
+              <div className="flex items-center gap-1.5 flex-wrap min-w-0">
+                <span
+                  className={`inline-block rounded-full px-3 py-1 text-xs font-black tracking-wide border ${getPackCategoryBadgeClass(
+                    pack.category
+                  )}`}
+                >
+                  {pack.category}
+                </span>
+                <span className="inline-flex items-center rounded-full bg-amber-500/10 border border-amber-500/30 px-2.5 py-1 text-xs font-black text-amber-400 tracking-wide">
+                  {singleIndex + 1} / {pack.questions.length}
+                </span>
+                <span className="hidden sm:inline-flex items-center rounded-full bg-zinc-900/80 border border-zinc-800 px-2.5 py-1 text-xs font-extrabold text-neutral-400 truncate max-w-[160px]">
+                  제작: {pack.author_nickname}
+                </span>
+              </div>
+
+              <div className="flex items-center gap-1.5 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setSingleActive(false)}
+                  className="rounded-xl border border-zinc-800 bg-zinc-900/30 px-2.5 py-2 hover:bg-zinc-900 hover:text-white transition text-zinc-400 text-xs font-extrabold flex items-center gap-1 cursor-pointer"
+                  title="팩 상세로 돌아가기"
+                >
+                  <ArrowLeft className="h-3.5 w-3.5" />
+                  <span className="hidden sm:inline">나가기</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowShareSheet(true)}
+                  className="rounded-xl border border-zinc-800 bg-zinc-900/30 p-2 hover:bg-zinc-900 hover:text-white transition text-zinc-400 shadow-sm cursor-pointer"
+                  title="공유하기"
+                >
+                  <Share2 className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+
+            {/* Question Title Header */}
+            <div className="text-center py-0 shrink-0">
+              <h1 className="text-2xl md:text-3xl font-kiro leading-[1.1] text-[#ffe5a9] tracking-tight whitespace-pre-line break-keep px-1">
+                {currentQ.title}
+              </h1>
+            </div>
+
+            {/* Voting Stack Container (Exact VoteClient Vertical A/B Stack) */}
+            <div className="flex-grow flex flex-col gap-3 mt-3.5 min-h-0 relative">
+              {/* Card Option A (Top) */}
+              <motion.button
+                key={`${currentQ.id}-A`}
+                type="button"
+                layout
+                transition={{ type: 'spring', damping: 14, stiffness: 120 }}
+                style={{ flexGrow: hasPickedCurrent ? (justPicked === 'A' ? 58 : 42) : 50 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => handleSinglePick('A')}
+                className={`relative flex w-full flex-col items-center justify-center overflow-hidden rounded-2xl py-3.5 px-4 transition-all duration-300 text-left border cursor-pointer ${
+                  hasPickedCurrent
+                    ? justPicked === 'A'
+                      ? 'bg-zinc-900/90 border-amber-500/50 shadow-[0_0_15px_rgba(245,158,11,0.15)]'
+                      : 'bg-zinc-950/40 border-zinc-900/80 opacity-60 hover:opacity-85'
+                    : 'bg-zinc-900/50 border-zinc-800/80 hover:bg-zinc-900/80 hover:border-zinc-700'
+                }`}
+              >
+                {justPicked === 'A' && (
+                  <div className="absolute bottom-3 right-3 z-20 flex items-center gap-1 rounded-full bg-amber-500 px-2.5 py-0.5 text-[10px] font-black text-zinc-950 shadow-md">
+                    <span>✓</span>
+                    <span>선택함</span>
+                  </div>
+                )}
+
+                {justPicked === 'A' && (
+                  <motion.div
+                    initial={{ scaleX: 0 }}
+                    animate={{ scaleX: 1 }}
+                    transition={{ duration: 0.4, ease: 'easeOut' }}
+                    className="absolute inset-0 z-0 opacity-10 bg-amber-500"
+                    style={{ width: '100%', transformOrigin: 'left' }}
+                  />
+                )}
+
+                <div className="relative z-10 flex flex-col items-center text-center w-full max-w-sm pointer-events-none gap-1.5">
+                  <p className="text-xl md:text-2xl font-kiro leading-[1.15] text-neutral-100 max-h-28 overflow-y-auto no-scrollbar break-keep">
+                    {currentQ.option_a}
+                  </p>
+                </div>
+              </motion.button>
+
+              {/* Card Option B (Bottom) */}
+              <motion.button
+                key={`${currentQ.id}-B`}
+                type="button"
+                layout
+                transition={{ type: 'spring', damping: 14, stiffness: 120 }}
+                style={{ flexGrow: hasPickedCurrent ? (justPicked === 'B' ? 58 : 42) : 50 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => handleSinglePick('B')}
+                className={`relative flex w-full flex-col items-center justify-center overflow-hidden rounded-2xl py-3.5 px-4 transition-all duration-300 text-left border cursor-pointer ${
+                  hasPickedCurrent
+                    ? justPicked === 'B'
+                      ? 'bg-zinc-900/90 border-emerald-500/50 shadow-[0_0_15px_rgba(16,185,129,0.15)]'
+                      : 'bg-zinc-950/40 border-zinc-900/80 opacity-60 hover:opacity-85'
+                    : 'bg-zinc-900/50 border-zinc-800/80 hover:bg-zinc-900/80 hover:border-zinc-700'
+                }`}
+              >
+                {justPicked === 'B' && (
+                  <div className="absolute bottom-3 right-3 z-20 flex items-center gap-1 rounded-full bg-emerald-500 px-2.5 py-0.5 text-[10px] font-black text-zinc-950 shadow-md">
+                    <span>✓</span>
+                    <span>선택함</span>
+                  </div>
+                )}
+
+                {justPicked === 'B' && (
+                  <motion.div
+                    initial={{ scaleX: 0 }}
+                    animate={{ scaleX: 1 }}
+                    transition={{ duration: 0.4, ease: 'easeOut' }}
+                    className="absolute inset-0 z-0 opacity-10 bg-emerald-500"
+                    style={{ width: '100%', transformOrigin: 'left' }}
+                  />
+                )}
+
+                <div className="relative z-10 flex flex-col items-center text-center w-full max-w-sm pointer-events-none gap-1.5">
+                  <p className="text-xl md:text-2xl font-kiro leading-[1.15] text-neutral-100 max-h-28 overflow-y-auto no-scrollbar break-keep">
+                    {currentQ.option_b}
+                  </p>
+                </div>
+              </motion.button>
+            </div>
+          </div>
+
+          {/* Action Controls & Navigation (Post-Pick — Mirrors VoteClient) */}
+          {hasPickedCurrent && (
+            <div className="h-12 shrink-0 flex items-center justify-between gap-3 mt-1.5">
+              {singleIndex > 0 && (
+                <motion.button
+                  type="button"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  onClick={handleSinglePrev}
+                  className="flex items-center justify-center gap-1 rounded-xl border border-zinc-800 bg-zinc-900/50 hover:bg-zinc-900 px-4 h-10 text-sm font-bold text-neutral-200 transition-all shadow-md cursor-pointer"
+                >
+                  <ArrowLeft className="h-4 w-4 text-neutral-400" /> 이전
+                </motion.button>
+              )}
+
+              <motion.button
+                type="button"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                onClick={handleSingleNext}
+                className="flex items-center justify-center gap-1.5 rounded-xl bg-white hover:bg-neutral-200 text-zinc-950 font-extrabold px-6 h-10 text-sm transition-all flex-1 shadow-lg cursor-pointer"
+              >
+                {isLastQuestion ? (
+                  <>
+                    결과 보기 <ChevronRight className="h-4 w-4" />
+                  </>
+                ) : (
+                  <>
+                    다음 질문 <ChevronRight className="h-4 w-4" />
+                  </>
+                )}
+              </motion.button>
+            </div>
+          )}
+        </main>
+
+        {/* Compact Footer matching VoteClient */}
+        <footer className="w-full pt-2 pb-2 shrink-0 text-center flex flex-col items-center gap-1 mt-0">
+          <div className="flex items-center justify-center gap-3 text-[10px] text-neutral-500 font-extrabold">
+            <Link href="/privacy" target="_blank" rel="noopener noreferrer" className="hover:text-neutral-350 transition-all">
+              개인정보처리방침
+            </Link>
+            <span className="text-zinc-800">|</span>
+            <Link href="/terms" target="_blank" rel="noopener noreferrer" className="hover:text-neutral-350 transition-all">
+              이용약관
+            </Link>
+            <span className="text-zinc-800">|</span>
+            <a href="mailto:auroranest.official@gmail.com" className="hover:text-neutral-350 transition-all">
+              문의하기
+            </a>
+            <span className="text-zinc-800">|</span>
+            <a
+              href="https://fairy.hada.io/@playkiro"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-neutral-350 transition-all"
+            >
+              후원하기
+            </a>
+          </div>
+          <p className="text-[9px] text-neutral-650">Copyright © 2026 AuroraNest. All rights reserved.</p>
+        </footer>
+
+        <AnimatePresence>
+          {showShareSheet && (
+            <ShareSheet
+              onClose={() => setShowShareSheet(false)}
+              shareUrl={shareUrl}
+              questionTitle={`${pack.title} — ${currentQ.title}`}
+            />
+          )}
+        </AnimatePresence>
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-[100dvh] w-full flex-col overflow-y-auto overflow-x-hidden bg-[#080911] bg-[radial-gradient(circle_at_top,_rgba(99,102,241,0.08),_transparent_55%)] text-white font-sans">
@@ -391,9 +639,8 @@ export default function PackDetailClient({ pack }: PackDetailClientProps) {
           )}
         </div>
 
-        {/* MODE A: Single Player Mode inside Pack */}
-        {singleActive ? (
-          singleFinished ? (
+        {/* MODE A: Single Player Completion Summary */}
+        {singleActive && singleFinished ? (
             <motion.section
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
@@ -471,90 +718,6 @@ export default function PackDetailClient({ pack }: PackDetailClientProps) {
                 </button>
               </div>
             </motion.section>
-          ) : (
-            /* Active Question Card */
-            <section className="space-y-6 py-2">
-              {/* Progress Bar */}
-              <div className="space-y-2">
-                <div className="flex items-center justify-between text-xs font-extrabold">
-                  <span className="text-neutral-400 truncate max-w-[70%]">{pack.title}</span>
-                  <span className="text-amber-400">
-                    {singleIndex + 1} / {pack.questions.length}
-                  </span>
-                </div>
-                <div className="h-2 w-full rounded-full bg-zinc-900 overflow-hidden border border-zinc-800/80">
-                  <motion.div
-                    className="h-full bg-gradient-to-r from-amber-400 to-emerald-400"
-                    initial={false}
-                    animate={{ width: `${((singleIndex + 1) / pack.questions.length) * 100}%` }}
-                    transition={{ duration: 0.3 }}
-                  />
-                </div>
-              </div>
-
-              <AnimatePresence mode="wait">
-                {currentQ && (
-                  <motion.div
-                    key={currentQ.id}
-                    initial={{ opacity: 0, y: 14 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -14 }}
-                    transition={{ duration: 0.22 }}
-                    className="space-y-5"
-                  >
-                    {/* Question Title */}
-                    <div className="text-center space-y-2 py-2">
-                      <span className="inline-block px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-[11px] font-black text-amber-400">
-                        Q{singleIndex + 1}
-                      </span>
-                      <h2 className="text-xl md:text-2xl font-black text-neutral-100 leading-snug break-keep px-2">
-                        {currentQ.title}
-                      </h2>
-                    </div>
-
-                    {/* Choice Cards A vs B */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 relative">
-                      <motion.button
-                        type="button"
-                        whileTap={{ scale: 0.97 }}
-                        onClick={() => handleSinglePick('A')}
-                        className={`min-h-[160px] md:min-h-[210px] rounded-3xl border-2 p-6 flex flex-col items-center justify-center text-center gap-3 transition-all cursor-pointer ${
-                          justPicked === 'A'
-                            ? 'border-amber-400 bg-amber-500/20 shadow-[0_0_30px_rgba(245,158,11,0.3)] scale-[1.01]'
-                            : 'border-amber-500/30 bg-zinc-900/60 hover:border-amber-400 hover:bg-amber-500/10'
-                        }`}
-                      >
-                        <span className="px-2.5 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-400 text-[11px] font-black">
-                          선택 A
-                        </span>
-                        <span className="text-lg md:text-xl font-black text-neutral-100 leading-snug break-keep">
-                          {currentQ.option_a}
-                        </span>
-                      </motion.button>
-
-                      <motion.button
-                        type="button"
-                        whileTap={{ scale: 0.97 }}
-                        onClick={() => handleSinglePick('B')}
-                        className={`min-h-[160px] md:min-h-[210px] rounded-3xl border-2 p-6 flex flex-col items-center justify-center text-center gap-3 transition-all cursor-pointer ${
-                          justPicked === 'B'
-                            ? 'border-emerald-400 bg-emerald-500/20 shadow-[0_0_30px_rgba(16,185,129,0.3)] scale-[1.01]'
-                            : 'border-emerald-500/30 bg-zinc-900/60 hover:border-emerald-400 hover:bg-emerald-500/10'
-                        }`}
-                      >
-                        <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-[11px] font-black">
-                          선택 B
-                        </span>
-                        <span className="text-lg md:text-xl font-black text-neutral-100 leading-snug break-keep">
-                          {currentQ.option_b}
-                        </span>
-                      </motion.button>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </section>
-          )
         ) : (
           /* MODE B: Pack Detail Overview */
           <>
