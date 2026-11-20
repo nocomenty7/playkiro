@@ -894,7 +894,7 @@ export default function PackDetailClient({ pack }: PackDetailClientProps) {
 
                 <span className="inline-flex items-center gap-1 text-xs font-extrabold text-neutral-400">
                   <Play className="h-3.5 w-3.5 text-amber-400 fill-amber-400" />
-                  <span>{playCount.toLocaleString()}회 플레이</span>
+                  <span>{playCount.toLocaleString()}개 선택지 플레이 됨</span>
                 </span>
               </div>
 

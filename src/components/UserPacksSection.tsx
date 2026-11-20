@@ -279,7 +279,7 @@ export default function UserPacksSection() {
                       </span>
                     </div>
 
-                    {/* Title & Description */}
+                    {/* Title & Description (2-line clamp for uniform card height) */}
                     <div className="space-y-1.5">
                       <h3 className="text-base font-black text-neutral-100 group-hover:text-brand-yellow transition-colors line-clamp-2 leading-snug break-keep">
                         {pack.title}
@@ -291,23 +291,27 @@ export default function UserPacksSection() {
                       )}
                     </div>
 
-                    {/* Question #1 Preview (Stacked cleanly for 3-col cards) */}
+                    {/* Question #1 Preview */}
                     {pack.preview_question && (
-                      <div className="rounded-xl bg-zinc-950/60 border border-zinc-800/80 px-3 py-2.5 space-y-1.5 text-xs font-extrabold">
-                        <div className="text-[10px] font-black text-neutral-500 tracking-wide">
+                      <div className="rounded-xl bg-zinc-950/60 border border-zinc-800/80 px-3.5 py-3 space-y-2">
+                        <div className="text-[10px] font-black text-neutral-500 tracking-wide text-left">
                           미리보기
                         </div>
-                        <div className="flex items-center gap-1.5 min-w-0">
-                          <span className="shrink-0 text-[10px] font-black text-amber-400/80">A</span>
-                          <span className="text-amber-400 truncate">
+                        {pack.preview_question.title && (
+                          <p className="text-xs font-bold text-neutral-200 text-center line-clamp-2 leading-snug break-keep">
+                            {pack.preview_question.title}
+                          </p>
+                        )}
+                        <div className="pt-1 border-t border-zinc-800/60 flex flex-col items-center gap-1 text-center">
+                          <p className="w-full text-xs font-extrabold text-amber-400 line-clamp-2 leading-snug break-keep">
                             {pack.preview_question.option_a}
+                          </p>
+                          <span className="text-[10px] font-black text-neutral-500 tracking-widest">
+                            VS
                           </span>
-                        </div>
-                        <div className="flex items-center gap-1.5 min-w-0">
-                          <span className="shrink-0 text-[10px] font-black text-emerald-400/80">B</span>
-                          <span className="text-emerald-400 truncate">
+                          <p className="w-full text-xs font-extrabold text-emerald-400 line-clamp-2 leading-snug break-keep">
                             {pack.preview_question.option_b}
-                          </span>
+                          </p>
                         </div>
                       </div>
                     )}
