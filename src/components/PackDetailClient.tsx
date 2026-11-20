@@ -412,7 +412,7 @@ export default function PackDetailClient({ pack }: PackDetailClientProps) {
     const shareUrl =
       typeof window !== 'undefined'
         ? `${window.location.origin}/packs/${pack.code}`
-        : `https://playkiro.com/packs/${pack.code}`;
+        : `https://playkiro.kr/packs/${pack.code}`;
 
     const qStat = questionStats[currentQ.id] || { a: 0, b: 0 };
     const votesA = qStat.a || 0;

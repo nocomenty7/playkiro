@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 import { validatePackPayload, verifyPackPassword } from '@/lib/packServer';
+import { computeTotalVotesFromStats } from '@/lib/customPacks';
 
 export const dynamic = 'force-dynamic';
 
@@ -25,9 +26,14 @@ export async function GET(
     }
 
     const { password_hash: _hidden, ...safePack } = data as any;
+    const stats = safePack.question_stats || {};
     return NextResponse.json({
       success: true,
-      pack: { ...safePack, question_stats: safePack.question_stats || {} },
+      pack: {
+        ...safePack,
+        question_stats: stats,
+        play_count: Math.max(Number(safePack.play_count) || 0, computeTotalVotesFromStats(stats)),
+      },
     });
   } catch (err) {
     console.error('GET /api/packs/[code] exception:', err);

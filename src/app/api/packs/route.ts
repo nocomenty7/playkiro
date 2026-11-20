@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 import { generatePackCode, hashPackPassword, validatePackPayload } from '@/lib/packServer';
+import { computeTotalVotesFromStats } from '@/lib/customPacks';
 
 export const dynamic = 'force-dynamic';
 
@@ -15,10 +16,7 @@ export async function GET(request: NextRequest) {
 
     let query = supabase
       .from('custom_packs')
-      .select(
-        'id, code, title, description, author_nickname, category, is_public, questions, question_count, play_count, created_at',
-        { count: 'exact' }
-      )
+      .select('*', { count: 'exact' })
       .eq('is_public', true);
 
     if (category && category !== '전체') {
@@ -48,19 +46,26 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const packs = (data || []).map((row: any) => ({
-      id: row.id,
-      code: row.code,
-      title: row.title,
-      description: row.description,
-      author_nickname: row.author_nickname,
-      category: row.category,
-      is_public: row.is_public,
-      question_count: row.question_count,
-      play_count: row.play_count,
-      preview_question: Array.isArray(row.questions) && row.questions.length > 0 ? row.questions[0] : null,
-      created_at: row.created_at,
-    }));
+    const packs = (data || []).map((row: any) => {
+      const statsPlayCount = computeTotalVotesFromStats(row.question_stats);
+      return {
+        id: row.id,
+        code: row.code,
+        title: row.title,
+        description: row.description,
+        author_nickname: row.author_nickname,
+        category: row.category,
+        is_public: row.is_public,
+        question_count: row.question_count,
+        play_count: Math.max(Number(row.play_count) || 0, statsPlayCount),
+        preview_question: Array.isArray(row.questions) && row.questions.length > 0 ? row.questions[0] : null,
+        created_at: row.created_at,
+      };
+    });
+
+    if (sort === 'popular') {
+      packs.sort((a, b) => b.play_count - a.play_count);
+    }
 
     return NextResponse.json({
       success: true,

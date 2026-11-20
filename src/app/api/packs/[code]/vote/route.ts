@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
+import { computeTotalVotesFromStats } from '@/lib/customPacks';
 
 export const dynamic = 'force-dynamic';
 
@@ -112,10 +113,15 @@ export async function POST(
       }
     }
 
+    const effectivePlayCount = Math.max(
+      latestPlayCount || 0,
+      computeTotalVotesFromStats(latestStats)
+    );
+
     return NextResponse.json({
       success: true,
       stats: latestStats,
-      playCount: latestPlayCount,
+      playCount: effectivePlayCount,
     });
   } catch (err) {
     console.error('POST /api/packs/[code]/vote exception:', err);

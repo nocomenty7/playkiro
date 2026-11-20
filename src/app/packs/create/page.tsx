@@ -227,7 +227,7 @@ function PackCreateContent() {
     typeof window !== 'undefined' && createdCode
       ? `${window.location.origin}/packs/${createdCode}`
       : createdCode
-        ? `https://playkiro.com/packs/${createdCode}`
+        ? `https://playkiro.kr/packs/${createdCode}`
         : '';
 
   const handleCopyShareUrl = () => {

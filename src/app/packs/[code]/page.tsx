@@ -3,7 +3,7 @@ import Link from 'next/link';
 import type { Metadata } from 'next';
 import { supabase } from '@/lib/supabase';
 import PackDetailClient from '@/components/PackDetailClient';
-import type { CustomPack } from '@/lib/customPacks';
+import { computeTotalVotesFromStats, type CustomPack } from '@/lib/customPacks';
 
 export const dynamic = 'force-dynamic';
 
@@ -20,9 +20,11 @@ async function fetchPackByCode(code: string): Promise<CustomPack | null> {
 
   if (error || !data) return null;
   const { password_hash: _hidden, ...safePack } = data as any;
+  const stats = safePack.question_stats || {};
   return {
     ...safePack,
-    question_stats: safePack.question_stats || {},
+    question_stats: stats,
+    play_count: Math.max(Number(safePack.play_count) || 0, computeTotalVotesFromStats(stats)),
   } as CustomPack;
 }
 

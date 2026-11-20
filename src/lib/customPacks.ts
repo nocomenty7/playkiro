@@ -71,6 +71,19 @@ export const getPackCategoryBadgeClass = (category: string): string => {
   }
 };
 
+export const computeTotalVotesFromStats = (
+  stats: Record<string, { a?: number; b?: number }> | null | undefined
+): number => {
+  if (!stats || typeof stats !== 'object') return 0;
+  let sum = 0;
+  for (const val of Object.values(stats)) {
+    if (val && typeof val === 'object') {
+      sum += (Number(val.a) || 0) + (Number(val.b) || 0);
+    }
+  }
+  return sum;
+};
+
 export const formatPackDate = (isoString: string): string => {
   try {
     const d = new Date(isoString);
