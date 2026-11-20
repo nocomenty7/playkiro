@@ -294,6 +294,9 @@ export default function UserPacksSection() {
                     {/* Question #1 Preview (Stacked cleanly for 3-col cards) */}
                     {pack.preview_question && (
                       <div className="rounded-xl bg-zinc-950/60 border border-zinc-800/80 px-3 py-2.5 space-y-1.5 text-xs font-extrabold">
+                        <div className="text-[10px] font-black text-neutral-500 tracking-wide">
+                          미리보기
+                        </div>
                         <div className="flex items-center gap-1.5 min-w-0">
                           <span className="shrink-0 text-[10px] font-black text-amber-400/80">A</span>
                           <span className="text-amber-400 truncate">

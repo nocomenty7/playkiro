@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -100,6 +100,26 @@ export default function PackDetailClient({ pack }: PackDetailClientProps) {
 
   const [playCount, setPlayCount] = useState(pack.play_count);
 
+  // Always hydrate fresh question_stats & play_count from server (bypasses Next.js client router cache)
+  useEffect(() => {
+    let active = true;
+    fetch(`/api/packs/${encodeURIComponent(pack.code)}`, { cache: 'no-store' })
+      .then((res) => res.json())
+      .then((data) => {
+        if (!active || !data?.success || !data.pack) return;
+        if (typeof data.pack.play_count === 'number') {
+          setPlayCount(data.pack.play_count);
+        }
+        if (data.pack.question_stats && typeof data.pack.question_stats === 'object') {
+          setQuestionStats(data.pack.question_stats);
+        }
+      })
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, [pack.code]);
+
   const getSessionId = () => {
     if (typeof window === 'undefined') return 'session_anon';
     let sid = localStorage.getItem('kiro_streamer_session_id');
@@ -132,50 +152,32 @@ export default function PackDetailClient({ pack }: PackDetailClientProps) {
 
     setJustPicked(choice);
 
-    // Prevent duplicate ratio counting per browser while still counting every played question
-    const storageKey = `kiro_pack_voted_${pack.code}`;
-    let alreadyVoted = false;
-    try {
-      const votedMap = JSON.parse(localStorage.getItem(storageKey) || '{}');
-      if (votedMap[q.id]) {
-        alreadyVoted = true;
-      } else {
-        votedMap[q.id] = choice;
-        localStorage.setItem(storageKey, JSON.stringify(votedMap));
-      }
-    } catch {}
-
-    // Always increment played question count optimistically
+    // Optimistic +1 for both play count and A/B vote stats (0ms dopamine animation)
     setPlayCount((prev) => prev + 1);
+    setQuestionStats((prev) => {
+      const cur = prev[q.id] || { a: 0, b: 0 };
+      return {
+        ...prev,
+        [q.id]: {
+          a: (cur.a || 0) + (choice === 'A' ? 1 : 0),
+          b: (cur.b || 0) + (choice === 'B' ? 1 : 0),
+        },
+      };
+    });
 
-    if (!alreadyVoted) {
-      // Optimistic +1 for instant 0ms dopamine animation
-      setQuestionStats((prev) => {
-        const cur = prev[q.id] || { a: 0, b: 0 };
-        return {
-          ...prev,
-          [q.id]: {
-            a: (cur.a || 0) + (choice === 'A' ? 1 : 0),
-            b: (cur.b || 0) + (choice === 'B' ? 1 : 0),
-          },
-        };
-      });
-    }
-
-    // Persist played question count (+1 always) & vote stats (first vote only) to DB
+    // Persist vote & play count to DB and sync authoritative totals
     fetch(`/api/packs/${encodeURIComponent(pack.code)}/vote`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         questionId: q.id,
         option: choice,
-        countVote: !alreadyVoted,
       }),
     })
       .then((res) => res.json())
       .then((data) => {
         if (data?.success) {
-          if (data.stats && typeof data.stats === 'object') {
+          if (data.stats && typeof data.stats === 'object' && Object.keys(data.stats).length > 0) {
             setQuestionStats(data.stats);
           }
           if (typeof data.playCount === 'number') {
@@ -940,12 +942,12 @@ export default function PackDetailClient({ pack }: PackDetailClientProps) {
                 onClick={() => setShowPreview((prev) => !prev)}
                 className="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-zinc-900/60 transition cursor-pointer"
               >
-                <div className="space-y-0.5">
-                  <div className="text-xs md:text-sm font-black text-neutral-200">
+                <div className="space-y-1">
+                  <div className="text-base md:text-lg font-black text-neutral-200">
                     수록된 질문 미리보기 ({pack.questions.length}문제)
                   </div>
-                  <p className="text-[11px] text-neutral-500 font-bold">
-                    스포일러 방지를 위해 접혀 있습니다. 방송 전 사전 확인이 필요할 때 열어보세요.
+                  <p className="text-sm md:text-base text-neutral-500 font-bold break-keep">
+                    스포일러 방지를 위해 접혀 있습니다. 사전 확인이 필요할 때 열어보세요.
                   </p>
                 </div>
                 {showPreview ? (

@@ -12,7 +12,6 @@ export async function POST(
     const body = await request.json();
     const questionId = typeof body?.questionId === 'string' ? body.questionId.trim() : '';
     const option = body?.option;
-    const countVote = body?.countVote !== false;
 
     if (!code || !questionId || (option !== 'A' && option !== 'B')) {
       return NextResponse.json({ error: '잘못된 투표 요청입니다.' }, { status: 400 });
@@ -24,13 +23,12 @@ export async function POST(
     let latestStats: Record<string, { a: number; b: number }> | null = null;
     let latestPlayCount: number | null = null;
 
-    // 1. Always increment play_count by +1 for every played question
+    // 1. Increment play_count by +1 for every played question
     const { error: playRpcError } = await supabase.rpc('increment_pack_play_count', {
       pack_code: code,
     });
 
     if (playRpcError) {
-      // Fallback: direct read-modify-write
       const { data: row } = await supabase
         .from('custom_packs')
         .select('play_count')
@@ -51,50 +49,50 @@ export async function POST(
       }
     }
 
-    // 2. Record A/B vote stats only on first vote per browser (prevents skewing %)
-    if (countVote) {
-      const { data: rpcStats, error: rpcError } = await supabase.rpc('record_custom_pack_vote', {
-        pack_code: code,
-        q_id: questionId,
-        add_a: addA,
-        add_b: addB,
-      });
+    // 2. Always accumulate A/B vote stats in custom_packs.question_stats
+    const { data: rpcStats, error: rpcError } = await supabase.rpc('record_custom_pack_vote', {
+      pack_code: code,
+      q_id: questionId,
+      add_a: addA,
+      add_b: addB,
+    });
 
-      if (!rpcError && rpcStats) {
-        latestStats = rpcStats;
-      } else {
-        const { data: currentPack } = await supabase
+    if (!rpcError && rpcStats && typeof rpcStats === 'object' && Object.keys(rpcStats).length > 0) {
+      latestStats = rpcStats;
+    } else {
+      const { data: currentPack } = await supabase
+        .from('custom_packs')
+        .select('question_stats')
+        .eq('code', code)
+        .maybeSingle();
+
+      if (currentPack && typeof currentPack === 'object' && 'question_stats' in currentPack) {
+        const prevStats = (currentPack.question_stats as Record<string, { a?: number; b?: number }>) || {};
+        const prevQ = prevStats[questionId] || { a: 0, b: 0 };
+        const nextStats = {
+          ...prevStats,
+          [questionId]: {
+            a: (prevQ.a || 0) + addA,
+            b: (prevQ.b || 0) + addB,
+          },
+        };
+
+        const { error: statsUpdErr } = await supabase
           .from('custom_packs')
-          .select('question_stats')
-          .eq('code', code)
-          .maybeSingle();
+          .update({ question_stats: nextStats })
+          .eq('code', code);
 
-        if (currentPack && typeof currentPack === 'object' && 'question_stats' in currentPack) {
-          const prevStats = (currentPack.question_stats as Record<string, { a?: number; b?: number }>) || {};
-          const prevQ = prevStats[questionId] || { a: 0, b: 0 };
-          const nextStats = {
-            ...prevStats,
-            [questionId]: {
-              a: (prevQ.a || 0) + addA,
-              b: (prevQ.b || 0) + addB,
-            },
-          };
-
-          const { error: statsUpdErr } = await supabase
-            .from('custom_packs')
-            .update({ question_stats: nextStats })
-            .eq('code', code);
-
-          if (!statsUpdErr) {
-            latestStats = nextStats;
-          } else {
-            console.error('[Custom Pack Stats Fallback Error]:', statsUpdErr.message);
-          }
+        if (!statsUpdErr) {
+          latestStats = nextStats;
+        } else {
+          console.error('[Custom Pack Stats Fallback Error]:', statsUpdErr.message);
         }
+      } else if (rpcError) {
+        console.error('[Custom Pack Stats RPC Error]:', rpcError.message);
       }
     }
 
-    // Read fresh play_count if we used RPC
+    // 3. Fetch fresh play_count / stats if RPC succeeded without returning play_count
     if (latestPlayCount === null) {
       const { data: fresh } = await supabase
         .from('custom_packs')
@@ -102,8 +100,13 @@ export async function POST(
         .eq('code', code)
         .maybeSingle();
       if (fresh) {
-        latestPlayCount = fresh.play_count ?? null;
-        if (!latestStats && fresh.question_stats) {
+        latestPlayCount = typeof fresh.play_count === 'number' ? fresh.play_count : null;
+        if (
+          !latestStats &&
+          fresh.question_stats &&
+          typeof fresh.question_stats === 'object' &&
+          Object.keys(fresh.question_stats).length > 0
+        ) {
           latestStats = fresh.question_stats;
         }
       }
